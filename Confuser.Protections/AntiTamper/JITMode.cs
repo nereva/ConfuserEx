@@ -112,11 +112,13 @@ namespace Confuser.Protections.AntiTamper {
 
 			cctor = context.CurrentModule.GlobalType.FindStaticConstructor();
 
-			cctorRepl = new MethodDefUser(name.RandomName(), MethodSig.CreateStatic(context.CurrentModule.CorLibTypes.Void));
-			cctorRepl.IsStatic = true;
-			cctorRepl.Access = MethodAttributes.CompilerControlled;
-			cctorRepl.Body = new CilBody();
-			cctorRepl.Body.Instructions.Add(Instruction.Create(OpCodes.Ret));
+            cctorRepl = new MethodDefUser(name.RandomName(), MethodSig.CreateStatic(context.CurrentModule.CorLibTypes.Void))
+            {
+                IsStatic = true,
+                Access = MethodAttributes.CompilerControlled,
+                Body = new CilBody()
+            };
+            cctorRepl.Body.Instructions.Add(Instruction.Create(OpCodes.Ret));
 			context.CurrentModule.GlobalType.Methods.Add(cctorRepl);
 			name.MarkHelper(cctorRepl, marker, parent);
 

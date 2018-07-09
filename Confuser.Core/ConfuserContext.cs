@@ -177,20 +177,22 @@ namespace Confuser.Core {
                 return (NativeModuleWriterOptions)CurrentModuleWriterOptions;
             }
 
-            var newOptions = new NativeModuleWriterOptions(CurrentModule, CurrentModuleWriterOptions.Listener);
-			// Clone the current options to the new options
-			newOptions.AddCheckSum = CurrentModuleWriterOptions.AddCheckSum;
-			newOptions.Cor20HeaderOptions = CurrentModuleWriterOptions.Cor20HeaderOptions;
-			newOptions.Logger = CurrentModuleWriterOptions.Logger;
-			newOptions.MetaDataLogger = CurrentModuleWriterOptions.MetaDataLogger;
-			newOptions.MetaDataOptions = CurrentModuleWriterOptions.MetaDataOptions;
-			newOptions.ModuleKind = CurrentModuleWriterOptions.ModuleKind;
-			newOptions.PEHeadersOptions = CurrentModuleWriterOptions.PEHeadersOptions;
-			newOptions.ShareMethodBodies = CurrentModuleWriterOptions.ShareMethodBodies;
-			newOptions.StrongNameKey = CurrentModuleWriterOptions.StrongNameKey;
-			newOptions.StrongNamePublicKey = CurrentModuleWriterOptions.StrongNamePublicKey;
-			newOptions.Win32Resources = CurrentModuleWriterOptions.Win32Resources;
-			CurrentModuleWriterOptions = newOptions;
+            var newOptions = new NativeModuleWriterOptions(CurrentModule, CurrentModuleWriterOptions.Listener)
+            {
+                // Clone the current options to the new options
+                AddCheckSum = CurrentModuleWriterOptions.AddCheckSum,
+                Cor20HeaderOptions = CurrentModuleWriterOptions.Cor20HeaderOptions,
+                Logger = CurrentModuleWriterOptions.Logger,
+                MetaDataLogger = CurrentModuleWriterOptions.MetaDataLogger,
+                MetaDataOptions = CurrentModuleWriterOptions.MetaDataOptions,
+                ModuleKind = CurrentModuleWriterOptions.ModuleKind,
+                PEHeadersOptions = CurrentModuleWriterOptions.PEHeadersOptions,
+                ShareMethodBodies = CurrentModuleWriterOptions.ShareMethodBodies,
+                StrongNameKey = CurrentModuleWriterOptions.StrongNameKey,
+                StrongNamePublicKey = CurrentModuleWriterOptions.StrongNamePublicKey,
+                Win32Resources = CurrentModuleWriterOptions.Win32Resources
+            };
+            CurrentModuleWriterOptions = newOptions;
 			return newOptions;
 		}
 	}

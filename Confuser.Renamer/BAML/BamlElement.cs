@@ -92,12 +92,14 @@ namespace Confuser.Renamer.BAML {
 				if (IsHeader(document[i])) {
 					var prev = current;
 
-					current = new BamlElement();
-					current.Header = document[i];
-					current.Body = new List<BamlRecord>();
-					current.Children = new List<BamlElement>();
+                    current = new BamlElement
+                    {
+                        Header = document[i],
+                        Body = new List<BamlRecord>(),
+                        Children = new List<BamlElement>()
+                    };
 
-					if (prev != null) {
+                    if (prev != null) {
 						prev.Children.Add(current);
 						current.Parent = prev;
 						stack.Push(prev);

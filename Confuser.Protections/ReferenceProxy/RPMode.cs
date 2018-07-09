@@ -84,13 +84,17 @@ namespace Confuser.Protections.ReferenceProxy {
                 return ret;
             }
 
-            ret = new TypeDefUser(ctx.Name.ObfuscateName(ctx.Method.DeclaringType.Namespace, RenameMode.Unicode), ctx.Name.RandomName(), ctx.Module.CorLibTypes.GetTypeRef("System", "MulticastDelegate"));
-			ret.Attributes = TypeAttributes.NotPublic | TypeAttributes.Sealed;
+            ret = new TypeDefUser(ctx.Name.ObfuscateName(ctx.Method.DeclaringType.Namespace, RenameMode.Unicode), ctx.Name.RandomName(), ctx.Module.CorLibTypes.GetTypeRef("System", "MulticastDelegate"))
+            {
+                Attributes = TypeAttributes.NotPublic | TypeAttributes.Sealed
+            };
 
-			var ctor = new MethodDefUser(".ctor", MethodSig.CreateInstance(ctx.Module.CorLibTypes.Void, ctx.Module.CorLibTypes.Object, ctx.Module.CorLibTypes.IntPtr));
-			ctor.Attributes = MethodAttributes.Assembly | MethodAttributes.HideBySig | MethodAttributes.RTSpecialName | MethodAttributes.SpecialName;
-			ctor.ImplAttributes = MethodImplAttributes.Runtime;
-			ret.Methods.Add(ctor);
+            var ctor = new MethodDefUser(".ctor", MethodSig.CreateInstance(ctx.Module.CorLibTypes.Void, ctx.Module.CorLibTypes.Object, ctx.Module.CorLibTypes.IntPtr))
+            {
+                Attributes = MethodAttributes.Assembly | MethodAttributes.HideBySig | MethodAttributes.RTSpecialName | MethodAttributes.SpecialName,
+                ImplAttributes = MethodImplAttributes.Runtime
+            };
+            ret.Methods.Add(ctor);
 
 			var invoke = new MethodDefUser("Invoke", sig.Clone());
 			invoke.MethodSig.HasThis = true;

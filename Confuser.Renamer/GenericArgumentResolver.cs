@@ -23,11 +23,13 @@ namespace Confuser.Renamer {
                 throw new ArgumentException("No generic arguments to resolve.");
             }
 
-            var resolver = new GenericArgumentResolver();
-			resolver.genericArguments = new GenericArguments();
-			resolver.recursionCounter = new RecursionCounter();
+            var resolver = new GenericArgumentResolver
+            {
+                genericArguments = new GenericArguments(),
+                recursionCounter = new RecursionCounter()
+            };
 
-			if (typeGenArgs != null)
+            if (typeGenArgs != null)
             {
                 resolver.genericArguments.PushTypeArgs(typeGenArgs);
             }
@@ -48,11 +50,13 @@ namespace Confuser.Renamer {
                 throw new ArgumentException("No generic arguments to resolve.");
             }
 
-            var resolver = new GenericArgumentResolver();
-			resolver.genericArguments = new GenericArguments();
-			resolver.recursionCounter = new RecursionCounter();
+            var resolver = new GenericArgumentResolver
+            {
+                genericArguments = new GenericArguments(),
+                recursionCounter = new RecursionCounter()
+            };
 
-			if (typeGenArgs != null)
+            if (typeGenArgs != null)
             {
                 resolver.genericArguments.PushTypeArgs(typeGenArgs);
             }

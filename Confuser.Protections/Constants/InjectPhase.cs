@@ -103,11 +103,13 @@ namespace Confuser.Protections.Constants {
 			}
 			ProtectionParameters.GetParameters(context, moduleCtx.InitMethod).Remove(Parent);
 
-			var dataType = new TypeDefUser("", moduleCtx.Name.RandomName(), context.CurrentModule.CorLibTypes.GetTypeRef("System", "ValueType"));
-			dataType.Layout = TypeAttributes.ExplicitLayout;
-			dataType.Visibility = TypeAttributes.NestedPrivate;
-			dataType.IsSealed = true;
-			moduleCtx.DataType = dataType;
+            var dataType = new TypeDefUser("", moduleCtx.Name.RandomName(), context.CurrentModule.CorLibTypes.GetTypeRef("System", "ValueType"))
+            {
+                Layout = TypeAttributes.ExplicitLayout,
+                Visibility = TypeAttributes.NestedPrivate,
+                IsSealed = true
+            };
+            moduleCtx.DataType = dataType;
 			context.CurrentModule.GlobalType.NestedTypes.Add(dataType);
 			moduleCtx.Name.MarkHelper(dataType, moduleCtx.Marker, (Protection)Parent);
 
@@ -147,11 +149,12 @@ namespace Confuser.Protections.Constants {
 				moduleCtx.Name.MarkHelper(decoderInst, moduleCtx.Marker, (Protection)Parent);
 				ProtectionParameters.GetParameters(context, decoderInst).Remove(Parent);
 
-				var decoderDesc = new DecoderDesc();
+                var decoderDesc = new DecoderDesc
+                {
+                    StringID = (byte)(moduleCtx.Random.NextByte() & 3)
+                };
 
-				decoderDesc.StringID = (byte)(moduleCtx.Random.NextByte() & 3);
-
-				do
+                do
                 {
                     decoderDesc.NumberID = (byte)(moduleCtx.Random.NextByte() & 3);
                 }

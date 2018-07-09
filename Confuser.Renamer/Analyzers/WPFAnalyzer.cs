@@ -152,9 +152,11 @@ namespace Confuser.Renamer.Analyzers {
 
 					BamlDocument document;
 					if (resInfo.TryGetValue(name, out document)) {
-						var docStream = new MemoryStream();
-						docStream.Position = 4;
-						BamlWriter.WriteDocument(document, docStream);
+                        var docStream = new MemoryStream
+                        {
+                            Position = 4
+                        };
+                        BamlWriter.WriteDocument(document, docStream);
 						docStream.Position = 0;
 						docStream.Write(BitConverter.GetBytes((int)docStream.Length - 4), 0, 4);
 						data = docStream.ToArray();

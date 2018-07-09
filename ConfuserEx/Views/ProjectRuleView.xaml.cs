@@ -31,9 +31,11 @@ namespace ConfuserEx.Views {
 			base.OnApplyTemplate();
 
 			AddBtn.Command = new RelayCommand(() => {
-				var prot = new ProjectSettingVM<Protection>(proj, new SettingItem<Protection>());
-				prot.Id = proj.Protections[0].Id;
-				rule.Protections.Add(prot);
+                var prot = new ProjectSettingVM<Protection>(proj, new SettingItem<Protection>())
+                {
+                    Id = proj.Protections[0].Id
+                };
+                rule.Protections.Add(prot);
 			});
 			RemoveBtn.Command = new RelayCommand(() => {
 				var selIndex = prots.SelectedIndex;

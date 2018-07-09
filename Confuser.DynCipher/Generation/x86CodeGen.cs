@@ -266,10 +266,12 @@ namespace Confuser.DynCipher.Generation {
 		public Ix86Operand[] Operands { get; set; }
 
 		public static x86Instruction Create(x86OpCode opCode, params Ix86Operand[] operands) {
-			var ret = new x86Instruction();
-			ret.OpCode = opCode;
-			ret.Operands = operands;
-			return ret;
+            var ret = new x86Instruction
+            {
+                OpCode = opCode,
+                Operands = operands
+            };
+            return ret;
 		}
 
 		public byte[] Assemble() {

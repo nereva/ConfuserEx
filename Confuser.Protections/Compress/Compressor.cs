@@ -95,14 +95,16 @@ namespace Confuser.Protections {
 		static string GetId(byte[] module) {
 			var md = MetaDataCreator.CreateMetaData(new PEImage(module));
 			var assemblyRow = md.TablesStream.ReadAssemblyRow(1);
-			var assembly = new AssemblyNameInfo();
-			assembly.Name = md.StringsStream.ReadNoNull(assemblyRow.Name);
-			assembly.Culture = md.StringsStream.ReadNoNull(assemblyRow.Locale);
-			assembly.PublicKeyOrToken = new PublicKey(md.BlobStream.Read(assemblyRow.PublicKey));
-			assembly.HashAlgId = (AssemblyHashAlgorithm)assemblyRow.HashAlgId;
-			assembly.Version = new Version(assemblyRow.MajorVersion, assemblyRow.MinorVersion, assemblyRow.BuildNumber, assemblyRow.RevisionNumber);
-			assembly.Attributes = (AssemblyAttributes)assemblyRow.Flags;
-			return GetId(assembly);
+            var assembly = new AssemblyNameInfo
+            {
+                Name = md.StringsStream.ReadNoNull(assemblyRow.Name),
+                Culture = md.StringsStream.ReadNoNull(assemblyRow.Locale),
+                PublicKeyOrToken = new PublicKey(md.BlobStream.Read(assemblyRow.PublicKey)),
+                HashAlgId = (AssemblyHashAlgorithm)assemblyRow.HashAlgId,
+                Version = new Version(assemblyRow.MajorVersion, assemblyRow.MinorVersion, assemblyRow.BuildNumber, assemblyRow.RevisionNumber),
+                Attributes = (AssemblyAttributes)assemblyRow.Flags
+            };
+            return GetId(assembly);
 		}
 
 		static string GetId(IAssembly assembly) {
@@ -178,12 +180,14 @@ namespace Confuser.Protections {
 		}
 
 		void InjectData(ModuleDef stubModule, MethodDef method, byte[] data) {
-			var dataType = new TypeDefUser("", "DataType", stubModule.CorLibTypes.GetTypeRef("System", "ValueType"));
-			dataType.Layout = TypeAttributes.ExplicitLayout;
-			dataType.Visibility = TypeAttributes.NestedPrivate;
-			dataType.IsSealed = true;
-			dataType.ClassLayout = new ClassLayoutUser(1, (uint)data.Length);
-			stubModule.GlobalType.NestedTypes.Add(dataType);
+            var dataType = new TypeDefUser("", "DataType", stubModule.CorLibTypes.GetTypeRef("System", "ValueType"))
+            {
+                Layout = TypeAttributes.ExplicitLayout,
+                Visibility = TypeAttributes.NestedPrivate,
+                IsSealed = true,
+                ClassLayout = new ClassLayoutUser(1, (uint)data.Length)
+            };
+            stubModule.GlobalType.NestedTypes.Add(dataType);
 
 			var dataField = new FieldDefUser("DataField", new FieldSig(dataType.ToTypeSig())) {
 				IsStatic = true,

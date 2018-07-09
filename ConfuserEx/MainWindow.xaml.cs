@@ -13,11 +13,13 @@ namespace ConfuserEx {
 		public MainWindow() {
 			InitializeComponent();
 
-			var app = new AppVM();
-			app.Project = new ProjectVM(new ConfuserProject(), null);
-			app.FileName = "Unnamed.crproj";
+            var app = new AppVM
+            {
+                Project = new ProjectVM(new ConfuserProject(), null),
+                FileName = "Unnamed.crproj"
+            };
 
-			app.Tabs.Add(new ProjectTabVM(app));
+            app.Tabs.Add(new ProjectTabVM(app));
 			app.Tabs.Add(new SettingsTabVM(app));
 			app.Tabs.Add(new ProtectTabVM(app));
 			app.Tabs.Add(new AboutTabVM(app));

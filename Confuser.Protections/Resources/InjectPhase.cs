@@ -90,12 +90,14 @@ namespace Confuser.Protections.Resources {
                 moduleCtx.Name.MarkHelper(member, moduleCtx.Marker, (Protection)Parent);
 			}
 
-			var dataType = new TypeDefUser("", moduleCtx.Name.RandomName(), context.CurrentModule.CorLibTypes.GetTypeRef("System", "ValueType"));
-			dataType.Layout = TypeAttributes.ExplicitLayout;
-			dataType.Visibility = TypeAttributes.NestedPrivate;
-			dataType.IsSealed = true;
-			dataType.ClassLayout = new ClassLayoutUser(1, 0);
-			moduleCtx.DataType = dataType;
+            var dataType = new TypeDefUser("", moduleCtx.Name.RandomName(), context.CurrentModule.CorLibTypes.GetTypeRef("System", "ValueType"))
+            {
+                Layout = TypeAttributes.ExplicitLayout,
+                Visibility = TypeAttributes.NestedPrivate,
+                IsSealed = true,
+                ClassLayout = new ClassLayoutUser(1, 0)
+            };
+            moduleCtx.DataType = dataType;
 			context.CurrentModule.GlobalType.NestedTypes.Add(dataType);
 			moduleCtx.Name.MarkHelper(dataType, moduleCtx.Marker, (Protection)Parent);
 

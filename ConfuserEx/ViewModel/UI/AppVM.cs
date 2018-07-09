@@ -85,12 +85,14 @@ namespace ConfuserEx.ViewModel {
 
 		bool SaveProj() {
 			if (!firstSaved || !File.Exists(FileName)) {
-				var sfd = new VistaSaveFileDialog();
-				sfd.FileName = FileName;
-				sfd.Filter = "ConfuserEx Projects (*.crproj)|*.crproj|All Files (*.*)|*.*";
-				sfd.DefaultExt = ".crproj";
-				sfd.AddExtension = true;
-				if (!(sfd.ShowDialog(Application.Current.MainWindow) ?? false) || sfd.FileName == null)
+                var sfd = new VistaSaveFileDialog
+                {
+                    FileName = FileName,
+                    Filter = "ConfuserEx Projects (*.crproj)|*.crproj|All Files (*.*)|*.*",
+                    DefaultExt = ".crproj",
+                    AddExtension = true
+                };
+                if (!(sfd.ShowDialog(Application.Current.MainWindow) ?? false) || sfd.FileName == null)
                 {
                     return false;
                 }
@@ -137,9 +139,11 @@ namespace ConfuserEx.ViewModel {
                 return;
             }
 
-            var ofd = new VistaOpenFileDialog();
-			ofd.Filter = "ConfuserEx Projects (*.crproj)|*.crproj|All Files (*.*)|*.*";
-			if ((ofd.ShowDialog(Application.Current.MainWindow) ?? false) && ofd.FileName != null) {
+            var ofd = new VistaOpenFileDialog
+            {
+                Filter = "ConfuserEx Projects (*.crproj)|*.crproj|All Files (*.*)|*.*"
+            };
+            if ((ofd.ShowDialog(Application.Current.MainWindow) ?? false) && ofd.FileName != null) {
 				var fileName = ofd.FileName;
 				try {
 					var xmlDoc = new XmlDocument();

@@ -23,34 +23,36 @@ namespace Confuser.Protections.ReferenceProxy {
 		}
 
 		RPContext ParseParameters(MethodDef method, ConfuserContext context, ProtectionParameters parameters, RPStore store) {
-			var ret = new RPContext();
-			ret.Mode = parameters.GetParameter(context, method, "mode", Mode.Mild);
-			ret.Encoding = parameters.GetParameter(context, method, "encoding", EncodingType.Normal);
-			ret.InternalAlso = parameters.GetParameter(context, method, "internal", false);
-			ret.TypeErasure = parameters.GetParameter(context, method, "typeErasure", false);
-			ret.Depth = parameters.GetParameter(context, method, "depth", 3);
+            var ret = new RPContext
+            {
+                Mode = parameters.GetParameter(context, method, "mode", Mode.Mild),
+                Encoding = parameters.GetParameter(context, method, "encoding", EncodingType.Normal),
+                InternalAlso = parameters.GetParameter(context, method, "internal", false),
+                TypeErasure = parameters.GetParameter(context, method, "typeErasure", false),
+                Depth = parameters.GetParameter(context, method, "depth", 3),
 
-			ret.Module = method.Module;
-			ret.Method = method;
-			ret.Body = method.Body;
-			ret.BranchTargets = new HashSet<Instruction>(
-				method.Body.Instructions
-				      .Select(instr => instr.Operand as Instruction)
-				      .Concat(method.Body.Instructions
-				                    .Where(instr => instr.Operand is Instruction[])
-				                    .SelectMany(instr => (Instruction[])instr.Operand))
-				      .Where(target => target != null));
+                Module = method.Module,
+                Method = method,
+                Body = method.Body,
+                BranchTargets = new HashSet<Instruction>(
+                method.Body.Instructions
+                      .Select(instr => instr.Operand as Instruction)
+                      .Concat(method.Body.Instructions
+                                    .Where(instr => instr.Operand is Instruction[])
+                                    .SelectMany(instr => (Instruction[])instr.Operand))
+                      .Where(target => target != null)),
 
-			ret.Protection = (ReferenceProxyProtection)Parent;
-			ret.Random = store.random;
-			ret.Context = context;
-			ret.Marker = context.Registry.GetService<IMarkerService>();
-			ret.DynCipher = context.Registry.GetService<IDynCipherService>();
-			ret.Name = context.Registry.GetService<INameService>();
+                Protection = (ReferenceProxyProtection)Parent,
+                Random = store.random,
+                Context = context,
+                Marker = context.Registry.GetService<IMarkerService>(),
+                DynCipher = context.Registry.GetService<IDynCipherService>(),
+                Name = context.Registry.GetService<INameService>(),
 
-			ret.Delegates = store.delegates;
+                Delegates = store.delegates
+            };
 
-			switch (ret.Mode) {
+            switch (ret.Mode) {
 				case Mode.Mild:
 					ret.ModeHandler = store.mild ?? (store.mild = new MildMode());
 					break;
@@ -85,20 +87,22 @@ namespace Confuser.Protections.ReferenceProxy {
 		}
 
 		static RPContext ParseParameters(ModuleDef module, ConfuserContext context, ProtectionParameters parameters, RPStore store) {
-			var ret = new RPContext();
-			ret.Depth = parameters.GetParameter(context, module, "depth", 3);
-			ret.InitCount = parameters.GetParameter(context, module, "initCount", 0x10);
+            var ret = new RPContext
+            {
+                Depth = parameters.GetParameter(context, module, "depth", 3),
+                InitCount = parameters.GetParameter(context, module, "initCount", 0x10),
 
-			ret.Random = store.random;
-			ret.Module = module;
-			ret.Context = context;
-			ret.Marker = context.Registry.GetService<IMarkerService>();
-			ret.DynCipher = context.Registry.GetService<IDynCipherService>();
-			ret.Name = context.Registry.GetService<INameService>();
+                Random = store.random,
+                Module = module,
+                Context = context,
+                Marker = context.Registry.GetService<IMarkerService>(),
+                DynCipher = context.Registry.GetService<IDynCipherService>(),
+                Name = context.Registry.GetService<INameService>(),
 
-			ret.Delegates = store.delegates;
+                Delegates = store.delegates
+            };
 
-			return ret;
+            return ret;
 		}
 
 		protected override void Execute(ConfuserContext context, ProtectionParameters parameters) {

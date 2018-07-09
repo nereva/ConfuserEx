@@ -199,12 +199,14 @@ namespace Confuser.Protections.ReferenceProxy {
         }
 
 		MethodDef CreateBridge(RPContext ctx, TypeDef delegateType, FieldDef field, MethodSig sig) {
-			var method = new MethodDefUser(ctx.Name.RandomName(), sig);
-			method.Attributes = MethodAttributes.PrivateScope | MethodAttributes.Static;
-			method.ImplAttributes = MethodImplAttributes.Managed | MethodImplAttributes.IL;
+            var method = new MethodDefUser(ctx.Name.RandomName(), sig)
+            {
+                Attributes = MethodAttributes.PrivateScope | MethodAttributes.Static,
+                ImplAttributes = MethodImplAttributes.Managed | MethodImplAttributes.IL,
 
-			method.Body = new CilBody();
-			method.Body.Instructions.Add(Instruction.Create(OpCodes.Ldsfld, field));
+                Body = new CilBody()
+            };
+            method.Body.Instructions.Add(Instruction.Create(OpCodes.Ldsfld, field));
 			for (var i = 0; i < method.Parameters.Count; i++)
             {
                 method.Body.Instructions.Add(Instruction.Create(OpCodes.Ldarg, method.Parameters[i]));

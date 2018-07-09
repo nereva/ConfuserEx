@@ -37,9 +37,11 @@ namespace ConfuserEx.ViewModel {
 		public ICommand ChooseBaseDir {
 			get {
 				return new RelayCommand(() => {
-					var fbd = new VistaFolderBrowserDialog();
-					fbd.SelectedPath = App.Project.BaseDirectory;
-					if (fbd.ShowDialog() ?? false) {
+                    var fbd = new VistaFolderBrowserDialog
+                    {
+                        SelectedPath = App.Project.BaseDirectory
+                    };
+                    if (fbd.ShowDialog() ?? false) {
 						App.Project.BaseDirectory = fbd.SelectedPath;
 						App.Project.OutputDirectory = Path.Combine(App.Project.BaseDirectory, "Confused");
 					}
@@ -50,9 +52,11 @@ namespace ConfuserEx.ViewModel {
 		public ICommand ChooseOutputDir {
 			get {
 				return new RelayCommand(() => {
-					var fbd = new VistaFolderBrowserDialog();
-					fbd.SelectedPath = App.Project.OutputDirectory;
-					if (fbd.ShowDialog() ?? false) {
+                    var fbd = new VistaFolderBrowserDialog
+                    {
+                        SelectedPath = App.Project.OutputDirectory
+                    };
+                    if (fbd.ShowDialog() ?? false) {
 						App.Project.OutputDirectory = fbd.SelectedPath;
 					}
 				});
@@ -62,10 +66,12 @@ namespace ConfuserEx.ViewModel {
 		public ICommand Add {
 			get {
 				return new RelayCommand(() => {
-					var ofd = new VistaOpenFileDialog();
-					ofd.Filter = ".NET assemblies (*.exe, *.dll)|*.exe;*.dll|All Files (*.*)|*.*";
-					ofd.Multiselect = true;
-					if (ofd.ShowDialog() ?? false) {
+                    var ofd = new VistaOpenFileDialog
+                    {
+                        Filter = ".NET assemblies (*.exe, *.dll)|*.exe;*.dll|All Files (*.*)|*.*",
+                        Multiselect = true
+                    };
+                    if (ofd.ShowDialog() ?? false) {
 						foreach (var file in ofd.FileNames)
                         {
                             AddModule(file);
@@ -94,9 +100,11 @@ namespace ConfuserEx.ViewModel {
 			get {
 				return new RelayCommand(() => {
 					Debug.Assert(App.Project.Modules.Count(m => m.IsSelected) == 1);
-					var dialog = new ProjectModuleView(App.Project.Modules.Single(m => m.IsSelected));
-					dialog.Owner = Application.Current.MainWindow;
-					dialog.ShowDialog();
+                    var dialog = new ProjectModuleView(App.Project.Modules.Single(m => m.IsSelected))
+                    {
+                        Owner = Application.Current.MainWindow
+                    };
+                    dialog.ShowDialog();
 				}, () => App.Project.Modules.Count(m => m.IsSelected) == 1);
 			}
 		}
@@ -104,9 +112,11 @@ namespace ConfuserEx.ViewModel {
 		public ICommand Advanced {
 			get {
 				return new RelayCommand(() => {
-					var dialog = new ProjectTabAdvancedView(App.Project);
-					dialog.Owner = Application.Current.MainWindow;
-					dialog.ShowDialog();
+                    var dialog = new ProjectTabAdvancedView(App.Project)
+                    {
+                        Owner = Application.Current.MainWindow
+                    };
+                    dialog.ShowDialog();
 				});
 			}
 		}

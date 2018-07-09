@@ -53,9 +53,11 @@ namespace ConfuserEx.ViewModel {
 				return new RelayCommand(() => {
 					Debug.Assert(SelectedList != null);
 
-					var rule = new ProjectRuleVM(App.Project, new Rule());
-					rule.Pattern = "true";
-					SelectedList.Rules.Add(rule);
+                    var rule = new ProjectRuleVM(App.Project, new Rule())
+                    {
+                        Pattern = "true"
+                    };
+                    SelectedList.Rules.Add(rule);
 					SelectedRuleIndex = SelectedList.Rules.Count - 1;
 				}, () => SelectedList != null);
 			}
@@ -79,9 +81,11 @@ namespace ConfuserEx.ViewModel {
 			get {
 				return new RelayCommand(() => {
 					Debug.Assert(SelectedRuleIndex != -1);
-					var dialog = new ProjectRuleView(App.Project, SelectedList.Rules[SelectedRuleIndex]);
-					dialog.Owner = Application.Current.MainWindow;
-					dialog.ShowDialog();
+                    var dialog = new ProjectRuleView(App.Project, SelectedList.Rules[SelectedRuleIndex])
+                    {
+                        Owner = Application.Current.MainWindow
+                    };
+                    dialog.ShowDialog();
 					dialog.Cleanup();
 				}, () => SelectedRuleIndex != -1 && SelectedList != null);
 			}

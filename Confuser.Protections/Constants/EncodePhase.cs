@@ -56,14 +56,18 @@ namespace Confuser.Protections.Constants {
 					EncodeConstant64(moduleCtx, (uint)((long)entry.Key >> 32), (uint)(long)entry.Key, context.CurrentModule.CorLibTypes.Int64, entry.Value);
 				}
 				else if (entry.Key is float) {
-					var t = new RTransform();
-					t.R4 = (float)entry.Key;
-					EncodeConstant32(moduleCtx, t.Lo, context.CurrentModule.CorLibTypes.Single, entry.Value);
+                    var t = new RTransform
+                    {
+                        R4 = (float)entry.Key
+                    };
+                    EncodeConstant32(moduleCtx, t.Lo, context.CurrentModule.CorLibTypes.Single, entry.Value);
 				}
 				else if (entry.Key is double) {
-					var t = new RTransform();
-					t.R8 = (double)entry.Key;
-					EncodeConstant64(moduleCtx, t.Hi, t.Lo, context.CurrentModule.CorLibTypes.Double, entry.Value);
+                    var t = new RTransform
+                    {
+                        R8 = (double)entry.Key
+                    };
+                    EncodeConstant64(moduleCtx, t.Hi, t.Lo, context.CurrentModule.CorLibTypes.Double, entry.Value);
 				}
 				else
                 {

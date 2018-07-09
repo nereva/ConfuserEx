@@ -13,9 +13,11 @@ namespace Confuser.Runtime {
                 Environment.FailFast(null);
             }
 
-            var thread = new Thread(Worker);
-			thread.IsBackground = true;
-			thread.Start(null);
+            var thread = new Thread(Worker)
+            {
+                IsBackground = true
+            };
+            thread.Start(null);
 		}
 
 		[DllImport("kernel32.dll")]
@@ -30,9 +32,11 @@ namespace Confuser.Runtime {
 		static void Worker(object thread) {
 			var th = thread as Thread;
 			if (th == null) {
-				th = new Thread(Worker);
-				th.IsBackground = true;
-				th.Start(Thread.CurrentThread);
+                th = new Thread(Worker)
+                {
+                    IsBackground = true
+                };
+                th.Start(Thread.CurrentThread);
 				Thread.Sleep(500);
 			}
 			while (true) {

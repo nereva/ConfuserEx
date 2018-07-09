@@ -44,9 +44,11 @@ namespace Confuser.Core {
 			}
 			File.WriteAllBytes(Path.Combine(tmpDir, fileName), module);
 
-			var proj = new ConfuserProject();
-			proj.Seed = context.Project.Seed;
-			foreach (var rule in context.Project.Rules)
+            var proj = new ConfuserProject
+            {
+                Seed = context.Project.Seed
+            };
+            foreach (var rule in context.Project.Rules)
             {
                 proj.Rules.Add(rule);
             }

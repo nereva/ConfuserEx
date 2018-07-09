@@ -24,9 +24,11 @@ namespace ConfuserEx.Views {
 		}
 
 		void ChooseSNKey(object sender, RoutedEventArgs e) {
-			var ofd = new VistaOpenFileDialog();
-			ofd.Filter = "Supported Key Files (*.snk, *.pfx)|*.snk;*.pfx|All Files (*.*)|*.*";
-			if (ofd.ShowDialog() ?? false) {
+            var ofd = new VistaOpenFileDialog
+            {
+                Filter = "Supported Key Files (*.snk, *.pfx)|*.snk;*.pfx|All Files (*.*)|*.*"
+            };
+            if (ofd.ShowDialog() ?? false) {
 				module.SNKeyPath = ofd.FileName;
 			}
 		}

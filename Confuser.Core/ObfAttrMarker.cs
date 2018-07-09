@@ -217,15 +217,16 @@ namespace Confuser.Core {
 		}
 
 		bool ToInfo(ObfuscationAttributeInfo attr, out ProtectionSettingsInfo info) {
-			info = new ProtectionSettingsInfo();
+            info = new ProtectionSettingsInfo
+            {
+                Condition = null,
 
-			info.Condition = null;
+                Exclude = (attr.Exclude ?? true),
+                ApplyToMember = (attr.ApplyToMembers ?? true),
+                Settings = attr.FeatureValue
+            };
 
-			info.Exclude = (attr.Exclude ?? true);
-			info.ApplyToMember = (attr.ApplyToMembers ?? true);
-			info.Settings = attr.FeatureValue;
-
-			var ok = true;
+            var ok = true;
 			try {
 				new ObfAttrParser(protections).ParseProtectionString(null, info.Settings);
 			}
@@ -250,14 +251,15 @@ namespace Confuser.Core {
 		}
 
 		ProtectionSettingsInfo ToInfo(Rule rule, PatternExpression expr) {
-			var info = new ProtectionSettingsInfo();
+            var info = new ProtectionSettingsInfo
+            {
+                Condition = expr,
 
-			info.Condition = expr;
+                Exclude = false,
+                ApplyToMember = true
+            };
 
-			info.Exclude = false;
-			info.ApplyToMember = true;
-
-			var settings = new StringBuilder();
+            var settings = new StringBuilder();
 			if (rule.Preset != ProtectionPreset.None)
             {
                 settings.AppendFormat("preset({0});", rule.Preset.ToString().ToLowerInvariant());
@@ -383,14 +385,16 @@ namespace Confuser.Core {
 				throw new Exception("Error when parsing pattern " + pattern + " in ObfuscationAttribute. Owner=" + attr.Owner, ex);
 			}
 
-			var info = new ProtectionSettingsInfo();
-			info.Condition = expr;
+            var info = new ProtectionSettingsInfo
+            {
+                Condition = expr,
 
-			info.Exclude = (attr.Exclude ?? true);
-			info.ApplyToMember = (attr.ApplyToMembers ?? true);
-			info.Settings = attr.FeatureValue;
+                Exclude = (attr.Exclude ?? true),
+                ApplyToMember = (attr.ApplyToMembers ?? true),
+                Settings = attr.FeatureValue
+            };
 
-			var ok = true;
+            var ok = true;
 			try {
 				new ObfAttrParser(protections).ParseProtectionString(null, info.Settings);
 			}

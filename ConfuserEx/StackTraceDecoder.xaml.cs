@@ -56,9 +56,11 @@ namespace ConfuserEx {
 		}
 
 		void ChooseMapPath(object sender, RoutedEventArgs e) {
-			var ofd = new VistaOpenFileDialog();
-			ofd.Filter = "Symbol maps (*.map)|*.map|All Files (*.*)|*.*";
-			if (ofd.ShowDialog() ?? false) {
+            var ofd = new VistaOpenFileDialog
+            {
+                Filter = "Symbol maps (*.map)|*.map|All Files (*.*)|*.*"
+            };
+            if (ofd.ShowDialog() ?? false) {
 				PathBox.Text = ofd.FileName;
 			}
 		}

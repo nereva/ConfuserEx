@@ -44,9 +44,11 @@ namespace ConfuserEx.ViewModel {
 		}
 
 		void DoProtect() {
-			var parameters = new ConfuserParameters();
-			parameters.Project = ((IViewModel<ConfuserProject>)App.Project).Model;
-			if (File.Exists(App.FileName))
+            var parameters = new ConfuserParameters
+            {
+                Project = ((IViewModel<ConfuserProject>)App.Project).Model
+            };
+            if (File.Exists(App.FileName))
             {
                 Environment.CurrentDirectory = Path.GetDirectoryName(App.FileName);
             }

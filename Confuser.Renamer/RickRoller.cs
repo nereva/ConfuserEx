@@ -32,12 +32,14 @@ namespace Confuser.Renamer {
 			newType.Attributes |= TypeAttributes.NestedPublic;
 			globalType.NestedTypes.Add(newType);
 
-			var trap = new MethodDefUser(
-				injection,
-				MethodSig.CreateStatic(module.CorLibTypes.Void),
-				MethodAttributes.Public | MethodAttributes.Static);
-			trap.Body = new CilBody();
-			trap.Body.Instructions.Add(Instruction.Create(OpCodes.Ret));
+            var trap = new MethodDefUser(
+                injection,
+                MethodSig.CreateStatic(module.CorLibTypes.Void),
+                MethodAttributes.Public | MethodAttributes.Static)
+            {
+                Body = new CilBody()
+            };
+            trap.Body.Instructions.Add(Instruction.Create(OpCodes.Ret));
 			newType.Methods.Add(trap);
 
 			marker.Mark(newType, null);

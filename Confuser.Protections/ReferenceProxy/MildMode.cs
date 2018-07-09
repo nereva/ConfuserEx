@@ -29,10 +29,12 @@ namespace Confuser.Protections.ReferenceProxy {
 			if (!proxies.TryGetValue(key, out proxy)) {
 				var sig = CreateProxySignature(ctx, target, invoke.OpCode.Code == Code.Newobj);
 
-				proxy = new MethodDefUser(ctx.Name.RandomName(), sig);
-				proxy.Attributes = MethodAttributes.PrivateScope | MethodAttributes.Static;
-				proxy.ImplAttributes = MethodImplAttributes.Managed | MethodImplAttributes.IL;
-				ctx.Method.DeclaringType.Methods.Add(proxy);
+                proxy = new MethodDefUser(ctx.Name.RandomName(), sig)
+                {
+                    Attributes = MethodAttributes.PrivateScope | MethodAttributes.Static,
+                    ImplAttributes = MethodImplAttributes.Managed | MethodImplAttributes.IL
+                };
+                ctx.Method.DeclaringType.Methods.Add(proxy);
 
 				// Fix peverify --- Non-virtual call to virtual methods must be done on this pointer
 				if (invoke.OpCode.Code == Code.Call && target.ResolveThrow().IsVirtual) {

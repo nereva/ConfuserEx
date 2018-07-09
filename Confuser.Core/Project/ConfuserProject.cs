@@ -173,12 +173,14 @@ namespace Confuser.Core.Project {
 		/// </summary>
 		/// <returns>A duplicated module.</returns>
 		public ProjectModule Clone() {
-			var ret = new ProjectModule();
-			ret.Path = Path;
-			ret.IsExternal = IsExternal;
-			ret.SNKeyPath = SNKeyPath;
-			ret.SNKeyPassword = SNKeyPassword;
-			foreach (var r in Rules)
+            var ret = new ProjectModule
+            {
+                Path = Path,
+                IsExternal = IsExternal,
+                SNKeyPath = SNKeyPath,
+                SNKeyPassword = SNKeyPassword
+            };
+            foreach (var r in Rules)
             {
                 ret.Rules.Add(r.Clone());
             }
@@ -408,15 +410,19 @@ namespace Confuser.Core.Project {
 		/// </summary>
 		/// <returns>A duplicated rule.</returns>
 		public Rule Clone() {
-			var ret = new Rule();
-			ret.Preset = Preset;
-			ret.Pattern = Pattern;
-			ret.Inherit = Inherit;
-			foreach (var i in this) {
-				var item = new SettingItem<Protection>();
-				item.Id = i.Id;
-				item.Action = i.Action;
-				foreach (var j in i.Keys)
+            var ret = new Rule
+            {
+                Preset = Preset,
+                Pattern = Pattern,
+                Inherit = Inherit
+            };
+            foreach (var i in this) {
+                var item = new SettingItem<Protection>
+                {
+                    Id = i.Id,
+                    Action = i.Action
+                };
+                foreach (var j in i.Keys)
                 {
                     item.Add(j, i[j]);
                 }
@@ -658,15 +664,17 @@ namespace Confuser.Core.Project {
 		/// </summary>
 		/// <returns>A duplicated project.</returns>
 		public ConfuserProject Clone() {
-			var ret = new ConfuserProject();
-			ret.Seed = Seed;
-			ret.Debug = Debug;
-			ret.OutputDirectory = OutputDirectory;
-			ret.BaseDirectory = BaseDirectory;
-			ret.Packer = Packer == null ? null : Packer.Clone();
-			ret.ProbePaths = new List<string>(ProbePaths);
-			ret.PluginPaths = new List<string>(PluginPaths);
-			foreach (var module in this)
+            var ret = new ConfuserProject
+            {
+                Seed = Seed,
+                Debug = Debug,
+                OutputDirectory = OutputDirectory,
+                BaseDirectory = BaseDirectory,
+                Packer = Packer == null ? null : Packer.Clone(),
+                ProbePaths = new List<string>(ProbePaths),
+                PluginPaths = new List<string>(PluginPaths)
+            };
+            foreach (var module in this)
             {
                 ret.Add(module.Clone());
             }

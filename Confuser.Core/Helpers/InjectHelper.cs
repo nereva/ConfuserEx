@@ -15,10 +15,12 @@ namespace Confuser.Core.Helpers {
 		/// <param name="origin">The origin TypeDef.</param>
 		/// <returns>The cloned TypeDef.</returns>
 		static TypeDefUser Clone(TypeDef origin) {
-			var ret = new TypeDefUser(origin.Namespace, origin.Name);
-			ret.Attributes = origin.Attributes;
+            var ret = new TypeDefUser(origin.Namespace, origin.Name)
+            {
+                Attributes = origin.Attributes
+            };
 
-			if (origin.ClassLayout != null)
+            if (origin.ClassLayout != null)
             {
                 ret.ClassLayout = new ClassLayoutUser(origin.ClassLayout.PackingSize, origin.ClassSize);
             }
@@ -146,10 +148,12 @@ namespace Confuser.Core.Helpers {
 				}
 
 				foreach (var instr in methodDef.Body.Instructions) {
-					var newInstr = new Instruction(instr.OpCode, instr.Operand);
-					newInstr.SequencePoint = instr.SequencePoint;
+                    var newInstr = new Instruction(instr.OpCode, instr.Operand)
+                    {
+                        SequencePoint = instr.SequencePoint
+                    };
 
-					if (newInstr.Operand is IType)
+                    if (newInstr.Operand is IType)
                     {
                         newInstr.Operand = ctx.Importer.Import((IType)newInstr.Operand);
                     }
@@ -305,9 +309,11 @@ namespace Confuser.Core.Helpers {
 			public InjectContext(ModuleDef module, ModuleDef target) {
 				OriginModule = module;
 				TargetModule = target;
-				importer = new Importer(target, ImporterOptions.TryToUseTypeDefs);
-				importer.Resolver = this;
-			}
+                importer = new Importer(target, ImporterOptions.TryToUseTypeDefs)
+                {
+                    Resolver = this
+                };
+            }
 
 			/// <summary>
 			///     Gets the importer.

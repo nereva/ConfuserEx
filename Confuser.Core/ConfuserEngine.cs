@@ -85,20 +85,24 @@ namespace Confuser.Core {
 		/// <param name="parameters">The parameters.</param>
 		/// <param name="token">The cancellation token.</param>
 		static void RunInternal(ConfuserParameters parameters, CancellationToken token) {
-			// 1. Setup context
-			var context = new ConfuserContext();
-			context.Logger = parameters.GetLogger();
-			context.Project = parameters.Project.Clone();
-			context.PackerInitiated = parameters.PackerInitiated;
-			context.token = token;
+            // 1. Setup context
+            var context = new ConfuserContext
+            {
+                Logger = parameters.GetLogger(),
+                Project = parameters.Project.Clone(),
+                PackerInitiated = parameters.PackerInitiated,
+                token = token
+            };
 
-			PrintInfo(context);
+            PrintInfo(context);
 
 			var ok = false;
 			try {
-				var asmResolver = new AssemblyResolver();
-				asmResolver.EnableTypeDefCache = true;
-				asmResolver.DefaultModuleContext = new ModuleContext(asmResolver);
+                var asmResolver = new AssemblyResolver
+                {
+                    EnableTypeDefCache = true
+                };
+                asmResolver.DefaultModuleContext = new ModuleContext(asmResolver);
 				context.Resolver = asmResolver;
 				context.BaseDirectory = Path.Combine(Environment.CurrentDirectory, parameters.Project.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar);
 				context.OutputDirectory = Path.Combine(parameters.Project.BaseDirectory, parameters.Project.OutputDirectory.TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar);
@@ -322,9 +326,11 @@ namespace Confuser.Core {
 			foreach (var module in context.Modules) {
 				var modType = module.GlobalType;
 				if (modType == null) {
-					modType = new TypeDefUser("", "<Module>", null);
-					modType.Attributes = TypeAttributes.AnsiClass;
-					module.Types.Add(modType);
+                    modType = new TypeDefUser("", "<Module>", null)
+                    {
+                        Attributes = TypeAttributes.AnsiClass
+                    };
+                    module.Types.Add(modType);
 					marker.Mark(modType, null);
 				}
 				var cctor = modType.FindOrCreateStaticConstructor();
@@ -341,14 +347,18 @@ namespace Confuser.Core {
 				module.Types.Add(attrType);
 				marker.Mark(attrType, null);
 
-				var ctor = new MethodDefUser(
-					".ctor",
-					MethodSig.CreateInstance(module.CorLibTypes.Void, module.CorLibTypes.String),
-					MethodImplAttributes.Managed,
-					MethodAttributes.HideBySig | MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName);
-				ctor.Body = new CilBody();
-				ctor.Body.MaxStack = 1;
-				ctor.Body.Instructions.Add(OpCodes.Ldarg_0.ToInstruction());
+                var ctor = new MethodDefUser(
+                    ".ctor",
+                    MethodSig.CreateInstance(module.CorLibTypes.Void, module.CorLibTypes.String),
+                    MethodImplAttributes.Managed,
+                    MethodAttributes.HideBySig | MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName)
+                {
+                    Body = new CilBody
+                    {
+                        MaxStack = 1
+                    }
+                };
+                ctor.Body.Instructions.Add(OpCodes.Ldarg_0.ToInstruction());
 				ctor.Body.Instructions.Add(OpCodes.Call.ToInstruction(new MemberRefUser(module, ".ctor", MethodSig.CreateInstance(module.CorLibTypes.Void), attrRef)));
 				ctor.Body.Instructions.Add(OpCodes.Ret.ToInstruction());
 				attrType.Methods.Add(ctor);

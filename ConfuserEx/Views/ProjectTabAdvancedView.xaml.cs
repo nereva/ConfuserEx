@@ -19,10 +19,12 @@ namespace ConfuserEx.Views {
 			base.OnApplyTemplate();
 
 			AddPlugin.Command = new RelayCommand(() => {
-				var ofd = new VistaOpenFileDialog();
-				ofd.Filter = ".NET assemblies (*.exe, *.dll)|*.exe;*.dll|All Files (*.*)|*.*";
-				ofd.Multiselect = true;
-				if (ofd.ShowDialog() ?? false) {
+                var ofd = new VistaOpenFileDialog
+                {
+                    Filter = ".NET assemblies (*.exe, *.dll)|*.exe;*.dll|All Files (*.*)|*.*",
+                    Multiselect = true
+                };
+                if (ofd.ShowDialog() ?? false) {
 					foreach (var plugin in ofd.FileNames) {
 						try {
 							ComponentDiscovery.LoadComponents(project.Protections, project.Packers, plugin);

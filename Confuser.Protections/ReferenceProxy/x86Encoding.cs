@@ -36,9 +36,11 @@ namespace Confuser.Protections.ReferenceProxy {
 			var result = new Variable("{RESULT}");
 
 			var int32 = ctx.Module.CorLibTypes.Int32;
-			native = new MethodDefUser(ctx.Context.Registry.GetService<INameService>().RandomName(), MethodSig.CreateStatic(int32, int32), MethodAttributes.PinvokeImpl | MethodAttributes.PrivateScope | MethodAttributes.Static);
-			native.ImplAttributes = MethodImplAttributes.Native | MethodImplAttributes.Unmanaged | MethodImplAttributes.PreserveSig;
-			ctx.Module.GlobalType.Methods.Add(native);
+            native = new MethodDefUser(ctx.Context.Registry.GetService<INameService>().RandomName(), MethodSig.CreateStatic(int32, int32), MethodAttributes.PinvokeImpl | MethodAttributes.PrivateScope | MethodAttributes.Static)
+            {
+                ImplAttributes = MethodImplAttributes.Native | MethodImplAttributes.Unmanaged | MethodImplAttributes.PreserveSig
+            };
+            ctx.Module.GlobalType.Methods.Add(native);
 
 			ctx.Context.Registry.GetService<IMarkerService>().Mark(native, ctx.Protection);
 			ctx.Context.Registry.GetService<INameService>().SetCanRename(native, false);

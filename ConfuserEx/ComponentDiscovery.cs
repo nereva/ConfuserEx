@@ -89,13 +89,15 @@ namespace ConfuserEx {
 			public string path;
 
 			public static Info FromComponent(ConfuserComponent component, string pluginPath) {
-				var ret = new Info();
-				ret.name = component.Name;
-				ret.desc = component.Description;
-				ret.id = component.Id;
-				ret.fullId = component.FullId;
-				ret.path = pluginPath;
-				return ret;
+                var ret = new Info
+                {
+                    name = component.Name,
+                    desc = component.Description,
+                    id = component.Id,
+                    fullId = component.FullId,
+                    path = pluginPath
+                };
+                return ret;
 			}
 		}
 
