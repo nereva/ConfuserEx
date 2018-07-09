@@ -41,14 +41,14 @@ namespace Confuser.Core.Helpers {
 			foreach (var instr in method.Body.Instructions) {
 				if (instr.OpCode == OpCodes.Ldsfld) {
 					var field = (IField)instr.Operand;
-					int _keyId;
-					if (field.DeclaringType.FullName == mutationType &&
-					    field2index.TryGetValue(field.Name, out _keyId) &&
-					    _keyId == keyId) {
-						instr.OpCode = OpCodes.Ldc_I4;
-						instr.Operand = key;
-					}
-				}
+                    if (field.DeclaringType.FullName == mutationType &&
+                        field2index.TryGetValue(field.Name, out var _keyId) &&
+                        _keyId == keyId)
+                    {
+                        instr.OpCode = OpCodes.Ldc_I4;
+                        instr.Operand = key;
+                    }
+                }
 			}
 		}
 
@@ -62,14 +62,14 @@ namespace Confuser.Core.Helpers {
 			foreach (var instr in method.Body.Instructions) {
 				if (instr.OpCode == OpCodes.Ldsfld) {
 					var field = (IField)instr.Operand;
-					int _keyIndex;
-					if (field.DeclaringType.FullName == mutationType &&
-					    field2index.TryGetValue(field.Name, out _keyIndex) &&
-					    (_keyIndex = Array.IndexOf(keyIds, _keyIndex)) != -1) {
-						instr.OpCode = OpCodes.Ldc_I4;
-						instr.Operand = keys[_keyIndex];
-					}
-				}
+                    if (field.DeclaringType.FullName == mutationType &&
+                        field2index.TryGetValue(field.Name, out var _keyIndex) &&
+                        (_keyIndex = Array.IndexOf(keyIds, _keyIndex)) != -1)
+                    {
+                        instr.OpCode = OpCodes.Ldc_I4;
+                        instr.Operand = keys[_keyIndex];
+                    }
+                }
 			}
 		}
 

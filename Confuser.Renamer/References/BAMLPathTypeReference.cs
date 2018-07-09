@@ -36,8 +36,7 @@ namespace Confuser.Renamer.References {
 				indexer.Type = name;
 			}
 			else {
-				string oldType, property;
-				attachedDP.ExtractAttachedDP(out oldType, out property);
+                attachedDP.ExtractAttachedDP(out var oldType, out var property);
 				attachedDP.Name = string.Format("({0}.{1})", name, property);
 			}
 			return true;

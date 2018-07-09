@@ -51,8 +51,7 @@ namespace Confuser.Protections.ReferenceProxy {
 						return null;
 				}
 
-				int push, pop;
-				currentInstr.CalculateStackUsage(out push, out pop);
+                currentInstr.CalculateStackUsage(out var push, out var pop);
 				currentStack += pop;
 				currentStack -= push;
 
@@ -84,8 +83,7 @@ namespace Confuser.Protections.ReferenceProxy {
                 return;
             }
 
-            int push, pop;
-			invoke.CalculateStackUsage(out push, out pop);
+            invoke.CalculateStackUsage(out var push, out var pop);
 			var begin = TraceBeginning(ctx, instrIndex, pop);
 			// Fail to trace the arguments => fall back to bridge method
 			var fallBack = begin == null;
@@ -114,15 +112,16 @@ namespace Confuser.Protections.ReferenceProxy {
             }
 
             var key = Tuple.Create(instr.OpCode.Code, target, ctx.EncodingHandler);
-			Tuple<FieldDef, MethodDef> proxy;
-			if (fields.TryGetValue(key, out proxy)) {
-				if (proxy.Item2 != null) {
-					instr.OpCode = OpCodes.Call;
-					instr.Operand = proxy.Item2;
-					return;
-				}
-			}
-			else
+            if (fields.TryGetValue(key, out var proxy))
+            {
+                if (proxy.Item2 != null)
+                {
+                    instr.OpCode = OpCodes.Call;
+                    instr.Operand = proxy.Item2;
+                    return;
+                }
+            }
+            else
             {
                 proxy = new Tuple<FieldDef, MethodDef>(null, null);
             }
@@ -166,15 +165,15 @@ namespace Confuser.Protections.ReferenceProxy {
 			var delegateType = GetDelegateType(ctx, sig);
 
 			var key = Tuple.Create(instr.OpCode.Code, target, ctx.EncodingHandler);
-			Tuple<FieldDef, MethodDef> proxy;
-			if (!fields.TryGetValue(key, out proxy)) {
-				// Create proxy field
-				proxy = new Tuple<FieldDef, MethodDef>(CreateField(ctx, delegateType), null);
-				fields[key] = proxy;
-			}
+            if (!fields.TryGetValue(key, out var proxy))
+            {
+                // Create proxy field
+                proxy = new Tuple<FieldDef, MethodDef>(CreateField(ctx, delegateType), null);
+                fields[key] = proxy;
+            }
 
-			// Insert field load & replace instruction
-			if (argBeginIndex == instrIndex) {
+            // Insert field load & replace instruction
+            if (argBeginIndex == instrIndex) {
 				ctx.Body.Instructions.Insert(instrIndex + 1,
 				                             new Instruction(OpCodes.Call, delegateType.FindMethod("Invoke")));
 				instr.OpCode = OpCodes.Ldsfld;
@@ -254,15 +253,13 @@ namespace Confuser.Protections.ReferenceProxy {
 				var injectedAttr = InjectHelper.Inject(rtType, ctx.Module);
 				injectedAttr.Name = ctx.Name.RandomName();
 				injectedAttr.Namespace = string.Empty;
-
-				Expression expression, inverse;
-				var var = new Variable("{VAR}");
+                var var = new Variable("{VAR}");
 				var result = new Variable("{RESULT}");
 
 				ctx.DynCipher.GenerateExpressionPair(
 					ctx.Random,
 					new VariableExpression { Variable = var }, new VariableExpression { Variable = result },
-					ctx.Depth, out expression, out inverse);
+					ctx.Depth, out var expression, out var inverse);
 
 				var expCompiled = new DMCodeGen(typeof(int), new[] { Tuple.Create("{VAR}", typeof(int)) })
 					.GenerateCIL(expression)
@@ -293,8 +290,7 @@ namespace Confuser.Protections.ReferenceProxy {
 		}
 
 		InitMethodDesc GetInitMethod(RPContext ctx, IRPEncoding encoding) {
-			InitMethodDesc[] initDescs;
-			if (!inits.TryGetValue(encoding, out initDescs))
+            if (!inits.TryGetValue(encoding, out var initDescs))
             {
                 inits[encoding] = initDescs = new InitMethodDesc[ctx.InitCount];
             }

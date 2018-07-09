@@ -200,8 +200,7 @@ namespace Confuser.Core.Project {
                         ret = fn;
 					}
 					else {
-						bool boolValue;
-						if (bool.TryParse(token.Value, out boolValue))
+                        if (bool.TryParse(token.Value, out var boolValue))
                         {
                             ret = new LiteralExpression(boolValue);
                         }

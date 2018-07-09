@@ -35,8 +35,7 @@ namespace Confuser.Core {
                 throw new ArgumentNullException("key");
             }
 
-            ListDictionary objAnno;
-			if (!annotations.TryGetValue(obj, out objAnno))
+            if (!annotations.TryGetValue(obj, out var objAnno))
             {
                 return defValue;
             }
@@ -77,8 +76,7 @@ namespace Confuser.Core {
                 throw new ArgumentNullException("key");
             }
 
-            ListDictionary objAnno;
-			if (!annotations.TryGetValue(obj, out objAnno))
+            if (!annotations.TryGetValue(obj, out var objAnno))
             {
                 return defValueFactory(key);
             }
@@ -119,8 +117,7 @@ namespace Confuser.Core {
                 throw new ArgumentNullException("key");
             }
 
-            ListDictionary objAnno;
-			if (!annotations.TryGetValue(obj, out objAnno))
+            if (!annotations.TryGetValue(obj, out var objAnno))
             {
                 objAnno = annotations[new WeakReferenceKey(obj)] = new ListDictionary();
             }
@@ -160,8 +157,7 @@ namespace Confuser.Core {
                 throw new ArgumentNullException("key");
             }
 
-            ListDictionary objAnno;
-			if (!annotations.TryGetValue(obj, out objAnno))
+            if (!annotations.TryGetValue(obj, out var objAnno))
             {
                 objAnno = annotations[new WeakReferenceKey(obj)] = new ListDictionary();
             }

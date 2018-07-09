@@ -50,8 +50,7 @@ namespace Confuser.Core.Services {
 
 		/// <inheritdoc />
 		public ConfuserComponent GetHelperParent(IDnlibDef def) {
-			ConfuserComponent parent;
-			if (!helperParents.TryGetValue(def, out parent))
+            if (!helperParents.TryGetValue(def, out var parent))
             {
                 return null;
             }

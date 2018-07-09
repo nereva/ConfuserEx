@@ -67,12 +67,12 @@ namespace Confuser.Core.Helpers {
 		/// <returns>The new TypeDef.</returns>
 		static TypeDef PopulateContext(TypeDef typeDef, InjectContext ctx) {
 			TypeDef ret;
-			IDnlibDef existing;
-			if (!ctx.Map.TryGetValue(typeDef, out existing)) {
-				ret = Clone(typeDef);
-				ctx.Map[typeDef] = ret;
-			}
-			else
+            if (!ctx.Map.TryGetValue(typeDef, out var existing))
+            {
+                ret = Clone(typeDef);
+                ctx.Map[typeDef] = ret;
+            }
+            else
             {
                 ret = (TypeDef)existing;
             }

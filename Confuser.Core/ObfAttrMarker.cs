@@ -180,8 +180,7 @@ namespace Confuser.Core {
 							if (match.Success) {
 								var orderStr = match.Groups[1].Value;
 								var f = match.Groups[2].Value;
-								int o;
-								if (!int.TryParse(orderStr, out o))
+                                if (!int.TryParse(orderStr, out var o))
                                 {
                                     throw new NotSupportedException(string.Format("Failed to parse feature '{0}' in {1} ", feature, item));
                                 }
@@ -291,12 +290,11 @@ namespace Confuser.Core {
 
 		IEnumerable<ProtectionSettingsInfo> ReadInfos(IHasCustomAttribute item) {
 			foreach (var attr in ReadObfuscationAttributes(item)) {
-				ProtectionSettingsInfo info;
-				if (!string.IsNullOrEmpty(attr.FeatureName))
+                if (!string.IsNullOrEmpty(attr.FeatureName))
                 {
                     yield return AddRule(attr, null);
                 }
-                else if (ToInfo(attr, out info))
+                else if (ToInfo(attr, out var info))
                 {
                     yield return info;
                 }
@@ -428,8 +426,7 @@ namespace Confuser.Core {
             // Add obfuscation attributes
             foreach (var attr in ReadObfuscationAttributes(module.Assembly)) {
 				if (string.IsNullOrEmpty(attr.FeatureName)) {
-					ProtectionSettingsInfo info;
-					if (ToInfo(attr, out info))
+                    if (ToInfo(attr, out var info))
                     {
                         layer.Add(info);
                     }

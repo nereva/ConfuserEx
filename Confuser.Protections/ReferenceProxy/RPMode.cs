@@ -78,8 +78,7 @@ namespace Confuser.Protections.ReferenceProxy {
 		}
 
 		protected static TypeDef GetDelegateType(RPContext ctx, MethodSig sig) {
-			TypeDef ret;
-			if (ctx.Delegates.TryGetValue(sig, out ret))
+            if (ctx.Delegates.TryGetValue(sig, out var ret))
             {
                 return ret;
             }

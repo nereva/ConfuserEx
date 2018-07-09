@@ -107,8 +107,7 @@ namespace Confuser.Renamer {
                 ProtectionParameters.SetParameters(context, def, param = new ProtectionSettings());
             }
 
-            Dictionary<string, string> nameParam;
-			if (!param.TryGetValue(analyze.Parent, out nameParam))
+            if (!param.TryGetValue(analyze.Parent, out var nameParam))
             {
                 param[analyze.Parent] = nameParam = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             }
@@ -123,8 +122,7 @@ namespace Confuser.Renamer {
                 return null;
             }
 
-            Dictionary<string, string> nameParam;
-			if (!param.TryGetValue(analyze.Parent, out nameParam))
+            if (!param.TryGetValue(analyze.Parent, out var nameParam))
             {
                 return null;
             }
@@ -208,12 +206,12 @@ namespace Confuser.Renamer {
 		string ParseGenericName(string name, out int? count) {
 			if (name.LastIndexOf('`') != -1) {
 				var index = name.LastIndexOf('`');
-				int c;
-				if (int.TryParse(name.Substring(index + 1), out c)) {
-					count = c;
-					return name.Substring(0, index);
-				}
-			}
+                if (int.TryParse(name.Substring(index + 1), out var c))
+                {
+                    count = c;
+                    return name.Substring(0, index);
+                }
+            }
 			count = null;
 			return name;
 		}
@@ -231,10 +229,9 @@ namespace Confuser.Renamer {
 
 		public string ObfuscateName(string name, RenameMode mode) {
 			string newName = null;
-			int? count;
-			name = ParseGenericName(name, out count);
+            name = ParseGenericName(name, out var count);
 
-			if (string.IsNullOrEmpty(name))
+            if (string.IsNullOrEmpty(name))
             {
                 return string.Empty;
             }

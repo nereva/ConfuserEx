@@ -46,9 +46,8 @@ namespace Confuser.Core {
 		/// <param name="defValue">Default value if the parameter does not exist.</param>
 		/// <returns>The value of the parameter.</returns>
 		public T GetParameter<T>(ConfuserContext context, IDnlibDef target, string name, T defValue = default(T)) {
-			Dictionary<string, string> parameters;
 
-			if (comp == null)
+            if (comp == null)
             {
                 return defValue;
             }
@@ -64,16 +63,16 @@ namespace Confuser.Core {
                 return defValue;
             }
 
-            if (!objParams.TryGetValue(comp, out parameters))
+            if (!objParams.TryGetValue(comp, out var parameters))
             {
                 return defValue;
             }
 
-            string ret;
-			if (parameters.TryGetValue(name, out ret)) {
-				var paramType = typeof(T);
-				var nullable = Nullable.GetUnderlyingType(paramType);
-				if (nullable != null)
+            if (parameters.TryGetValue(name, out var ret))
+            {
+                var paramType = typeof(T);
+                var nullable = Nullable.GetUnderlyingType(paramType);
+                if (nullable != null)
                 {
                     paramType = nullable;
                 }
@@ -84,8 +83,8 @@ namespace Confuser.Core {
                 }
 
                 return (T)Convert.ChangeType(ret, paramType);
-			}
-			return defValue;
+            }
+            return defValue;
 		}
 
 		/// <summary>

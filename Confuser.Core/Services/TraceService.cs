@@ -237,8 +237,7 @@ namespace Confuser.Core.Services {
                 throw new ArgumentException("Invalid call instruction.", "instr");
             }
 
-            int push, pop;
-			instr.CalculateStackUsage(out push, out pop); // pop is number of arguments
+            instr.CalculateStackUsage(out var push, out var pop); // pop is number of arguments
 			if (pop == 0)
             {
                 return new int[0];

@@ -56,33 +56,34 @@ namespace Confuser.Renamer.Analyzers {
             foreach (var res in wpfResInfo.Values)
             {
                 foreach (var doc in res.Values) {
-					List<IBAMLReference> references;
-					if (bamlRefs.TryGetValue(doc.DocumentName, out references)) {
-						var newName = doc.DocumentName.ToUpperInvariant();
+                    if (bamlRefs.TryGetValue(doc.DocumentName, out var references))
+                    {
+                        var newName = doc.DocumentName.ToUpperInvariant();
 
-						#region old code
+                        #region old code
 
-						//if (newName.EndsWith(".BAML"))
-						//    newName = service.RandomName(RenameMode.Letters).ToLowerInvariant() + ".baml";
-						//else if (newName.EndsWith(".XAML"))
-						//    newName = service.RandomName(RenameMode.Letters).ToLowerInvariant() + ".xaml";
+                        //if (newName.EndsWith(".BAML"))
+                        //    newName = service.RandomName(RenameMode.Letters).ToLowerInvariant() + ".baml";
+                        //else if (newName.EndsWith(".XAML"))
+                        //    newName = service.RandomName(RenameMode.Letters).ToLowerInvariant() + ".xaml";
 
-						#endregion
+                        #endregion
 
-						#region Niks patch fix
+                        #region Niks patch fix
 
-						/*
+                        /*
                          * Nik's patch for maintaining relative paths. If the xaml file is referenced in this manner
                          * "/some.namespace;component/somefolder/somecontrol.xaml"
                          * then we want to keep the relative path and namespace intact. We should be obfuscating it like this - /some.namespace;component/somefolder/asjdjh2398498dswk.xaml
                         * */
 
-						var completePath = newName.Split(new string[] { "/" }, StringSplitOptions.RemoveEmptyEntries);
-						var newShinyName = string.Empty;
-						for (var i = 0; i <= completePath.Length - 2; i++) {
-							newShinyName += completePath[i].ToLowerInvariant() + "/";
-						}
-						if (newName.EndsWith(".BAML"))
+                        var completePath = newName.Split(new string[] { "/" }, StringSplitOptions.RemoveEmptyEntries);
+                        var newShinyName = string.Empty;
+                        for (var i = 0; i <= completePath.Length - 2; i++)
+                        {
+                            newShinyName += completePath[i].ToLowerInvariant() + "/";
+                        }
+                        if (newName.EndsWith(".BAML"))
                         {
                             newName = newShinyName + service.RandomName(RenameMode.Letters).ToLowerInvariant() + ".baml";
                         }
@@ -93,27 +94,29 @@ namespace Confuser.Renamer.Analyzers {
 
                         context.Logger.Debug(String.Format("Preserving virtual paths. Replaced {0} with {1}", doc.DocumentName, newName));
 
-						#endregion
+                        #endregion
 
-						var renameOk = true;
-						foreach (var bamlRef in references)
+                        var renameOk = true;
+                        foreach (var bamlRef in references)
                         {
-                            if (!bamlRef.CanRename(doc.DocumentName, newName)) {
-								renameOk = false;
-								break;
-							}
+                            if (!bamlRef.CanRename(doc.DocumentName, newName))
+                            {
+                                renameOk = false;
+                                break;
+                            }
                         }
 
-                        if (renameOk) {
-							foreach (var bamlRef in references)
+                        if (renameOk)
+                        {
+                            foreach (var bamlRef in references)
                             {
                                 bamlRef.Rename(doc.DocumentName, newName);
                             }
 
                             doc.DocumentName = newName;
-						}
-					}
-				}
+                        }
+                    }
+                }
             }
         }
 
@@ -131,9 +134,8 @@ namespace Confuser.Renamer.Analyzers {
             }
 
             foreach (var res in module.Resources.OfType<EmbeddedResource>()) {
-				Dictionary<string, BamlDocument> resInfo;
 
-				if (!wpfResInfo.TryGetValue(res.Name, out resInfo))
+                if (!wpfResInfo.TryGetValue(res.Name, out var resInfo))
                 {
                     continue;
                 }
@@ -146,24 +148,22 @@ namespace Confuser.Renamer.Analyzers {
 				var enumerator = reader.GetEnumerator();
 				while (enumerator.MoveNext()) {
 					var name = (string)enumerator.Key;
-					string typeName;
-					byte[] data;
-					reader.GetResourceData(name, out typeName, out data);
+                    reader.GetResourceData(name, out var typeName, out var data);
 
-					BamlDocument document;
-					if (resInfo.TryGetValue(name, out document)) {
+                    if (resInfo.TryGetValue(name, out var document))
+                    {
                         var docStream = new MemoryStream
                         {
                             Position = 4
                         };
                         BamlWriter.WriteDocument(document, docStream);
-						docStream.Position = 0;
-						docStream.Write(BitConverter.GetBytes((int)docStream.Length - 4), 0, 4);
-						data = docStream.ToArray();
-						name = document.DocumentName;
-					}
+                        docStream.Position = 0;
+                        docStream.Write(BitConverter.GetBytes((int)docStream.Length - 4), 0, 4);
+                        data = docStream.ToArray();
+                        name = document.DocumentName;
+                    }
 
-					writer.AddResourceData(name, typeName, data);
+                    writer.AddResourceData(name, typeName, data);
 				}
 				writer.Generate();
 				res.Data = MemoryImageStream.Create(stream.ToArray());
@@ -390,11 +390,8 @@ namespace Confuser.Renamer.Analyzers {
                     {
                         continue;
                     }
-
-                    string typeName;
-					byte[] data;
-					reader.GetResourceData(name, out typeName, out data);
-					var document = analyzer.Analyze(module, name, data);
+                    reader.GetResourceData(name, out var typeName, out var data);
+                    var document = analyzer.Analyze(module, name, data);
 					document.DocumentName = name;
 					resInfo.Add(name, document);
 				}

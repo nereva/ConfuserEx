@@ -117,13 +117,9 @@ namespace Confuser.Core {
 
 				// 2. Discover plugins
 				context.Logger.Debug("Discovering plugins...");
+                parameters.GetPluginDiscovery().GetPlugins(context, out var prots, out var packers, out var components);
 
-				IList<Protection> prots;
-				IList<Packer> packers;
-				IList<ConfuserComponent> components;
-				parameters.GetPluginDiscovery().GetPlugins(context, out prots, out packers, out components);
-
-				context.Logger.InfoFormat("Discovered {0} protections, {1} packers.", prots.Count, packers.Count);
+                context.Logger.InfoFormat("Discovered {0} protections, {1} packers.", prots.Count, packers.Count);
 
 				context.CheckCancellation();
 

@@ -192,10 +192,7 @@ namespace Confuser.Runtime {
                     {
                         return false;
                     }
-
-                    IntPtr sectionAddr;
-					uint sectionSize;
-					if (!peInfo.FindSection(".text", out sectionAddr, out sectionSize))
+                    if (!peInfo.FindSection(".text", out var sectionAddr, out var sectionSize))
                     {
                         return false;
                     }
@@ -239,9 +236,8 @@ namespace Confuser.Runtime {
 							continue;
 						}
 
-						var count = 0;
-						addrCounts.TryGetValue(addr, out count);
-						count++;
+                        addrCounts.TryGetValue(addr, out var count);
+                        count++;
 						addrCounts[addr] = count;
 						if (count >= MAX_COUNTS)
                         {
@@ -436,9 +432,8 @@ namespace Confuser.Runtime {
                     return;
                 }
 
-                uint oldProtect;
-				VirtualProtect(timeOutOptionAddr, (int)ConfigDWORDInfo_defValue + 4, PAGE_EXECUTE_READWRITE, out oldProtect);
-				try {
+                VirtualProtect(timeOutOptionAddr, (int)ConfigDWORDInfo_defValue + 4, PAGE_EXECUTE_READWRITE, out var oldProtect);
+                try {
 					// Set default timeout to 0 to make sure it fails immediately
 					*(uint*)((byte*)timeOutOptionAddr + ConfigDWORDInfo_defValue) = 0;
 				}
@@ -532,10 +527,7 @@ namespace Confuser.Runtime {
                     {
                         return IntPtr.Zero;
                     }
-
-                    IntPtr sectionAddr;
-					uint sectionSize;
-					if (!peInfo.FindSection(".text", out sectionAddr, out sectionSize))
+                    if (!peInfo.FindSection(".text", out var sectionAddr, out var sectionSize))
                     {
                         return IntPtr.Zero;
                     }
@@ -658,11 +650,8 @@ namespace Confuser.Runtime {
                     {
                         return IntPtr.Zero;
                     }
-
-                    IntPtr sectionAddr;
-					uint sectionSize;
-					if (!peInfo.FindSection(".rdata", out sectionAddr, out sectionSize) &&
-					    !peInfo.FindSection(".text", out sectionAddr, out sectionSize))
+                    if (!peInfo.FindSection(".rdata", out var sectionAddr, out var sectionSize) &&
+                        !peInfo.FindSection(".text", out sectionAddr, out sectionSize))
                     {
                         return IntPtr.Zero;
                     }
@@ -763,9 +752,8 @@ namespace Confuser.Runtime {
                 }
 
                 var p = (byte*)threadProc;
-				uint oldProtect;
-				VirtualProtect(new IntPtr(p), 5, PAGE_EXECUTE_READWRITE, out oldProtect);
-				try {
+                VirtualProtect(new IntPtr(p), 5, PAGE_EXECUTE_READWRITE, out var oldProtect);
+                try {
 					if (IntPtr.Size == 4) {
 						// xor eax,eax
 						p[0] = 0x33;
@@ -797,10 +785,7 @@ namespace Confuser.Runtime {
                     {
                         return IntPtr.Zero;
                     }
-
-                    IntPtr sectionAddr;
-					uint sectionSize;
-					if (!peInfo.FindSection(".text", out sectionAddr, out sectionSize))
+                    if (!peInfo.FindSection(".text", out var sectionAddr, out var sectionSize))
                     {
                         return IntPtr.Zero;
                     }
@@ -944,10 +929,7 @@ namespace Confuser.Runtime {
                     {
                         return false;
                     }
-
-                    IntPtr sectionAddr;
-					uint sectionSize;
-					if (!peInfo.FindSection(".text", out sectionAddr, out sectionSize))
+                    if (!peInfo.FindSection(".text", out var sectionAddr, out var sectionSize))
                     {
                         return false;
                     }
@@ -1021,9 +1003,8 @@ namespace Confuser.Runtime {
 							continue;
 						}
 
-						var count = 0;
-						addrCounts.TryGetValue(addr, out count);
-						count++;
+                        addrCounts.TryGetValue(addr, out var count);
+                        count++;
 						addrCounts[addr] = count;
 						if (count >= MAX_COUNTS)
                         {

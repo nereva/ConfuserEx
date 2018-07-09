@@ -47,12 +47,12 @@ namespace Confuser.Protections.ReferenceProxy {
 
 			x86Register? reg;
 			var codeGen = new x86CodeGen();
-			Expression expression, inverse;
-			do {
+			Expression expression;
+            do {
 				ctx.DynCipher.GenerateExpressionPair(
 					ctx.Random,
 					new VariableExpression { Variable = var }, new VariableExpression { Variable = result },
-					ctx.Depth, out expression, out inverse);
+					ctx.Depth, out expression, out var inverse);
 
 				reg = codeGen.GenerateX86(inverse, (v, r) => { return new[] { x86Instruction.Create(x86OpCode.POP, new x86RegisterOperand(r)) }; });
 			} while (reg == null);
@@ -90,14 +90,12 @@ namespace Confuser.Protections.ReferenceProxy {
 		}
 
 		Tuple<MethodDef, Func<int, int>> GetKey(RPContext ctx, MethodDef init) {
-			Tuple<MethodDef, Func<int, int>> ret;
-			if (!keys.TryGetValue(init, out ret)) {
-				Func<int, int> keyFunc;
-				MethodDef native;
-				Compile(ctx, out keyFunc, out native);
-				keys[init] = ret = Tuple.Create(native, keyFunc);
-			}
-			return ret;
+            if (!keys.TryGetValue(init, out var ret))
+            {
+                Compile(ctx, out var keyFunc, out var native);
+                keys[init] = ret = Tuple.Create(native, keyFunc);
+            }
+            return ret;
 		}
 
 		class CodeGen : CILCodeGen {

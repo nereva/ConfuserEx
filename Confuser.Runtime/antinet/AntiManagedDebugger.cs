@@ -97,10 +97,7 @@ namespace Confuser.Runtime {
                 {
                     return IntPtr.Zero;
                 }
-
-                IntPtr sectionAddr;
-				uint sectionSize;
-				if (!peInfo.FindSection(".data", out sectionAddr, out sectionSize))
+                if (!peInfo.FindSection(".data", out var sectionAddr, out var sectionSize))
                 {
                     return IntPtr.Zero;
                 }

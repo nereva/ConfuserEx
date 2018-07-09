@@ -115,11 +115,8 @@ namespace SevenZip.Compression.LZMA {
 			try {
 				SetStreams(inStream, outStream, inSize, outSize);
 				while (true) {
-					Int64 processedInSize;
-					Int64 processedOutSize;
-					bool finished;
-					CodeOneBlock(out processedInSize, out processedOutSize, out finished);
-					if (finished)
+                    CodeOneBlock(out var processedInSize, out var processedOutSize, out var finished);
+                    if (finished)
                     {
                         return;
                     }
@@ -639,9 +636,8 @@ namespace SevenZip.Compression.LZMA {
                     return Backward(out backRes, cur);
                 }
 
-                UInt32 newLen;
-				ReadMatchDistances(out newLen, out numDistancePairs);
-				if (newLen >= _numFastBytes) {
+                ReadMatchDistances(out var newLen, out numDistancePairs);
+                if (newLen >= _numFastBytes) {
 					_numDistancePairs = numDistancePairs;
 					_longestMatchLength = newLen;
 					_longestMatchWasFound = true;
@@ -1046,8 +1042,8 @@ namespace SevenZip.Compression.LZMA {
 					Flush((UInt32)nowPos64);
 					return;
 				}
-				UInt32 len, numDistancePairs; // it's not used
-				ReadMatchDistances(out len, out numDistancePairs);
+
+                ReadMatchDistances(out var len, out var numDistancePairs);
 				var posState = (UInt32)(nowPos64) & _posStateMask;
 				_isMatch[(_state.Index << Base.kNumPosStatesBitsMax) + posState].Encode(_rangeEncoder, 0);
 				_state.UpdateChar();
@@ -1062,10 +1058,9 @@ namespace SevenZip.Compression.LZMA {
 				return;
 			}
 			while (true) {
-				UInt32 pos;
-				var len = GetOptimum((UInt32)nowPos64, out pos);
+                var len = GetOptimum((UInt32)nowPos64, out var pos);
 
-				var posState = ((UInt32)nowPos64) & _posStateMask;
+                var posState = ((UInt32)nowPos64) & _posStateMask;
 				var complexState = (_state.Index << Base.kNumPosStatesBitsMax) + posState;
 				if (len == 1 && pos == 0xFFFFFFFF) {
 					_isMatch[complexState].Encode(_rangeEncoder, 0);

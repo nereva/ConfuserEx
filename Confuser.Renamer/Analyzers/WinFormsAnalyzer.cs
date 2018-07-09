@@ -80,22 +80,23 @@ namespace Confuser.Renamer.Analyzers {
                     erred = true;
 				}
 				else {
-					List<PropertyDef> props;
-					if (!properties.TryGetValue((string)propertyName.Operand, out props)) {
-						if (!erred)
+                    if (!properties.TryGetValue((string)propertyName.Operand, out var props))
+                    {
+                        if (!erred)
                         {
                             context.Logger.WarnFormat("Failed to extract target property in '{0}'.", method.FullName);
                         }
 
                         erred = true;
-					}
-					else {
-						foreach (var property in props)
+                    }
+                    else
+                    {
+                        foreach (var property in props)
                         {
                             service.SetCanRename(property, false);
                         }
                     }
-				}
+                }
 
 				var dataMember = method.Body.Instructions[args[2 + (instrInfo.Item1 ? 1 : 0)]];
 				if (dataMember.OpCode.Code != Code.Ldstr) {
@@ -107,22 +108,23 @@ namespace Confuser.Renamer.Analyzers {
                     erred = true;
 				}
 				else {
-					List<PropertyDef> props;
-					if (!properties.TryGetValue((string)dataMember.Operand, out props)) {
-						if (!erred)
+                    if (!properties.TryGetValue((string)dataMember.Operand, out var props))
+                    {
+                        if (!erred)
                         {
                             context.Logger.WarnFormat("Failed to extract target property in '{0}'.", method.FullName);
                         }
 
                         erred = true;
-					}
-					else {
-						foreach (var property in props)
+                    }
+                    else
+                    {
+                        foreach (var property in props)
                         {
                             service.SetCanRename(property, false);
                         }
                     }
-				}
+                }
 			}
 		}
 

@@ -104,12 +104,12 @@ namespace Confuser.Protections.ControlFlow {
 		}
 
 		void ProcessMethod(CilBody body, CFContext ctx) {
-			uint maxStack;
-			if (!MaxStackCalculator.GetMaxStack(body.Instructions, body.ExceptionHandlers, out maxStack)) {
-				ctx.Context.Logger.Error("Failed to calcuate maxstack.");
-				throw new ConfuserException(null);
-			}
-			body.MaxStack = (ushort)maxStack;
+            if (!MaxStackCalculator.GetMaxStack(body.Instructions, body.ExceptionHandlers, out var maxStack))
+            {
+                ctx.Context.Logger.Error("Failed to calcuate maxstack.");
+                throw new ConfuserException(null);
+            }
+            body.MaxStack = (ushort)maxStack;
 			var root = BlockParser.ParseBody(body);
 
 			GetMangler(ctx.Type).Mangle(body, root, ctx);

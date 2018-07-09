@@ -24,8 +24,7 @@ namespace Confuser.Core {
 			this Dictionary<TKey, TValue> dictionary,
 			TKey key,
 			TValue defValue = default(TValue)) {
-			TValue ret;
-			if (dictionary.TryGetValue(key, out ret))
+            if (dictionary.TryGetValue(key, out var ret))
             {
                 return ret;
             }
@@ -46,8 +45,7 @@ namespace Confuser.Core {
 			this Dictionary<TKey, TValue> dictionary,
 			TKey key,
 			Func<TKey, TValue> defValueFactory) {
-			TValue ret;
-			if (dictionary.TryGetValue(key, out ret))
+            if (dictionary.TryGetValue(key, out var ret))
             {
                 return ret;
             }
@@ -70,8 +68,7 @@ namespace Confuser.Core {
                 throw new ArgumentNullException("key");
             }
 
-            List<TValue> list;
-			if (!self.TryGetValue(key, out list))
+            if (!self.TryGetValue(key, out var list))
             {
                 list = self[key] = new List<TValue>();
             }

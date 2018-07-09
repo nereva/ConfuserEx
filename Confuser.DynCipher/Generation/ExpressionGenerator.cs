@@ -64,9 +64,9 @@ namespace Confuser.DynCipher.Generation {
         }
 
 		static bool HasVariable(Expression exp, Dictionary<Expression, bool> hasVar) {
-			bool ret;
-			if (!hasVar.TryGetValue(exp, out ret)) {
-				if (exp is VariableExpression)
+            if (!hasVar.TryGetValue(exp, out var ret))
+            {
+                if (exp is VariableExpression)
                 {
                     ret = true;
                 }
@@ -74,21 +74,23 @@ namespace Confuser.DynCipher.Generation {
                 {
                     ret = false;
                 }
-                else if (exp is BinOpExpression) {
-					var binExp = (BinOpExpression)exp;
-					ret = HasVariable(binExp.Left, hasVar) || HasVariable(binExp.Right, hasVar);
-				}
-				else if (exp is UnaryOpExpression) {
-					ret = HasVariable(((UnaryOpExpression)exp).Value, hasVar);
-				}
-				else
+                else if (exp is BinOpExpression)
+                {
+                    var binExp = (BinOpExpression)exp;
+                    ret = HasVariable(binExp.Left, hasVar) || HasVariable(binExp.Right, hasVar);
+                }
+                else if (exp is UnaryOpExpression)
+                {
+                    ret = HasVariable(((UnaryOpExpression)exp).Value, hasVar);
+                }
+                else
                 {
                     throw new UnreachableException();
                 }
 
                 hasVar[exp] = ret;
-			}
-			return ret;
+            }
+            return ret;
 		}
 
 		static Expression GenerateInverse(Expression exp, Expression var, Dictionary<Expression, bool> hasVar) {

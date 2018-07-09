@@ -18,56 +18,64 @@ namespace Confuser.DynCipher.Elements {
 
 		public override void Emit(CipherGenContext context) {
 			var val = context.GetDataExpression(DataIndexes[0]);
-			VariableExpression tmp;
-			using (context.AcquireTempVar(out tmp)) {
-				if (IsAlternate)
+            using (context.AcquireTempVar(out var tmp))
+            {
+                if (IsAlternate)
                 {
-                    context.Emit(new AssignmentStatement {
-						Value = (val >> (32 - Bits)),
-						Target = tmp
-					}).Emit(new AssignmentStatement {
-						Value = (val << Bits) | tmp,
-						Target = val
-					});
+                    context.Emit(new AssignmentStatement
+                    {
+                        Value = (val >> (32 - Bits)),
+                        Target = tmp
+                    }).Emit(new AssignmentStatement
+                    {
+                        Value = (val << Bits) | tmp,
+                        Target = val
+                    });
                 }
                 else
                 {
-                    context.Emit(new AssignmentStatement {
-						Value = (val << (32 - Bits)),
-						Target = tmp
-					}).Emit(new AssignmentStatement {
-						Value = (val >> Bits) | tmp,
-						Target = val
-					});
+                    context.Emit(new AssignmentStatement
+                    {
+                        Value = (val << (32 - Bits)),
+                        Target = tmp
+                    }).Emit(new AssignmentStatement
+                    {
+                        Value = (val >> Bits) | tmp,
+                        Target = val
+                    });
                 }
             }
-		}
+        }
 
 		public override void EmitInverse(CipherGenContext context) {
 			var val = context.GetDataExpression(DataIndexes[0]);
-			VariableExpression tmp;
-			using (context.AcquireTempVar(out tmp)) {
-				if (IsAlternate)
+            using (context.AcquireTempVar(out var tmp))
+            {
+                if (IsAlternate)
                 {
-                    context.Emit(new AssignmentStatement {
-						Value = (val << (32 - Bits)),
-						Target = tmp
-					}).Emit(new AssignmentStatement {
-						Value = (val >> Bits) | tmp,
-						Target = val
-					});
+                    context.Emit(new AssignmentStatement
+                    {
+                        Value = (val << (32 - Bits)),
+                        Target = tmp
+                    }).Emit(new AssignmentStatement
+                    {
+                        Value = (val >> Bits) | tmp,
+                        Target = val
+                    });
                 }
                 else
                 {
-                    context.Emit(new AssignmentStatement {
-						Value = (val >> (32 - Bits)),
-						Target = tmp
-					}).Emit(new AssignmentStatement {
-						Value = (val << Bits) | tmp,
-						Target = val
-					});
+                    context.Emit(new AssignmentStatement
+                    {
+                        Value = (val >> (32 - Bits)),
+                        Target = tmp
+                    }).Emit(new AssignmentStatement
+                    {
+                        Value = (val << Bits) | tmp,
+                        Target = val
+                    });
                 }
             }
-		}
+        }
 	}
 }

@@ -14,10 +14,9 @@ namespace Confuser.Protections.AntiTamper {
 		Action<uint[], uint[]> encryptFunc;
 
 		public void Init(ConfuserContext ctx, RandomGenerator random) {
-			StatementBlock dummy;
-			ctx.Registry.GetService<IDynCipherService>().GenerateCipherPair(random, out derivation, out dummy);
+            ctx.Registry.GetService<IDynCipherService>().GenerateCipherPair(random, out derivation, out var dummy);
 
-			var dmCodeGen = new DMCodeGen(typeof(void), new[] {
+            var dmCodeGen = new DMCodeGen(typeof(void), new[] {
 				Tuple.Create("{BUFFER}", typeof(uint[])),
 				Tuple.Create("{KEY}", typeof(uint[]))
 			});

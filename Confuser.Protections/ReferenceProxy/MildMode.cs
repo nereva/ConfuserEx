@@ -25,9 +25,9 @@ namespace Confuser.Protections.ReferenceProxy {
             }
 
             var key = Tuple.Create(invoke.OpCode.Code, ctx.Method.DeclaringType, target);
-			MethodDef proxy;
-			if (!proxies.TryGetValue(key, out proxy)) {
-				var sig = CreateProxySignature(ctx, target, invoke.OpCode.Code == Code.Newobj);
+            if (!proxies.TryGetValue(key, out var proxy))
+            {
+                var sig = CreateProxySignature(ctx, target, invoke.OpCode.Code == Code.Newobj);
 
                 proxy = new MethodDefUser(ctx.Name.RandomName(), sig)
                 {
@@ -36,30 +36,31 @@ namespace Confuser.Protections.ReferenceProxy {
                 };
                 ctx.Method.DeclaringType.Methods.Add(proxy);
 
-				// Fix peverify --- Non-virtual call to virtual methods must be done on this pointer
-				if (invoke.OpCode.Code == Code.Call && target.ResolveThrow().IsVirtual) {
-					proxy.IsStatic = false;
-					sig.HasThis = true;
-					sig.Params.RemoveAt(0);
-				}
+                // Fix peverify --- Non-virtual call to virtual methods must be done on this pointer
+                if (invoke.OpCode.Code == Code.Call && target.ResolveThrow().IsVirtual)
+                {
+                    proxy.IsStatic = false;
+                    sig.HasThis = true;
+                    sig.Params.RemoveAt(0);
+                }
 
-				ctx.Marker.Mark(proxy, ctx.Protection);
-				ctx.Name.Analyze(proxy);
-				ctx.Name.SetCanRename(proxy, false);
+                ctx.Marker.Mark(proxy, ctx.Protection);
+                ctx.Name.Analyze(proxy);
+                ctx.Name.SetCanRename(proxy, false);
 
-				proxy.Body = new CilBody();
-				for (var i = 0; i < proxy.Parameters.Count; i++)
+                proxy.Body = new CilBody();
+                for (var i = 0; i < proxy.Parameters.Count; i++)
                 {
                     proxy.Body.Instructions.Add(Instruction.Create(OpCodes.Ldarg, proxy.Parameters[i]));
                 }
 
                 proxy.Body.Instructions.Add(Instruction.Create(invoke.OpCode, target));
-				proxy.Body.Instructions.Add(Instruction.Create(OpCodes.Ret));
+                proxy.Body.Instructions.Add(Instruction.Create(OpCodes.Ret));
 
-				proxies[key] = proxy;
-			}
+                proxies[key] = proxy;
+            }
 
-			invoke.OpCode = OpCodes.Call;
+            invoke.OpCode = OpCodes.Call;
 			if (ctx.Method.DeclaringType.HasGenericParameters) {
 				var genArgs = new GenericVar[ctx.Method.DeclaringType.GenericParameters.Count];
 				for (var i = 0; i < genArgs.Length; i++)

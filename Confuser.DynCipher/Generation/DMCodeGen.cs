@@ -24,12 +24,12 @@ namespace Confuser.DynCipher.Generation {
 		}
 
 		protected virtual LocalBuilder Var(Variable var) {
-			LocalBuilder ret;
-			if (!localMap.TryGetValue(var.Name, out ret)) {
-				ret = ilGen.DeclareLocal(typeof(int));
-				localMap[var.Name] = ret;
-			}
-			return ret;
+            if (!localMap.TryGetValue(var.Name, out var ret))
+            {
+                ret = ilGen.DeclareLocal(typeof(int));
+                localMap[var.Name] = ret;
+            }
+            return ret;
 		}
 
 		protected virtual void LoadVar(Variable var) {
