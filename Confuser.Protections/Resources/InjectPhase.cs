@@ -62,8 +62,10 @@ namespace Confuser.Protections.Resources {
 				MethodDef decomp = compression.GetRuntimeDecompressor(context.CurrentModule, member => {
 					name.MarkHelper(member, marker, (Protection)Parent);
 					if (member is MethodDef)
-						ProtectionParameters.GetParameters(context, member).Remove(Parent);
-				});
+                    {
+                        ProtectionParameters.GetParameters(context, member).Remove(Parent);
+                    }
+                });
 				InjectHelpers(context, compression, rt, moduleCtx);
 
 				// Mutate codes
@@ -81,8 +83,11 @@ namespace Confuser.Protections.Resources {
 			IEnumerable<IDnlibDef> members = InjectHelper.Inject(rt.GetRuntimeType(rtName), context.CurrentModule.GlobalType, context.CurrentModule);
 			foreach (IDnlibDef member in members) {
 				if (member.Name == "Initialize")
-					moduleCtx.InitMethod = (MethodDef)member;
-				moduleCtx.Name.MarkHelper(member, moduleCtx.Marker, (Protection)Parent);
+                {
+                    moduleCtx.InitMethod = (MethodDef)member;
+                }
+
+                moduleCtx.Name.MarkHelper(member, moduleCtx.Marker, (Protection)Parent);
 			}
 
 			var dataType = new TypeDefUser("", moduleCtx.Name.RandomName(), context.CurrentModule.CorLibTypes.GetTypeRef("System", "ValueType"));
@@ -129,9 +134,11 @@ namespace Confuser.Protections.Resources {
 			}
 			moduleCtx.InitMethod.Body.Instructions.Clear();
 			foreach (Instruction instr in instrs)
-				moduleCtx.InitMethod.Body.Instructions.Add(instr);
+            {
+                moduleCtx.InitMethod.Body.Instructions.Add(instr);
+            }
 
-			MutationHelper.ReplacePlaceholder(moduleCtx.InitMethod, arg => {
+            MutationHelper.ReplacePlaceholder(moduleCtx.InitMethod, arg => {
 				var repl = new List<Instruction>();
 				repl.AddRange(arg);
 				repl.Add(Instruction.Create(OpCodes.Dup));

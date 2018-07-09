@@ -52,9 +52,13 @@ namespace Confuser.Core {
 		/// <param name="settings">The settings.</param>
 		void FillPreset(ProtectionPreset preset, ProtectionSettings settings) {
 			foreach (Protection prot in protections.Values)
-				if (prot.Preset != ProtectionPreset.None && prot.Preset <= preset && !settings.ContainsKey(prot))
-					settings.Add(prot, new Dictionary<string, string>());
-		}
+            {
+                if (prot.Preset != ProtectionPreset.None && prot.Preset <= preset && !settings.ContainsKey(prot))
+                {
+                    settings.Add(prot, new Dictionary<string, string>());
+                }
+            }
+        }
 
 		/// <summary>
 		///     Loads the Strong Name Key at the specified path with a optional password.
@@ -67,9 +71,12 @@ namespace Confuser.Core {
 		/// </param>
 		/// <returns>The loaded Strong Name Key.</returns>
 		public static StrongNameKey LoadSNKey(ConfuserContext context, string path, string pass) {
-			if (path == null) return null;
+			if (path == null)
+            {
+                return null;
+            }
 
-			try {
+            try {
 				if (pass != null) //pfx
 				{
 					// http://stackoverflow.com/a/12196742/462805
@@ -78,9 +85,11 @@ namespace Confuser.Core {
 
 					var rsa = cert.PrivateKey as RSACryptoServiceProvider;
 					if (rsa == null)
-						throw new ArgumentException("RSA key does not present in the certificate.", "path");
+                    {
+                        throw new ArgumentException("RSA key does not present in the certificate.", "path");
+                    }
 
-					return new StrongNameKey(rsa.ExportCspBlob(true));
+                    return new StrongNameKey(rsa.ExportCspBlob(true));
 				}
 				return new StrongNameKey(path);
 			}
@@ -106,9 +115,11 @@ namespace Confuser.Core {
 					throw new ConfuserException(null);
 				}
 				if (proj.Debug)
-					context.Logger.Warn("Generated Debug symbols might not be usable with packers!");
+                {
+                    context.Logger.Warn("Generated Debug symbols might not be usable with packers!");
+                }
 
-				packer = packers[proj.Packer.Id];
+                packer = packers[proj.Packer.Id];
 				packerParams = new Dictionary<string, string>(proj.Packer, StringComparer.OrdinalIgnoreCase);
 			}
 
@@ -124,9 +135,11 @@ namespace Confuser.Core {
 				context.CheckCancellation();
 
 				if (proj.Debug)
-					modDef.LoadPdb();
+                {
+                    modDef.LoadPdb();
+                }
 
-				context.Resolver.AddToCache(modDef);
+                context.Resolver.AddToCache(modDef);
 				modules.Add(Tuple.Create(module, modDef));
 			}
 
@@ -144,8 +157,10 @@ namespace Confuser.Core {
 
 				// Packer parameters are stored in modules
 				if (packerParams != null)
-					ProtectionParameters.GetParameters(context, module.Item2)[packer] = packerParams;
-			}
+                {
+                    ProtectionParameters.GetParameters(context, module.Item2)[packer] = packerParams;
+                }
+            }
 			return new MarkerResult(modules.Select(module => module.Item2).ToList(), packer, extModules);
 		}
 
@@ -201,18 +216,27 @@ namespace Confuser.Core {
 		protected void ApplyRules(ConfuserContext context, IDnlibDef target, Rules rules, ProtectionSettings baseSettings = null) {
 			var ret = baseSettings == null ? new ProtectionSettings() : new ProtectionSettings(baseSettings);
 			foreach (var i in rules) {
-				if (!(bool)i.Value.Evaluate(target)) continue;
+				if (!(bool)i.Value.Evaluate(target))
+                {
+                    continue;
+                }
 
-				if (!i.Key.Inherit)
-					ret.Clear();
+                if (!i.Key.Inherit)
+                {
+                    ret.Clear();
+                }
 
-				FillPreset(i.Key.Preset, ret);
+                FillPreset(i.Key.Preset, ret);
 				foreach (var prot in i.Key) {
 					if (prot.Action == SettingItemAction.Add)
-						ret[protections[prot.Id]] = new Dictionary<string, string>(prot, StringComparer.OrdinalIgnoreCase);
-					else
-						ret.Remove(protections[prot.Id]);
-				}
+                    {
+                        ret[protections[prot.Id]] = new Dictionary<string, string>(prot, StringComparer.OrdinalIgnoreCase);
+                    }
+                    else
+                    {
+                        ret.Remove(protections[prot.Id]);
+                    }
+                }
 			}
 
 			ProtectionParameters.SetParameters(context, target, ret);

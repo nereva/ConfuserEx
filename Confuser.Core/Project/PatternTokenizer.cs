@@ -14,19 +14,27 @@ namespace Confuser.Core.Project {
 
 		void SkipWhitespace() {
 			while (index < rulePattern.Length && char.IsWhiteSpace(rulePattern[index]))
-				index++;
-		}
+            {
+                index++;
+            }
+        }
 
 		char? PeekChar() {
 			if (index >= rulePattern.Length)
-				return null;
-			return rulePattern[index];
+            {
+                return null;
+            }
+
+            return rulePattern[index];
 		}
 
 		char NextChar() {
 			if (index >= rulePattern.Length)
-				throw new InvalidPatternException("Unexpected end of pattern.");
-			return rulePattern[index++];
+            {
+                throw new InvalidPatternException("Unexpected end of pattern.");
+            }
+
+            return rulePattern[index++];
 		}
 
 		string ReadLiteral() {
@@ -38,10 +46,15 @@ namespace Confuser.Core.Project {
 			while (chr != delim) {
 				// Escape sequence
 				if (chr == '\\')
-					ret.Append(NextChar());
-				else
-					ret.Append(chr);
-				chr = NextChar();
+                {
+                    ret.Append(NextChar());
+                }
+                else
+                {
+                    ret.Append(chr);
+                }
+
+                chr = NextChar();
 			}
 			return ret.ToString();
 		}
@@ -60,14 +73,18 @@ namespace Confuser.Core.Project {
 
 		public PatternToken? NextToken() {
 			if (rulePattern == null)
-				throw new InvalidOperationException("Tokenizer not initialized.");
+            {
+                throw new InvalidOperationException("Tokenizer not initialized.");
+            }
 
-			SkipWhitespace();
+            SkipWhitespace();
 			char? tokenBegin = PeekChar();
 			if (tokenBegin == null)
-				return null;
+            {
+                return null;
+            }
 
-			int pos = index;
+            int pos = index;
 			switch (tokenBegin.Value) {
 				case ',':
 					index++;
@@ -85,9 +102,11 @@ namespace Confuser.Core.Project {
 
 				default:
 					if (!char.IsLetter(tokenBegin.Value))
-						throw new InvalidPatternException(string.Format("Unknown token '{0}' at position {1}.", tokenBegin, pos));
+                    {
+                        throw new InvalidPatternException(string.Format("Unknown token '{0}' at position {1}.", tokenBegin, pos));
+                    }
 
-					return new PatternToken(pos, TokenType.Identifier, ReadIdentifier());
+                    return new PatternToken(pos, TokenType.Identifier, ReadIdentifier());
 			}
 		}
 	}

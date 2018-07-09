@@ -61,8 +61,11 @@ namespace Confuser.Runtime {
 			get {
 				try {
 					if (profilerDetector == null)
-						return false;
-					return profilerDetector.IsProfilerAttached();
+                    {
+                        return false;
+                    }
+
+                    return profilerDetector.IsProfilerAttached();
 				}
 				catch { }
 				return false;
@@ -77,8 +80,11 @@ namespace Confuser.Runtime {
 			get {
 				try {
 					if (profilerDetector == null)
-						return false;
-					return profilerDetector.WasProfilerAttached();
+                    {
+                        return false;
+                    }
+
+                    return profilerDetector.WasProfilerAttached();
 				}
 				catch { }
 				return false;
@@ -97,8 +103,11 @@ namespace Confuser.Runtime {
 
 		private static ProfilerDetector CreateProfilerDetector() {
 			if (Environment.Version.Major == 2)
-				return new ProfilerDetectorCLR20();
-			return new ProfilerDetectorCLR40();
+            {
+                return new ProfilerDetectorCLR20();
+            }
+
+            return new ProfilerDetectorCLR40();
 		}
 
 		/// <summary>
@@ -108,8 +117,11 @@ namespace Confuser.Runtime {
 		/// </summary>
 		private static void PreventActiveProfilerFromReceivingProfilingMessages() {
 			if (profilerDetector == null)
-				return;
-			profilerDetector.PreventActiveProfilerFromReceivingProfilingMessages();
+            {
+                return;
+            }
+
+            profilerDetector.PreventActiveProfilerFromReceivingProfilingMessages();
 		}
 
 		private static IntPtr GetMax(Dictionary<IntPtr, int> addresses, int minCount) {
@@ -148,8 +160,11 @@ namespace Confuser.Runtime {
 			public override bool IsProfilerAttached() {
 				unsafe {
 					if (profilerStatusFlag == IntPtr.Zero)
-						return false;
-					return (*(uint*)profilerStatusFlag & 6) != 0;
+                    {
+                        return false;
+                    }
+
+                    return (*(uint*)profilerStatusFlag & 6) != 0;
 				}
 			}
 
@@ -174,14 +189,18 @@ namespace Confuser.Runtime {
 				try {
 					PEInfo peInfo = PEInfo.GetCLR();
 					if (peInfo == null)
-						return false;
+                    {
+                        return false;
+                    }
 
-					IntPtr sectionAddr;
+                    IntPtr sectionAddr;
 					uint sectionSize;
 					if (!peInfo.FindSection(".text", out sectionAddr, out sectionSize))
-						return false;
+                    {
+                        return false;
+                    }
 
-					const int MAX_COUNTS = 50;
+                    const int MAX_COUNTS = 50;
 					var p = (byte*)sectionAddr;
 					byte* end = (byte*)sectionAddr + sectionSize;
 					for (; p < end; p++) {
@@ -190,19 +209,30 @@ namespace Confuser.Runtime {
 						// F6 05 XX XX XX XX 06	test byte ptr [mem],6
 						if (*p == 0xF6 && p[1] == 0x05 && p[6] == 0x06) {
 							if (IntPtr.Size == 4)
-								addr = new IntPtr((void*)*(uint*)(p + 2));
-							else
-								addr = new IntPtr(p + 7 + *(int*)(p + 2));
-						}
+                            {
+                                addr = new IntPtr((void*)*(uint*)(p + 2));
+                            }
+                            else
+                            {
+                                addr = new IntPtr(p + 7 + *(int*)(p + 2));
+                            }
+                        }
 						else
-							continue;
+                        {
+                            continue;
+                        }
 
-						if (!PEInfo.IsAligned(addr, 4))
-							continue;
-						if (!peInfo.IsValidImageAddress(addr, 4))
-							continue;
+                        if (!PEInfo.IsAligned(addr, 4))
+                        {
+                            continue;
+                        }
 
-						try {
+                        if (!peInfo.IsValidImageAddress(addr, 4))
+                        {
+                            continue;
+                        }
+
+                        try {
 							*(uint*)addr = *(uint*)addr;
 						}
 						catch {
@@ -214,22 +244,29 @@ namespace Confuser.Runtime {
 						count++;
 						addrCounts[addr] = count;
 						if (count >= MAX_COUNTS)
-							break;
-					}
+                        {
+                            break;
+                        }
+                    }
 				}
 				catch { }
 				IntPtr foundAddr = GetMax(addrCounts, 5);
 				if (foundAddr == IntPtr.Zero)
-					return false;
+                {
+                    return false;
+                }
 
-				profilerStatusFlag = foundAddr;
+                profilerStatusFlag = foundAddr;
 				return true;
 			}
 
 			public override unsafe void PreventActiveProfilerFromReceivingProfilingMessages() {
 				if (profilerStatusFlag == IntPtr.Zero)
-					return;
-				*(uint*)profilerStatusFlag &= ~6U;
+                {
+                    return;
+                }
+
+                *(uint*)profilerStatusFlag &= ~6U;
 			}
 
 		}
@@ -290,8 +327,11 @@ namespace Confuser.Runtime {
 			public override bool IsProfilerAttached() {
 				unsafe {
 					if (profilerControlBlock == IntPtr.Zero)
-						return false;
-					return *(uint*)((byte*)profilerControlBlock + IntPtr.Size + 4) != 0;
+                    {
+                        return false;
+                    }
+
+                    return *(uint*)((byte*)profilerControlBlock + IntPtr.Size + 4) != 0;
 				}
 			}
 
@@ -311,40 +351,46 @@ namespace Confuser.Runtime {
 			private unsafe bool TakeOwnershipOfNamedPipe() {
 				try {
 					if (CreateNamedPipe())
-						return true;
+                    {
+                        return true;
+                    }
 
-					// The CLR has already created the named pipe. Either the AttachThreadAlwaysOn
-					// CLR option is enabled or some profiler has just attached or is attaching.
-					// We must force it to exit its loop. There are two options that can prevent
-					// it from exiting the thread, AttachThreadAlwaysOn and
-					// ProfAPIMaxWaitForTriggerMs. If AttachThreadAlwaysOn is enabled, the thread
-					// is started immediately when the CLR is loaded and it never exits.
-					// ProfAPIMaxWaitForTriggerMs is the timeout in ms to use when waiting on
-					// client attach messages. A user could set this to FFFFFFFF which is equal
-					// to the INFINITE constant.
-					//
-					// To force it to exit, we must do this:
-					//	- Find clr!ProfilingAPIAttachDetach::s_attachThreadingMode and make sure
-					//	  it's not 2 (AttachThreadAlwaysOn is enabled).
-					//	- Find clr!EXTERNAL_ProfAPIMaxWaitForTriggerMs and:
-					//		- Set its default value to 0
-					//		- Rename the option so the user can't override it
-					//	- Open the named pipe to wake it up and then close the file to force a
-					//	  timeout error.
-					//	- Wait a little while until the thread has exited
+                    // The CLR has already created the named pipe. Either the AttachThreadAlwaysOn
+                    // CLR option is enabled or some profiler has just attached or is attaching.
+                    // We must force it to exit its loop. There are two options that can prevent
+                    // it from exiting the thread, AttachThreadAlwaysOn and
+                    // ProfAPIMaxWaitForTriggerMs. If AttachThreadAlwaysOn is enabled, the thread
+                    // is started immediately when the CLR is loaded and it never exits.
+                    // ProfAPIMaxWaitForTriggerMs is the timeout in ms to use when waiting on
+                    // client attach messages. A user could set this to FFFFFFFF which is equal
+                    // to the INFINITE constant.
+                    //
+                    // To force it to exit, we must do this:
+                    //	- Find clr!ProfilingAPIAttachDetach::s_attachThreadingMode and make sure
+                    //	  it's not 2 (AttachThreadAlwaysOn is enabled).
+                    //	- Find clr!EXTERNAL_ProfAPIMaxWaitForTriggerMs and:
+                    //		- Set its default value to 0
+                    //		- Rename the option so the user can't override it
+                    //	- Open the named pipe to wake it up and then close the file to force a
+                    //	  timeout error.
+                    //	- Wait a little while until the thread has exited
 
-					IntPtr threadingModeAddr = FindThreadingModeAddress();
+                    IntPtr threadingModeAddr = FindThreadingModeAddress();
 					IntPtr timeOutOptionAddr = FindTimeOutOptionAddress();
 
 					if (timeOutOptionAddr == IntPtr.Zero)
-						return false;
+                    {
+                        return false;
+                    }
 
-					// Make sure the thread can exit. If this value is 2, it will never exit.
-					if (threadingModeAddr != IntPtr.Zero && *(uint*)threadingModeAddr == 2)
-						*(uint*)threadingModeAddr = 1;
+                    // Make sure the thread can exit. If this value is 2, it will never exit.
+                    if (threadingModeAddr != IntPtr.Zero && *(uint*)threadingModeAddr == 2)
+                    {
+                        *(uint*)threadingModeAddr = 1;
+                    }
 
-					// Set default timeout to 0 and rename timeout option
-					FixTimeOutOption(timeOutOptionAddr);
+                    // Set default timeout to 0 and rename timeout option
+                    FixTimeOutOption(timeOutOptionAddr);
 
 					// Wake up clr!ProfilingAPIAttachServer::ConnectToClient(). We immediately
 					// close the pipe so it will fail to read any data. It will then start over
@@ -352,10 +398,15 @@ namespace Confuser.Runtime {
 					// the thread can now exit, it will exit and close its named pipe.
 					using (SafeFileHandle hPipe = CreatePipeFileHandleWait()) {
 						if (hPipe == null)
-							return false;
-						if (hPipe.IsInvalid)
-							return false;
-					}
+                        {
+                            return false;
+                        }
+
+                        if (hPipe.IsInvalid)
+                        {
+                            return false;
+                        }
+                    }
 
 					return CreateNamedPipeWait();
 				}
@@ -368,8 +419,11 @@ namespace Confuser.Runtime {
 				const int waitTime = 5;
 				while (timeLeft > 0) {
 					if (CreateNamedPipe())
-						return true;
-					Sleep(waitTime);
+                    {
+                        return true;
+                    }
+
+                    Sleep(waitTime);
 					timeLeft -= waitTime;
 				}
 				return CreateNamedPipe();
@@ -378,9 +432,11 @@ namespace Confuser.Runtime {
 			[HandleProcessCorruptedStateExceptions, SecurityCritical] // Req'd on .NET 4.0
 			private static unsafe void FixTimeOutOption(IntPtr timeOutOptionAddr) {
 				if (timeOutOptionAddr == IntPtr.Zero)
-					return;
+                {
+                    return;
+                }
 
-				uint oldProtect;
+                uint oldProtect;
 				VirtualProtect(timeOutOptionAddr, (int)ConfigDWORDInfo_defValue + 4, PAGE_EXECUTE_READWRITE, out oldProtect);
 				try {
 					// Set default timeout to 0 to make sure it fails immediately
@@ -397,8 +453,10 @@ namespace Confuser.Runtime {
 				try {
 					var rand = new Random();
 					for (int i = 0; i < ProfAPIMaxWaitForTriggerMs_name.Length; i++)
-						name[i] = (char)rand.Next(1, ushort.MaxValue);
-				}
+                    {
+                        name[i] = (char)rand.Next(1, ushort.MaxValue);
+                    }
+                }
 				finally {
 					VirtualProtect(nameAddr, IntPtr.Size, oldProtect, out oldProtect);
 				}
@@ -409,11 +467,17 @@ namespace Confuser.Runtime {
 				const int waitTime = 5;
 				while (timeLeft > 0) {
 					if (CreateNamedPipe())
-						return null;
-					SafeFileHandle hFile = CreatePipeFileHandle();
+                    {
+                        return null;
+                    }
+
+                    SafeFileHandle hFile = CreatePipeFileHandle();
 					if (!hFile.IsInvalid)
-						return hFile;
-					Sleep(waitTime);
+                    {
+                        return hFile;
+                    }
+
+                    Sleep(waitTime);
 					timeLeft -= waitTime;
 				}
 				return CreatePipeFileHandle();
@@ -431,9 +495,11 @@ namespace Confuser.Runtime {
 
 			private bool CreateNamedPipe() {
 				if (profilerPipe != null && !profilerPipe.IsInvalid)
-					return true;
+                {
+                    return true;
+                }
 
-				profilerPipe = CreateNamedPipe(GetPipeName(),
+                profilerPipe = CreateNamedPipe(GetPipeName(),
 				                               FILE_FLAG_OVERLAPPED | PIPE_ACCESS_DUPLEX,
 				                               PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE,
 				                               1, // nMaxInstances
@@ -463,14 +529,18 @@ namespace Confuser.Runtime {
 
 					PEInfo peInfo = PEInfo.GetCLR();
 					if (peInfo == null)
-						return IntPtr.Zero;
+                    {
+                        return IntPtr.Zero;
+                    }
 
-					IntPtr sectionAddr;
+                    IntPtr sectionAddr;
 					uint sectionSize;
 					if (!peInfo.FindSection(".text", out sectionAddr, out sectionSize))
-						return IntPtr.Zero;
+                    {
+                        return IntPtr.Zero;
+                    }
 
-					var ptr = (byte*)sectionAddr;
+                    var ptr = (byte*)sectionAddr;
 					byte* end = (byte*)sectionAddr + sectionSize;
 					for (; ptr < end; ptr++) {
 						IntPtr addr;
@@ -479,60 +549,95 @@ namespace Confuser.Runtime {
 							//	83 3D XX XX XX XX 02	cmp dword ptr [mem],2
 							byte* p = ptr;
 							if (*p != 0x83 || p[1] != 0x3D || p[6] != 2)
-								continue;
-							if (IntPtr.Size == 4)
-								addr = new IntPtr((void*)*(uint*)(p + 2));
-							else
-								addr = new IntPtr(p + 7 + *(int*)(p + 2));
-							if (!PEInfo.IsAligned(addr, 4))
-								continue;
-							if (!peInfo.IsValidImageAddress(addr))
-								continue;
-							p += 7;
+                            {
+                                continue;
+                            }
+
+                            if (IntPtr.Size == 4)
+                            {
+                                addr = new IntPtr((void*)*(uint*)(p + 2));
+                            }
+                            else
+                            {
+                                addr = new IntPtr(p + 7 + *(int*)(p + 2));
+                            }
+
+                            if (!PEInfo.IsAligned(addr, 4))
+                            {
+                                continue;
+                            }
+
+                            if (!peInfo.IsValidImageAddress(addr))
+                            {
+                                continue;
+                            }
+
+                            p += 7;
 
 							// 1 = normal lazy thread creation. 2 = thread is always present
 							if (*(uint*)addr < 1 || *(uint*)addr > 2)
-								continue;
-							*(uint*)addr = *(uint*)addr;
+                            {
+                                continue;
+                            }
+
+                            *(uint*)addr = *(uint*)addr;
 
 							//	74 / 0F 84 XX			je there
 							if (!NextJz(ref p))
-								continue;
+                            {
+                                continue;
+                            }
 
-							//	83 E8+r 00 / 85 C0+rr	sub reg,0 / test reg,reg
-							SkipRex(ref p);
+                            //	83 E8+r 00 / 85 C0+rr	sub reg,0 / test reg,reg
+                            SkipRex(ref p);
 							if (*p == 0x83 && p[2] == 0) {
 								if ((uint)(p[1] - 0xE8) > 7)
-									continue;
-								p += 3;
+                                {
+                                    continue;
+                                }
+
+                                p += 3;
 							}
 							else if (*p == 0x85) {
 								int reg = (p[1] >> 3) & 7;
 								int rm = p[1] & 7;
 								if (reg != rm)
-									continue;
-								p += 2;
+                                {
+                                    continue;
+                                }
+
+                                p += 2;
 							}
 							else
-								continue;
+                            {
+                                continue;
+                            }
 
-							//	74 / 0F 84 XX			je there
-							if (!NextJz(ref p))
-								continue;
+                            //	74 / 0F 84 XX			je there
+                            if (!NextJz(ref p))
+                            {
+                                continue;
+                            }
 
-							//	48+r / FF C8+r			dec reg
-							if (!SkipDecReg(ref p))
-								continue;
+                            //	48+r / FF C8+r			dec reg
+                            if (!SkipDecReg(ref p))
+                            {
+                                continue;
+                            }
 
-							//	74 / 0F 84 XX			je there
-							if (!NextJz(ref p))
-								continue;
+                            //	74 / 0F 84 XX			je there
+                            if (!NextJz(ref p))
+                            {
+                                continue;
+                            }
 
-							//	48+r / FF C8+r			dec reg
-							if (!SkipDecReg(ref p))
-								continue;
+                            //	48+r / FF C8+r			dec reg
+                            if (!SkipDecReg(ref p))
+                            {
+                                continue;
+                            }
 
-							return addr;
+                            return addr;
 						}
 						catch { }
 					}
@@ -550,28 +655,39 @@ namespace Confuser.Runtime {
 				try {
 					PEInfo peInfo = PEInfo.GetCLR();
 					if (peInfo == null)
-						return IntPtr.Zero;
+                    {
+                        return IntPtr.Zero;
+                    }
 
-					IntPtr sectionAddr;
+                    IntPtr sectionAddr;
 					uint sectionSize;
 					if (!peInfo.FindSection(".rdata", out sectionAddr, out sectionSize) &&
 					    !peInfo.FindSection(".text", out sectionAddr, out sectionSize))
-						return IntPtr.Zero;
+                    {
+                        return IntPtr.Zero;
+                    }
 
-					var p = (byte*)sectionAddr;
+                    var p = (byte*)sectionAddr;
 					byte* end = (byte*)sectionAddr + sectionSize;
 					for (; p < end; p++) {
 						try {
 							char* name = *(char**)(p + ConfigDWORDInfo_name);
 							if (!PEInfo.IsAligned(new IntPtr(name), 2))
-								continue;
-							if (!peInfo.IsValidImageAddress(name))
-								continue;
+                            {
+                                continue;
+                            }
 
-							if (!Equals(name, ProfAPIMaxWaitForTriggerMs_name))
-								continue;
+                            if (!peInfo.IsValidImageAddress(name))
+                            {
+                                continue;
+                            }
 
-							return new IntPtr(p);
+                            if (!Equals(name, ProfAPIMaxWaitForTriggerMs_name))
+                            {
+                                continue;
+                            }
+
+                            return new IntPtr(p);
 						}
 						catch { }
 					}
@@ -583,27 +699,41 @@ namespace Confuser.Runtime {
 			private static unsafe bool Equals(char* s1, string s2) {
 				for (int i = 0; i < s2.Length; i++) {
 					if (char.ToUpperInvariant(s1[i]) != char.ToUpperInvariant(s2[i]))
-						return false;
-				}
+                    {
+                        return false;
+                    }
+                }
 				return s1[s2.Length] == 0;
 			}
 
 			private static unsafe void SkipRex(ref byte* p) {
 				if (IntPtr.Size != 8)
-					return;
-				if (*p >= 0x48 && *p <= 0x4F)
-					p++;
-			}
+                {
+                    return;
+                }
+
+                if (*p >= 0x48 && *p <= 0x4F)
+                {
+                    p++;
+                }
+            }
 
 			private static unsafe bool SkipDecReg(ref byte* p) {
 				SkipRex(ref p);
 				if (IntPtr.Size == 4 && *p >= 0x48 && *p <= 0x4F)
-					p++;
-				else if (*p == 0xFF && p[1] >= 0xC8 && p[1] <= 0xCF)
-					p += 2;
-				else
-					return false;
-				return true;
+                {
+                    p++;
+                }
+                else if (*p == 0xFF && p[1] >= 0xC8 && p[1] <= 0xCF)
+                {
+                    p += 2;
+                }
+                else
+                {
+                    return false;
+                }
+
+                return true;
 			}
 
 			private static unsafe bool NextJz(ref byte* p) {
@@ -628,9 +758,11 @@ namespace Confuser.Runtime {
 			private unsafe bool PatchAttacherThreadProc() {
 				IntPtr threadProc = FindAttacherThreadProc();
 				if (threadProc == IntPtr.Zero)
-					return false;
+                {
+                    return false;
+                }
 
-				var p = (byte*)threadProc;
+                var p = (byte*)threadProc;
 				uint oldProtect;
 				VirtualProtect(new IntPtr(p), 5, PAGE_EXECUTE_READWRITE, out oldProtect);
 				try {
@@ -662,14 +794,18 @@ namespace Confuser.Runtime {
 				try {
 					PEInfo peInfo = PEInfo.GetCLR();
 					if (peInfo == null)
-						return IntPtr.Zero;
+                    {
+                        return IntPtr.Zero;
+                    }
 
-					IntPtr sectionAddr;
+                    IntPtr sectionAddr;
 					uint sectionSize;
 					if (!peInfo.FindSection(".text", out sectionAddr, out sectionSize))
-						return IntPtr.Zero;
+                    {
+                        return IntPtr.Zero;
+                    }
 
-					var p = (byte*)sectionAddr;
+                    var p = (byte*)sectionAddr;
 					byte* start = p;
 					byte* end = (byte*)sectionAddr + sectionSize;
 
@@ -686,19 +822,32 @@ namespace Confuser.Runtime {
 
 							byte push = *p;
 							if (push < 0x50 || push > 0x57)
-								continue;
-							if (p[1] != push || p[2] != push || p[8] != push || p[9] != push)
-								continue;
-							if (p[3] != 0x68)
-								continue;
-							if (p[10] != 0xFF || p[11] != 0x15)
-								continue;
+                            {
+                                continue;
+                            }
 
-							var threadProc = new IntPtr((void*)*(uint*)(p + 4));
+                            if (p[1] != push || p[2] != push || p[8] != push || p[9] != push)
+                            {
+                                continue;
+                            }
+
+                            if (p[3] != 0x68)
+                            {
+                                continue;
+                            }
+
+                            if (p[10] != 0xFF || p[11] != 0x15)
+                            {
+                                continue;
+                            }
+
+                            var threadProc = new IntPtr((void*)*(uint*)(p + 4));
 							if (!CheckThreadProc(start, end, threadProc))
-								continue;
+                            {
+                                continue;
+                            }
 
-							return threadProc;
+                            return threadProc;
 						}
 					}
 					else {
@@ -711,21 +860,37 @@ namespace Confuser.Runtime {
 							//	FF 15 XX XX XX XX		call dword ptr [mem] // CreateThread()
 
 							if (*p != 0x45 && p[1] != 0x33 && p[2] != 0xC9)
-								continue;
-							if (p[3] != 0x4C && p[4] != 0x8D && p[5] != 0x05)
-								continue;
-							if (p[10] != 0x33 && p[11] != 0xD2)
-								continue;
-							if (p[12] != 0x33 && p[13] != 0xC9)
-								continue;
-							if (p[14] != 0xFF && p[15] != 0x15)
-								continue;
+                            {
+                                continue;
+                            }
 
-							var threadProc = new IntPtr(p + 10 + *(int*)(p + 6));
+                            if (p[3] != 0x4C && p[4] != 0x8D && p[5] != 0x05)
+                            {
+                                continue;
+                            }
+
+                            if (p[10] != 0x33 && p[11] != 0xD2)
+                            {
+                                continue;
+                            }
+
+                            if (p[12] != 0x33 && p[13] != 0xC9)
+                            {
+                                continue;
+                            }
+
+                            if (p[14] != 0xFF && p[15] != 0x15)
+                            {
+                                continue;
+                            }
+
+                            var threadProc = new IntPtr(p + 10 + *(int*)(p + 6));
 							if (!CheckThreadProc(start, end, threadProc))
-								continue;
+                            {
+                                continue;
+                            }
 
-							return threadProc;
+                            return threadProc;
 						}
 					}
 				}
@@ -748,13 +913,17 @@ namespace Confuser.Runtime {
 
 					// Must be in .text section
 					if (p < codeStart || p >= codeEnd)
-						return false;
+                    {
+                        return false;
+                    }
 
-					// It has a constant that is present in the first N bytes
-					for (int i = 0; i < 0x20; i++) {
+                    // It has a constant that is present in the first N bytes
+                    for (int i = 0; i < 0x20; i++) {
 						if (*(uint*)(p + i) == 0x4000)
-							return true;
-					}
+                        {
+                            return true;
+                        }
+                    }
 				}
 				catch { }
 				return false;
@@ -772,14 +941,18 @@ namespace Confuser.Runtime {
 				try {
 					PEInfo peInfo = PEInfo.GetCLR();
 					if (peInfo == null)
-						return false;
+                    {
+                        return false;
+                    }
 
-					IntPtr sectionAddr;
+                    IntPtr sectionAddr;
 					uint sectionSize;
 					if (!peInfo.FindSection(".text", out sectionAddr, out sectionSize))
-						return false;
+                    {
+                        return false;
+                    }
 
-					const int MAX_COUNTS = 50;
+                    const int MAX_COUNTS = 50;
 					var p = (byte*)sectionAddr;
 					byte* end = (byte*)sectionAddr + sectionSize;
 					for (; p < end; p++) {
@@ -789,38 +962,60 @@ namespace Confuser.Runtime {
 						// 83 F8 04				cmp eax,4
 						if (*p == 0xA1 && p[5] == 0x83 && p[6] == 0xF8 && p[7] == 0x04) {
 							if (IntPtr.Size == 4)
-								addr = new IntPtr((void*)*(uint*)(p + 1));
-							else
-								addr = new IntPtr(p + 5 + *(int*)(p + 1));
-						}
+                            {
+                                addr = new IntPtr((void*)*(uint*)(p + 1));
+                            }
+                            else
+                            {
+                                addr = new IntPtr(p + 5 + *(int*)(p + 1));
+                            }
+                        }
 							// 8B 05 xx xx xx xx	mov eax,[mem]
 							// 83 F8 04				cmp eax,4
 						else if (*p == 0x8B && p[1] == 0x05 && p[6] == 0x83 && p[7] == 0xF8 && p[8] == 0x04) {
 							if (IntPtr.Size == 4)
-								addr = new IntPtr((void*)*(uint*)(p + 2));
-							else
-								addr = new IntPtr(p + 6 + *(int*)(p + 2));
-						}
+                            {
+                                addr = new IntPtr((void*)*(uint*)(p + 2));
+                            }
+                            else
+                            {
+                                addr = new IntPtr(p + 6 + *(int*)(p + 2));
+                            }
+                        }
 							// 83 3D XX XX XX XX 04	cmp dword ptr [mem],4
 						else if (*p == 0x83 && p[1] == 0x3D && p[6] == 0x04) {
 							if (IntPtr.Size == 4)
-								addr = new IntPtr((void*)*(uint*)(p + 2));
-							else
-								addr = new IntPtr(p + 7 + *(int*)(p + 2));
-						}
+                            {
+                                addr = new IntPtr((void*)*(uint*)(p + 2));
+                            }
+                            else
+                            {
+                                addr = new IntPtr(p + 7 + *(int*)(p + 2));
+                            }
+                        }
 						else
-							continue;
+                        {
+                            continue;
+                        }
 
-						if (!PEInfo.IsAligned(addr, 4))
-							continue;
-						if (!peInfo.IsValidImageAddress(addr, 4))
-							continue;
+                        if (!PEInfo.IsAligned(addr, 4))
+                        {
+                            continue;
+                        }
 
-						// Valid values are 0-4. 4 being attached.
-						try {
+                        if (!peInfo.IsValidImageAddress(addr, 4))
+                        {
+                            continue;
+                        }
+
+                        // Valid values are 0-4. 4 being attached.
+                        try {
 							if (*(uint*)addr > 4)
-								continue;
-							*(uint*)addr = *(uint*)addr;
+                            {
+                                continue;
+                            }
+
+                            *(uint*)addr = *(uint*)addr;
 						}
 						catch {
 							continue;
@@ -831,22 +1026,29 @@ namespace Confuser.Runtime {
 						count++;
 						addrCounts[addr] = count;
 						if (count >= MAX_COUNTS)
-							break;
-					}
+                        {
+                            break;
+                        }
+                    }
 				}
 				catch { }
 				IntPtr foundAddr = GetMax(addrCounts, 5);
 				if (foundAddr == IntPtr.Zero)
-					return false;
+                {
+                    return false;
+                }
 
-				profilerControlBlock = new IntPtr((byte*)foundAddr - (IntPtr.Size + 4));
+                profilerControlBlock = new IntPtr((byte*)foundAddr - (IntPtr.Size + 4));
 				return true;
 			}
 
 			public override unsafe void PreventActiveProfilerFromReceivingProfilingMessages() {
 				if (profilerControlBlock == IntPtr.Zero)
-					return;
-				*(uint*)((byte*)profilerControlBlock + IntPtr.Size + 4) = 0;
+                {
+                    return;
+                }
+
+                *(uint*)((byte*)profilerControlBlock + IntPtr.Size + 4) = 0;
 			}
 
 		}

@@ -21,8 +21,11 @@ namespace Confuser.Protections.ControlFlow {
 
 		public void Init(CilBody body) {
 			if (inited)
-				return;
-			stateVar = new Local(ctx.Method.Module.CorLibTypes.Int32);
+            {
+                return;
+            }
+
+            stateVar = new Local(ctx.Method.Module.CorLibTypes.Int32);
 			body.Variables.Add(stateVar);
 			body.InitLocals = true;
 			Compile(body);
@@ -32,8 +35,10 @@ namespace Confuser.Protections.ControlFlow {
 		public void EmitSwitchLoad(IList<Instruction> instrs) {
 			instrs.Add(Instruction.Create(OpCodes.Stloc, stateVar));
 			foreach (Instruction instr in invCompiled)
-				instrs.Add(instr.Clone());
-		}
+            {
+                instrs.Add(instr.Clone());
+            }
+        }
 
 		public int GetSwitchKey(int key) {
 			return expCompiled(key);
@@ -67,8 +72,11 @@ namespace Confuser.Protections.ControlFlow {
 
 			protected override Local Var(Variable var) {
 				if (var.Name == "{RESULT}")
-					return state;
-				return base.Var(var);
+                {
+                    return state;
+                }
+
+                return base.Var(var);
 			}
 		}
 	}

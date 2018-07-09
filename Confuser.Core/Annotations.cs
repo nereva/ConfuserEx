@@ -26,20 +26,33 @@ namespace Confuser.Core {
 		/// </exception>
 		public TValue Get<TValue>(object obj, object key, TValue defValue = default(TValue)) {
 			if (obj == null)
-				throw new ArgumentNullException("obj");
-			if (key == null)
-				throw new ArgumentNullException("key");
+            {
+                throw new ArgumentNullException("obj");
+            }
 
-			ListDictionary objAnno;
+            if (key == null)
+            {
+                throw new ArgumentNullException("key");
+            }
+
+            ListDictionary objAnno;
 			if (!annotations.TryGetValue(obj, out objAnno))
-				return defValue;
-			if (!objAnno.Contains(key))
-				return defValue;
+            {
+                return defValue;
+            }
 
-			Type valueType = typeof(TValue);
+            if (!objAnno.Contains(key))
+            {
+                return defValue;
+            }
+
+            Type valueType = typeof(TValue);
 			if (valueType.IsValueType)
-				return (TValue)Convert.ChangeType(objAnno[key], typeof(TValue));
-			return (TValue)objAnno[key];
+            {
+                return (TValue)Convert.ChangeType(objAnno[key], typeof(TValue));
+            }
+
+            return (TValue)objAnno[key];
 		}
 
 		/// <summary>
@@ -55,20 +68,33 @@ namespace Confuser.Core {
 		/// </exception>
 		public TValue GetLazy<TValue>(object obj, object key, Func<object, TValue> defValueFactory) {
 			if (obj == null)
-				throw new ArgumentNullException("obj");
-			if (key == null)
-				throw new ArgumentNullException("key");
+            {
+                throw new ArgumentNullException("obj");
+            }
 
-			ListDictionary objAnno;
+            if (key == null)
+            {
+                throw new ArgumentNullException("key");
+            }
+
+            ListDictionary objAnno;
 			if (!annotations.TryGetValue(obj, out objAnno))
-				return defValueFactory(key);
-			if (!objAnno.Contains(key))
-				return defValueFactory(key);
+            {
+                return defValueFactory(key);
+            }
 
-			Type valueType = typeof(TValue);
+            if (!objAnno.Contains(key))
+            {
+                return defValueFactory(key);
+            }
+
+            Type valueType = typeof(TValue);
 			if (valueType.IsValueType)
-				return (TValue)Convert.ChangeType(objAnno[key], typeof(TValue));
-			return (TValue)objAnno[key];
+            {
+                return (TValue)Convert.ChangeType(objAnno[key], typeof(TValue));
+            }
+
+            return (TValue)objAnno[key];
 		}
 
 		/// <summary>
@@ -84,19 +110,30 @@ namespace Confuser.Core {
 		/// </exception>
 		public TValue GetOrCreate<TValue>(object obj, object key, Func<object, TValue> factory) {
 			if (obj == null)
-				throw new ArgumentNullException("obj");
-			if (key == null)
-				throw new ArgumentNullException("key");
+            {
+                throw new ArgumentNullException("obj");
+            }
 
-			ListDictionary objAnno;
+            if (key == null)
+            {
+                throw new ArgumentNullException("key");
+            }
+
+            ListDictionary objAnno;
 			if (!annotations.TryGetValue(obj, out objAnno))
-				objAnno = annotations[new WeakReferenceKey(obj)] = new ListDictionary();
-			TValue ret;
+            {
+                objAnno = annotations[new WeakReferenceKey(obj)] = new ListDictionary();
+            }
+
+            TValue ret;
 			if (objAnno.Contains(key)) {
 				Type valueType = typeof(TValue);
 				if (valueType.IsValueType)
-					return (TValue)Convert.ChangeType(objAnno[key], typeof(TValue));
-				return (TValue)objAnno[key];
+                {
+                    return (TValue)Convert.ChangeType(objAnno[key], typeof(TValue));
+                }
+
+                return (TValue)objAnno[key];
 			}
 			objAnno[key] = ret = factory(key);
 			return ret;
@@ -114,14 +151,22 @@ namespace Confuser.Core {
 		/// </exception>
 		public void Set<TValue>(object obj, object key, TValue value) {
 			if (obj == null)
-				throw new ArgumentNullException("obj");
-			if (key == null)
-				throw new ArgumentNullException("key");
+            {
+                throw new ArgumentNullException("obj");
+            }
 
-			ListDictionary objAnno;
+            if (key == null)
+            {
+                throw new ArgumentNullException("key");
+            }
+
+            ListDictionary objAnno;
 			if (!annotations.TryGetValue(obj, out objAnno))
-				objAnno = annotations[new WeakReferenceKey(obj)] = new ListDictionary();
-			objAnno[key] = value;
+            {
+                objAnno = annotations[new WeakReferenceKey(obj)] = new ListDictionary();
+            }
+
+            objAnno[key] = value;
 		}
 
 		/// <summary>
@@ -129,8 +174,10 @@ namespace Confuser.Core {
 		/// </summary>
 		public void Trim() {
 			foreach (object key in annotations.Where(kvp => !((WeakReferenceKey)kvp.Key).IsAlive).Select(kvp => kvp.Key))
-				annotations.Remove(key);
-		}
+            {
+                annotations.Remove(key);
+            }
+        }
 
 		/// <summary>
 		///     Equality comparer of weak references.
@@ -149,8 +196,11 @@ namespace Confuser.Core {
 			/// <inheritdoc />
 			public new bool Equals(object x, object y) {
 				if (y is WeakReferenceKey && !(x is WeakReference))
-					return Equals(y, x);
-				var xWeak = x as WeakReferenceKey;
+                {
+                    return Equals(y, x);
+                }
+
+                var xWeak = x as WeakReferenceKey;
 				var yWeak = y as WeakReferenceKey;
 				if (xWeak != null && yWeak != null) {
 					return xWeak.IsAlive && yWeak.IsAlive && ReferenceEquals(xWeak.Target, yWeak.Target);
@@ -167,8 +217,11 @@ namespace Confuser.Core {
 			/// <inheritdoc />
 			public int GetHashCode(object obj) {
 				if (obj is WeakReferenceKey)
-					return ((WeakReferenceKey)obj).HashCode;
-				return obj.GetHashCode();
+                {
+                    return ((WeakReferenceKey)obj).HashCode;
+                }
+
+                return obj.GetHashCode();
 			}
 		}
 

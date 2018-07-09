@@ -5,8 +5,12 @@ namespace Confuser.DynCipher.Transforms {
 	internal class ConvertVariables {
 		static Expression ReplaceVar(Expression exp, Variable buff) {
 			if (exp is VariableExpression) {
-				if (((VariableExpression)exp).Variable.Name[0] != 'v') return exp;
-				return new ArrayIndexExpression {
+				if (((VariableExpression)exp).Variable.Name[0] != 'v')
+                {
+                    return exp;
+                }
+
+                return new ArrayIndexExpression {
 					Array = new VariableExpression { Variable = buff },
 					Index = (int)(exp as VariableExpression).Variable.Tag
 				};
@@ -35,7 +39,9 @@ namespace Confuser.DynCipher.Transforms {
 		public static void Run(StatementBlock block) {
 			var mainBuff = new Variable("{BUFFER}");
 			for (int i = 0; i < block.Statements.Count; i++)
-				block.Statements[i] = ReplaceVar(block.Statements[i], mainBuff);
-		}
+            {
+                block.Statements[i] = ReplaceVar(block.Statements[i], mainBuff);
+            }
+        }
 	}
 }

@@ -52,8 +52,11 @@ namespace Confuser.Protections.AntiTamper {
 			for (int i = 0; i < 6; i++) {
 				int index = random.NextInt32(0, 6);
 				while (fieldLayout[index] != 0)
-					index = random.NextInt32(0, 6);
-				fieldLayout[index] = (byte)i;
+                {
+                    index = random.NextInt32(0, 6);
+                }
+
+                fieldLayout[index] = (byte)i;
 			}
 
 			switch (parameters.GetParameter(context, context.CurrentModule, "key", Mode.Normal)) {
@@ -96,9 +99,11 @@ namespace Confuser.Protections.AntiTamper {
 			}
 			initMethod.Body.Instructions.Clear();
 			foreach (Instruction instr in instrs)
-				initMethod.Body.Instructions.Add(instr);
+            {
+                initMethod.Body.Instructions.Add(instr);
+            }
 
-			MutationHelper.InjectKeys(initMethod,
+            MutationHelper.InjectKeys(initMethod,
 			                          new[] { 0, 1, 2, 3, 4 },
 			                          new[] { (int)(name1 * name2), (int)z, (int)x, (int)c, (int)v });
 
@@ -124,17 +129,24 @@ namespace Confuser.Protections.AntiTamper {
 					var layout = fieldLayout.Clone() as byte[];
 					Array.Sort(layout, fields);
 					for (byte j = 0; j < 6; j++)
-						layout[j] = j;
-					Array.Sort(fieldLayout, layout);
+                    {
+                        layout[j] = j;
+                    }
+
+                    Array.Sort(fieldLayout, layout);
 					fieldLayout = layout;
 					dataType.Fields.Clear();
 					foreach (FieldDef f in fields)
-						dataType.Fields.Add(f);
-				}
+                    {
+                        dataType.Fields.Add(f);
+                    }
+                }
 				name.MarkHelper(def, marker, parent);
 				if (def is MethodDef)
-					parent.ExcludeMethod(context, (MethodDef)def);
-			}
+                {
+                    parent.ExcludeMethod(context, (MethodDef)def);
+                }
+            }
 			parent.ExcludeMethod(context, cctor);
 		}
 
@@ -186,10 +198,12 @@ namespace Confuser.Protections.AntiTamper {
 				}
 			}
 			if (moved)
-				writer.Sections.Add(peSection);
+            {
+                writer.Sections.Add(peSection);
+            }
 
-			// create section
-			var nameBuffer = new byte[8];
+            // create section
+            var nameBuffer = new byte[8];
 			nameBuffer[0] = (byte)(name1 >> 0);
 			nameBuffer[1] = (byte)(name1 >> 8);
 			nameBuffer[2] = (byte)(name1 >> 16);
@@ -211,9 +225,11 @@ namespace Confuser.Protections.AntiTamper {
 			// save methods
 			foreach (MethodDef method in methods.WithProgress(context.Logger)) {
 				if (!method.HasBody)
-					continue;
+                {
+                    continue;
+                }
 
-				MDToken token = writer.MetaData.GetToken(method);
+                MDToken token = writer.MetaData.GetToken(method);
 
 				var jitBody = new JITMethodBody();
 				var bodyWriter = new JITMethodBodyWriter(writer.MetaData, method.Body, jitBody, random.NextUInt32(), writer.MetaData.KeepOldMaxStack || method.Body.KeepOldMaxStack);
@@ -246,8 +262,11 @@ namespace Confuser.Protections.AntiTamper {
 			uint encLoc = 0, encSize = 0;
 			int origSects = -1;
 			if (writer is NativeModuleWriter && writer.Module is ModuleDefMD)
-				origSects = ((ModuleDefMD)writer.Module).MetaData.PEImage.ImageSectionHeaders.Count;
-			for (int i = 0; i < sections; i++) {
+            {
+                origSects = ((ModuleDefMD)writer.Module).MetaData.PEImage.ImageSectionHeaders.Count;
+            }
+
+            for (int i = 0; i < sections; i++) {
 				uint nameHash;
 				if (origSects > 0) {
 					origSects--;
@@ -255,8 +274,11 @@ namespace Confuser.Protections.AntiTamper {
 					nameHash = 0;
 				}
 				else
-					nameHash = reader.ReadUInt32() * reader.ReadUInt32();
-				stream.Position += 8;
+                {
+                    nameHash = reader.ReadUInt32() * reader.ReadUInt32();
+                }
+
+                stream.Position += 8;
 				if (nameHash == name1 * name2) {
 					encSize = reader.ReadUInt32();
 					encLoc = reader.ReadUInt32();
@@ -267,8 +289,11 @@ namespace Confuser.Protections.AntiTamper {
 					Hash(stream, reader, sectLoc, sectSize);
 				}
 				else
-					stream.Position += 8;
-				stream.Position += 16;
+                {
+                    stream.Position += 8;
+                }
+
+                stream.Position += 16;
 			}
 
 			uint[] key = DeriveKey();

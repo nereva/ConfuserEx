@@ -12,11 +12,14 @@ namespace ConfuserEx {
 
 			Assembly assembly = Assembly.LoadFile(ctx.PluginPath);
 			foreach (var module in assembly.GetLoadedModules())
-				foreach (var i in module.GetTypes()) {
+            {
+                foreach (var i in module.GetTypes()) {
 					if (i.IsAbstract || !PluginDiscovery.HasAccessibleDefConstructor(i))
-						continue;
+                    {
+                        continue;
+                    }
 
-					if (typeof(Protection).IsAssignableFrom(i)) {
+                    if (typeof(Protection).IsAssignableFrom(i)) {
 						var prot = (Protection)Activator.CreateInstance(i);
 						ctx.AddProtection(Info.FromComponent(prot, ctx.PluginPath));
 					}
@@ -25,7 +28,8 @@ namespace ConfuserEx {
 						ctx.AddPacker(Info.FromComponent(packer, ctx.PluginPath));
 					}
 				}
-		}
+            }
+        }
 
 		public static void LoadComponents(IList<ConfuserComponent> protections, IList<ConfuserComponent> packers, string pluginPath) {
 			var ctx = new CrossDomainContext(protections, packers, pluginPath);
@@ -58,16 +62,20 @@ namespace ConfuserEx {
 			public void AddProtection(Info info) {
 				foreach (var comp in protections) {
 					if (comp.Id == info.id)
-						return;
-				}
+                    {
+                        return;
+                    }
+                }
 				protections.Add(new InfoComponent(info));
 			}
 
 			public void AddPacker(Info info) {
 				foreach (var comp in packers) {
 					if (comp.Id == info.id)
-						return;
-				}
+                    {
+                        return;
+                    }
+                }
 				packers.Add(new InfoComponent(info));
 			}
 		}

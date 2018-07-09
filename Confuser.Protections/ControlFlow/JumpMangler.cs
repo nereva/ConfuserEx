@@ -59,18 +59,23 @@ namespace Confuser.Protections.ControlFlow {
 			}
 
 			if (currentFragment.Count > 0)
-				fragments.AddLast(currentFragment.ToArray());
+            {
+                fragments.AddLast(currentFragment.ToArray());
+            }
 
-			return fragments;
+            return fragments;
 		}
 
 		public override void Mangle(CilBody body, ScopeBlock root, CFContext ctx) {
 			body.MaxStack++;
 			foreach (InstrBlock block in GetAllBlocks(root)) {
 				LinkedList<Instruction[]> fragments = SpiltFragments(block, ctx);
-				if (fragments.Count < 4) continue;
+				if (fragments.Count < 4)
+                {
+                    continue;
+                }
 
-				LinkedListNode<Instruction[]> current = fragments.First;
+                LinkedListNode<Instruction[]> current = fragments.First;
 				while (current.Next != null) {
 					var newFragment = new List<Instruction>(current.Value);
 					ctx.AddJump(newFragment, current.Next.Value[0]);

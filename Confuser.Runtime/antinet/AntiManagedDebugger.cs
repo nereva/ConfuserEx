@@ -38,19 +38,23 @@ namespace Confuser.Runtime {
 			Info info = GetInfo();
 			IntPtr pDebuggerRCThread = FindDebuggerRCThreadAddress(info);
 			if (pDebuggerRCThread == IntPtr.Zero)
-				return false;
+            {
+                return false;
+            }
 
-			// This isn't needed but it will at least stop debuggers from attaching.
-			// Even if they did attach, they wouldn't get any messages since the debugger
-			// thread has exited. A user who tries to attach will be greeted with an
-			// "unable to attach due to different versions etc" message. This will not stop
-			// already attached debuggers. Killing the debugger thread will.
-			var pDebuggerIPCControlBlock = (byte*)*(IntPtr*)((byte*)pDebuggerRCThread + info.DebuggerRCThread_pDebuggerIPCControlBlock);
+            // This isn't needed but it will at least stop debuggers from attaching.
+            // Even if they did attach, they wouldn't get any messages since the debugger
+            // thread has exited. A user who tries to attach will be greeted with an
+            // "unable to attach due to different versions etc" message. This will not stop
+            // already attached debuggers. Killing the debugger thread will.
+            var pDebuggerIPCControlBlock = (byte*)*(IntPtr*)((byte*)pDebuggerRCThread + info.DebuggerRCThread_pDebuggerIPCControlBlock);
 			if (Environment.Version.Major == 2)
-				pDebuggerIPCControlBlock = (byte*)*(IntPtr*)pDebuggerIPCControlBlock;
-			// Set size field to 0. mscordbi!CordbProcess::VerifyControlBlock() will fail
-			// when it detects an unknown size.
-			*(uint*)pDebuggerIPCControlBlock = 0;
+            {
+                pDebuggerIPCControlBlock = (byte*)*(IntPtr*)pDebuggerIPCControlBlock;
+            }
+            // Set size field to 0. mscordbi!CordbProcess::VerifyControlBlock() will fail
+            // when it detects an unknown size.
+            *(uint*)pDebuggerIPCControlBlock = 0;
 
 			// Signal debugger thread to exit
 			*((byte*)pDebuggerRCThread + info.DebuggerRCThread_shouldKeepLooping) = 0;
@@ -69,8 +73,11 @@ namespace Confuser.Runtime {
 					return IntPtr.Size == 4 ? Infos.info_CLR20_x86 : Infos.info_CLR20_x64;
 				case 4:
 					if (Environment.Version.Revision <= 17020)
-						return IntPtr.Size == 4 ? Infos.info_CLR40_x86_1 : Infos.info_CLR40_x64;
-					return IntPtr.Size == 4 ? Infos.info_CLR40_x86_2 : Infos.info_CLR40_x64;
+                    {
+                        return IntPtr.Size == 4 ? Infos.info_CLR40_x86_1 : Infos.info_CLR40_x64;
+                    }
+
+                    return IntPtr.Size == 4 ? Infos.info_CLR40_x86_2 : Infos.info_CLR40_x64;
 				default:
 					goto case 4; // Assume CLR 4.0
 			}
@@ -87,43 +94,57 @@ namespace Confuser.Runtime {
 			try {
 				PEInfo peInfo = PEInfo.GetCLR();
 				if (peInfo == null)
-					return IntPtr.Zero;
+                {
+                    return IntPtr.Zero;
+                }
 
-				IntPtr sectionAddr;
+                IntPtr sectionAddr;
 				uint sectionSize;
 				if (!peInfo.FindSection(".data", out sectionAddr, out sectionSize))
-					return IntPtr.Zero;
+                {
+                    return IntPtr.Zero;
+                }
 
-				// Try to find the Debugger instance location in the data section
-				var p = (byte*)sectionAddr;
+                // Try to find the Debugger instance location in the data section
+                var p = (byte*)sectionAddr;
 				byte* end = (byte*)sectionAddr + sectionSize;
 				for (; p + IntPtr.Size <= end; p += IntPtr.Size) {
 					IntPtr pDebugger = *(IntPtr*)p;
 					if (pDebugger == IntPtr.Zero)
-						continue;
+                    {
+                        continue;
+                    }
 
-					try {
+                    try {
 						// All allocations are pointer-size aligned
 						if (!PEInfo.IsAlignedPointer(pDebugger))
-							continue;
+                        {
+                            continue;
+                        }
 
-						// Make sure pid is correct
-						uint pid2 = *(uint*)((byte*)pDebugger + info.Debugger_pid);
+                        // Make sure pid is correct
+                        uint pid2 = *(uint*)((byte*)pDebugger + info.Debugger_pid);
 						if (pid != pid2)
-							continue;
+                        {
+                            continue;
+                        }
 
-						IntPtr pDebuggerRCThread = *(IntPtr*)((byte*)pDebugger + info.Debugger_pDebuggerRCThread);
+                        IntPtr pDebuggerRCThread = *(IntPtr*)((byte*)pDebugger + info.Debugger_pDebuggerRCThread);
 
 						// All allocations are pointer-size aligned
 						if (!PEInfo.IsAlignedPointer(pDebuggerRCThread))
-							continue;
+                        {
+                            continue;
+                        }
 
-						// Make sure it points back to Debugger
-						IntPtr pDebugger2 = *(IntPtr*)((byte*)pDebuggerRCThread + info.DebuggerRCThread_pDebugger);
+                        // Make sure it points back to Debugger
+                        IntPtr pDebugger2 = *(IntPtr*)((byte*)pDebuggerRCThread + info.DebuggerRCThread_pDebugger);
 						if (pDebugger != pDebugger2)
-							continue;
+                        {
+                            continue;
+                        }
 
-						return pDebuggerRCThread;
+                        return pDebuggerRCThread;
 					}
 					catch { }
 				}

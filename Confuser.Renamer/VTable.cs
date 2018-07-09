@@ -28,8 +28,11 @@ namespace Confuser.Renamer {
 		public override bool Equals(object obj) {
 			var other = obj as VTableSignature;
 			if (other == null)
-				return false;
-			return new SigComparer().Equals(MethodSig, other.MethodSig) &&
+            {
+                return false;
+            }
+
+            return new SigComparer().Equals(MethodSig, other.MethodSig) &&
 			       Name.Equals(other.Name, StringComparison.Ordinal);
 		}
 
@@ -41,11 +44,16 @@ namespace Confuser.Renamer {
 
 		public static bool operator ==(VTableSignature a, VTableSignature b) {
 			if (ReferenceEquals(a, b))
-				return true;
-			if (!Equals(a, null) && Equals(b, null))
-				return false;
+            {
+                return true;
+            }
 
-			return a.Equals(b);
+            if (!Equals(a, null) && Equals(b, null))
+            {
+                return false;
+            }
+
+            return a.Equals(b);
 		}
 
 		public static bool operator !=(VTableSignature a, VTableSignature b) {
@@ -165,16 +173,22 @@ namespace Confuser.Renamer {
 				foreach (var iface in vTbl.InterfaceSlots.Values) {
 					foreach (var entry in iface.ToList()) {
 						if (!entry.Value.MethodDef.DeclaringType.IsInterface)
-							continue;
-						// This is the step 1 of 12.2 algorithm -- find implementation for still empty slots.
-						// Note that it seems we should include newslot methods as well, despite what the standard said.
-						MethodDef impl;
+                        {
+                            continue;
+                        }
+                        // This is the step 1 of 12.2 algorithm -- find implementation for still empty slots.
+                        // Note that it seems we should include newslot methods as well, despite what the standard said.
+                        MethodDef impl;
 						VTableSlot implSlot;
 						if (virtualMethods.TryGetValue(entry.Key, out impl))
-							iface[entry.Key] = entry.Value.OverridedBy(impl);
-						else if (vTbl.SlotsMap.TryGetValue(entry.Key, out implSlot))
-							iface[entry.Key] = entry.Value.OverridedBy(implSlot.MethodDef);
-					}
+                        {
+                            iface[entry.Key] = entry.Value.OverridedBy(impl);
+                        }
+                        else if (vTbl.SlotsMap.TryGetValue(entry.Key, out implSlot))
+                        {
+                            iface[entry.Key] = entry.Value.OverridedBy(implSlot.MethodDef);
+                        }
+                    }
 				}
 			}
 
@@ -190,8 +204,10 @@ namespace Confuser.Renamer {
 						slot = slot.OverridedBy(method.Value);
 					}
 					else
-						slot = new VTableSlot(method.Value, typeDef.ToTypeSig(), method.Key);
-				}
+                    {
+                        slot = new VTableSlot(method.Value, typeDef.ToTypeSig(), method.Key);
+                    }
+                }
 				vTbl.SlotsMap[method.Key] = slot;
 				vTbl.AllSlots.Add(slot);
 			}
@@ -213,8 +229,11 @@ namespace Confuser.Renamer {
 
 						// The Overrides of interface slots should directly points to the root interface slot
 						while (targetSlot.Overrides != null)
-							targetSlot = targetSlot.Overrides;
-						Debug.Assert(targetSlot.MethodDef.DeclaringType.IsInterface);
+                        {
+                            targetSlot = targetSlot.Overrides;
+                        }
+
+                        Debug.Assert(targetSlot.MethodDef.DeclaringType.IsInterface);
 						ifaceVTbl[targetSlot.Signature] = targetSlot.OverridedBy(method.Value);
 					}
 					else {
@@ -223,8 +242,11 @@ namespace Confuser.Renamer {
 						targetSlot = vTbl.SlotsMap[targetSlot.Signature]; // Use the most derived slot
 						// Maybe implemented by above processes --- this process should take priority
 						while (targetSlot.MethodDef.DeclaringType == typeDef)
-							targetSlot = targetSlot.Overrides;
-						vTbl.SlotsMap[targetSlot.Signature] = targetSlot.OverridedBy(method.Value);
+                        {
+                            targetSlot = targetSlot.Overrides;
+                        }
+
+                        vTbl.SlotsMap[targetSlot.Signature] = targetSlot.OverridedBy(method.Value);
 					}
 				}
 			}
@@ -251,8 +273,11 @@ namespace Confuser.Renamer {
 					// The Overrides of interface slots should directly points to the root interface slot
 					var targetSlot = slot;
 					while (targetSlot.Overrides != null && !targetSlot.MethodDef.DeclaringType.IsInterface)
-						targetSlot = targetSlot.Overrides;
-					Debug.Assert(targetSlot.MethodDef.DeclaringType.IsInterface);
+                    {
+                        targetSlot = targetSlot.Overrides;
+                    }
+
+                    Debug.Assert(targetSlot.MethodDef.DeclaringType.IsInterface);
 					return targetSlot.OverridedBy(impl);
 				}
 				return slot;
@@ -304,8 +329,10 @@ namespace Confuser.Renamer {
 			if (!dictionary.ContainsKey(key)) {
 				storage.GetLogger().ErrorFormat("{0} not found: {1}", name, key);
 				foreach (var k in dictionary.Keys)
-					storage.GetLogger().ErrorFormat("    {0}", k);
-			}
+                {
+                    storage.GetLogger().ErrorFormat("    {0}", k);
+                }
+            }
 		}
 	}
 
@@ -329,18 +356,30 @@ namespace Confuser.Renamer {
 		VTable GetOrConstruct(TypeDef type) {
 			VTable ret;
 			if (!storage.TryGetValue(type, out ret))
-				ret = storage[type] = VTable.ConstructVTable(type, this);
-			return ret;
+            {
+                ret = storage[type] = VTable.ConstructVTable(type, this);
+            }
+
+            return ret;
 		}
 
 		public VTable GetVTable(ITypeDefOrRef type) {
 			if (type == null)
-				return null;
-			if (type is TypeDef)
-				return GetOrConstruct((TypeDef)type);
-			if (type is TypeRef)
-				return GetOrConstruct(((TypeRef)type).ResolveThrow());
-			if (type is TypeSpec) {
+            {
+                return null;
+            }
+
+            if (type is TypeDef)
+            {
+                return GetOrConstruct((TypeDef)type);
+            }
+
+            if (type is TypeRef)
+            {
+                return GetOrConstruct(((TypeRef)type).ResolveThrow());
+            }
+
+            if (type is TypeSpec) {
 				TypeSig sig = ((TypeSpec)type).TypeSig;
 				if (sig is TypeDefOrRefSig) {
 					TypeDef typeDef = ((TypeDefOrRefSig)sig).TypeDefOrRef.ResolveTypeDefThrow();
@@ -362,10 +401,15 @@ namespace Confuser.Renamer {
 			var newSig = GenericArgumentResolver.Resolve(slot.Signature.MethodSig, genArgs);
 			TypeSig newDecl = slot.MethodDefDeclType;
 			if (new SigComparer().Equals(newDecl, openType))
-				newDecl = new GenericInstSig((ClassOrValueTypeSig)openType.ToTypeSig(), genArgs.ToArray());
-			else
-				newDecl = GenericArgumentResolver.Resolve(newDecl, genArgs);
-			return new VTableSlot(newDecl, slot.MethodDef, slot.DeclaringType, new VTableSignature(newSig, slot.Signature.Name), slot.Overrides);
+            {
+                newDecl = new GenericInstSig((ClassOrValueTypeSig)openType.ToTypeSig(), genArgs.ToArray());
+            }
+            else
+            {
+                newDecl = GenericArgumentResolver.Resolve(newDecl, genArgs);
+            }
+
+            return new VTableSlot(newDecl, slot.MethodDef, slot.DeclaringType, new VTableSignature(newSig, slot.Signature.Name), slot.Overrides);
 		}
 
 		static VTable ResolveGenericArgument(TypeDef openType, GenericInstSig genInst, VTable vTable) {

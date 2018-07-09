@@ -25,11 +25,16 @@ namespace Confuser.Core.Services {
 		public MethodDef TryGetRuntimeDecompressor(ModuleDef module, Action<IDnlibDef> init) {
 			var decompressor = context.Annotations.Get<Tuple<MethodDef, List<IDnlibDef>>>(module, Decompressor);
 			if (decompressor == null)
-				return null;
+            {
+                return null;
+            }
 
-			foreach (IDnlibDef member in decompressor.Item2)
-				init(member);
-			return decompressor.Item1;
+            foreach (IDnlibDef member in decompressor.Item2)
+            {
+                init(member);
+            }
+
+            return decompressor.Item1;
 		}
 
 		/// <inheritdoc />
@@ -43,18 +48,28 @@ namespace Confuser.Core.Services {
 					if (member is MethodDef) {
 						var method = (MethodDef)member;
 						if (method.Access == MethodAttributes.Public)
-							method.Access = MethodAttributes.Assembly;
-						if (!method.IsConstructor)
-							method.IsSpecialName = false;
+                        {
+                            method.Access = MethodAttributes.Assembly;
+                        }
 
-						if (method.Name == "Decompress")
-							decomp = method;
-					}
+                        if (!method.IsConstructor)
+                        {
+                            method.IsSpecialName = false;
+                        }
+
+                        if (method.Name == "Decompress")
+                        {
+                            decomp = method;
+                        }
+                    }
 					else if (member is FieldDef) {
 						var field = (FieldDef)member;
 						if (field.Access == FieldAttributes.Public)
-							field.Access = FieldAttributes.Assembly;
-						if (field.IsLiteral) {
+                        {
+                            field.Access = FieldAttributes.Assembly;
+                        }
+
+                        if (field.IsLiteral) {
 							field.DeclaringType.Fields.Remove(field);
 						}
 					}
@@ -65,8 +80,11 @@ namespace Confuser.Core.Services {
 				return Tuple.Create(decomp, members);
 			});
 			foreach (IDnlibDef member in decompressor.Item2)
-				init(member);
-			return decompressor.Item1;
+            {
+                init(member);
+            }
+
+            return decompressor.Item1;
 		}
 
 		/// <inheritdoc />
@@ -99,12 +117,17 @@ namespace Confuser.Core.Services {
 			Int64 fileSize;
 			fileSize = data.Length;
 			for (int i = 0; i < 8; i++)
-				x.WriteByte((Byte)(fileSize >> (8 * i)));
+            {
+                x.WriteByte((Byte)(fileSize >> (8 * i)));
+            }
 
-			ICodeProgress progress = null;
+            ICodeProgress progress = null;
 			if (progressFunc != null)
-				progress = new CompressionLogger(progressFunc, data.Length);
-			encoder.Code(new MemoryStream(data), x, -1, -1, progress);
+            {
+                progress = new CompressionLogger(progressFunc, data.Length);
+            }
+
+            encoder.Code(new MemoryStream(data), x, -1, -1, progress);
 
 			return x.ToArray();
 		}

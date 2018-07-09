@@ -71,10 +71,15 @@ namespace Confuser.Core.Helpers {
 			foreach (ControlFlowBlock block in graph) {
 				var key = new BlockKey();
 				if ((block.Type & ControlFlowBlockType.Entry) != 0)
-					key.Type = BlockKeyType.Explicit;
-				else
-					key.Type = BlockKeyType.Incremental;
-				keys[block.Id] = key;
+                {
+                    key.Type = BlockKeyType.Explicit;
+                }
+                else
+                {
+                    key.Type = BlockKeyType.Incremental;
+                }
+
+                keys[block.Id] = key;
 			}
 			ProcessBlocks(keys, graph, random);
 			return keys;
@@ -121,14 +126,18 @@ namespace Confuser.Core.Helpers {
 								if (eh.FilterStart != null && block.Footer.OpCode.Code == Code.Endfilter) {
 									if (footerIndex >= graph.IndexOf(eh.FilterStart) &&
 									    footerIndex < graph.IndexOf(eh.HandlerStart))
-										ehs.Add(eh);
-								}
+                                    {
+                                        ehs.Add(eh);
+                                    }
+                                }
 								else if (eh.HandlerType == ExceptionHandlerType.Finally ||
 								         eh.HandlerType == ExceptionHandlerType.Fault) {
 									if (footerIndex >= graph.IndexOf(eh.HandlerStart) &&
 									    (eh.HandlerEnd == null || footerIndex < graph.IndexOf(eh.HandlerEnd)))
-										ehs.Add(eh);
-								}
+                                    {
+                                        ehs.Add(eh);
+                                    }
+                                }
 							}
 							ehMap[block] = ehs;
 						}
@@ -159,8 +168,10 @@ namespace Confuser.Core.Helpers {
 							foreach (var eh in graph.Body.ExceptionHandlers) {
 								if (footerIndex >= graph.IndexOf(eh.TryStart) &&
 								    (eh.TryEnd == null || footerIndex < graph.IndexOf(eh.TryEnd)))
-									ehs.Add(eh);
-							}
+                                {
+                                    ehs.Add(eh);
+                                }
+                            }
 							ehMap[block] = ehs;
 						}
 
@@ -169,8 +180,11 @@ namespace Confuser.Core.Helpers {
 							uint ehVal;
 							if (finallyIds.TryGetValue(eh, out ehVal) && (maxVal == null || ehVal > maxVal)) {
 								if (maxVal != null)
-									updated = true;
-								maxVal = ehVal;
+                                {
+                                    updated = true;
+                                }
+
+                                maxVal = ehVal;
 							}
 						}
 						if (maxVal != null) {
@@ -183,8 +197,10 @@ namespace Confuser.Core.Helpers {
 								updated = true;
 							}
 							foreach (var eh in ehs)
-								finallyIds[eh] = maxVal.Value;
-						}
+                            {
+                                finallyIds[eh] = maxVal.Value;
+                            }
+                        }
 					}
 					keys[block.Id] = key;
 				}
@@ -198,13 +214,17 @@ namespace Confuser.Core.Helpers {
 
 					uint entryId = key.EntryState;
 					if (!idMap.TryGetValue(entryId, out key.EntryState))
-						key.EntryState = idMap[entryId] = random.NextUInt32();
+                    {
+                        key.EntryState = idMap[entryId] = random.NextUInt32();
+                    }
 
-					uint exitId = key.ExitState;
+                    uint exitId = key.ExitState;
 					if (!idMap.TryGetValue(exitId, out key.ExitState))
-						key.ExitState = idMap[exitId] = random.NextUInt32();
+                    {
+                        key.ExitState = idMap[exitId] = random.NextUInt32();
+                    }
 
-					keys[i] = key;
+                    keys[i] = key;
 				}
 			}
 		}

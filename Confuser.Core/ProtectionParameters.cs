@@ -49,29 +49,41 @@ namespace Confuser.Core {
 			Dictionary<string, string> parameters;
 
 			if (comp == null)
-				return defValue;
+            {
+                return defValue;
+            }
 
-			if (comp is Packer && target == null) {
+            if (comp is Packer && target == null) {
 				// Packer parameters are stored in modules
 				target = context.Modules[0];
 			}
 
 			var objParams = context.Annotations.Get<ProtectionSettings>(target, ParametersKey);
 			if (objParams == null)
-				return defValue;
-			if (!objParams.TryGetValue(comp, out parameters))
-				return defValue;
+            {
+                return defValue;
+            }
 
-			string ret;
+            if (!objParams.TryGetValue(comp, out parameters))
+            {
+                return defValue;
+            }
+
+            string ret;
 			if (parameters.TryGetValue(name, out ret)) {
 				Type paramType = typeof(T);
 				Type nullable = Nullable.GetUnderlyingType(paramType);
 				if (nullable != null)
-					paramType = nullable;
+                {
+                    paramType = nullable;
+                }
 
-				if (paramType.IsEnum)
-					return (T)Enum.Parse(paramType, ret, true);
-				return (T)Convert.ChangeType(ret, paramType);
+                if (paramType.IsEnum)
+                {
+                    return (T)Enum.Parse(paramType, ret, true);
+                }
+
+                return (T)Convert.ChangeType(ret, paramType);
 			}
 			return defValue;
 		}

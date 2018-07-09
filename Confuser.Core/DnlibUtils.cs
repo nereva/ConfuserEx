@@ -22,17 +22,25 @@ namespace Confuser.Core {
 				yield return type;
 
 				foreach (MethodDef method in type.Methods)
-					yield return method;
+                {
+                    yield return method;
+                }
 
-				foreach (FieldDef field in type.Fields)
-					yield return field;
+                foreach (FieldDef field in type.Fields)
+                {
+                    yield return field;
+                }
 
-				foreach (PropertyDef prop in type.Properties)
-					yield return prop;
+                foreach (PropertyDef prop in type.Properties)
+                {
+                    yield return prop;
+                }
 
-				foreach (EventDef evt in type.Events)
-					yield return evt;
-			}
+                foreach (EventDef evt in type.Events)
+                {
+                    yield return evt;
+                }
+            }
 		}
 
 		/// <summary>
@@ -44,20 +52,30 @@ namespace Confuser.Core {
 			yield return typeDef;
 
 			foreach (TypeDef nestedType in typeDef.NestedTypes)
-				yield return nestedType;
+            {
+                yield return nestedType;
+            }
 
-			foreach (MethodDef method in typeDef.Methods)
-				yield return method;
+            foreach (MethodDef method in typeDef.Methods)
+            {
+                yield return method;
+            }
 
-			foreach (FieldDef field in typeDef.Fields)
-				yield return field;
+            foreach (FieldDef field in typeDef.Fields)
+            {
+                yield return field;
+            }
 
-			foreach (PropertyDef prop in typeDef.Properties)
-				yield return prop;
+            foreach (PropertyDef prop in typeDef.Properties)
+            {
+                yield return prop;
+            }
 
-			foreach (EventDef evt in typeDef.Events)
-				yield return evt;
-		}
+            foreach (EventDef evt in typeDef.Events)
+            {
+                yield return evt;
+            }
+        }
 
 		/// <summary>
 		///     Determines whether the specified type is visible outside the containing assembly.
@@ -68,14 +86,22 @@ namespace Confuser.Core {
 		public static bool IsVisibleOutside(this TypeDef typeDef, bool exeNonPublic = true) {
 			// Assume executable modules' type is not visible
 			if (exeNonPublic && (typeDef.Module.Kind == ModuleKind.Windows || typeDef.Module.Kind == ModuleKind.Console))
-				return false;
+            {
+                return false;
+            }
 
-			do {
+            do {
 				if (typeDef.DeclaringType == null)
-					return typeDef.IsPublic;
-				if (!typeDef.IsNestedPublic && !typeDef.IsNestedFamily && !typeDef.IsNestedFamilyOrAssembly)
-					return false;
-				typeDef = typeDef.DeclaringType;
+                {
+                    return typeDef.IsPublic;
+                }
+
+                if (!typeDef.IsNestedPublic && !typeDef.IsNestedFamily && !typeDef.IsNestedFamilyOrAssembly)
+                {
+                    return false;
+                }
+
+                typeDef = typeDef.DeclaringType;
 			} while (typeDef != null);
 
 			throw new UnreachableException();
@@ -118,9 +144,11 @@ namespace Confuser.Core {
 		/// <returns><c>true</c> if the specified type is a delegate; otherwise, <c>false</c>.</returns>
 		public static bool IsDelegate(this TypeDef type) {
 			if (type.BaseType == null)
-				return false;
+            {
+                return false;
+            }
 
-			string fullName = type.BaseType.FullName;
+            string fullName = type.BaseType.FullName;
 			return fullName == "System.Delegate" || fullName == "System.MulticastDelegate";
 		}
 
@@ -132,14 +160,18 @@ namespace Confuser.Core {
 		/// <returns><c>true</c> if the specified type is inherited from a base type; otherwise, <c>false</c>.</returns>
 		public static bool InheritsFromCorlib(this TypeDef type, string baseType) {
 			if (type.BaseType == null)
-				return false;
+            {
+                return false;
+            }
 
-			TypeDef bas = type;
+            TypeDef bas = type;
 			do {
 				bas = bas.BaseType.ResolveTypeDefThrow();
 				if (bas.ReflectionFullName == baseType)
-					return true;
-			} while (bas.BaseType != null && bas.BaseType.DefinitionAssembly.IsCorLib());
+                {
+                    return true;
+                }
+            } while (bas.BaseType != null && bas.BaseType.DefinitionAssembly.IsCorLib());
 			return false;
 		}
 
@@ -151,14 +183,18 @@ namespace Confuser.Core {
 		/// <returns><c>true</c> if the specified type is inherited from a base type; otherwise, <c>false</c>.</returns>
 		public static bool InheritsFrom(this TypeDef type, string baseType) {
 			if (type.BaseType == null)
-				return false;
+            {
+                return false;
+            }
 
-			TypeDef bas = type;
+            TypeDef bas = type;
 			do {
 				bas = bas.BaseType.ResolveTypeDefThrow();
 				if (bas.ReflectionFullName == baseType)
-					return true;
-			} while (bas.BaseType != null);
+                {
+                    return true;
+                }
+            } while (bas.BaseType != null);
 			return false;
 		}
 
@@ -172,13 +208,17 @@ namespace Confuser.Core {
 			do {
 				foreach (InterfaceImpl iface in type.Interfaces) {
 					if (iface.Interface.ReflectionFullName == fullName)
-						return true;
-				}
+                    {
+                        return true;
+                    }
+                }
 
 				if (type.BaseType == null)
-					return false;
+                {
+                    return false;
+                }
 
-				type = type.BaseType.ResolveTypeDefThrow();
+                type = type.BaseType.ResolveTypeDefThrow();
 			} while (type != null);
 			throw new UnreachableException();
 		}
@@ -192,13 +232,17 @@ namespace Confuser.Core {
 		public static MethodDef ResolveThrow(this IMethod method) {
 			var def = method as MethodDef;
 			if (def != null)
-				return def;
+            {
+                return def;
+            }
 
-			var spec = method as MethodSpec;
+            var spec = method as MethodSpec;
 			if (spec != null)
-				return spec.Method.ResolveThrow();
+            {
+                return spec.Method.ResolveThrow();
+            }
 
-			return ((MemberRef)method).ResolveMethodThrow();
+            return ((MemberRef)method).ResolveMethodThrow();
 		}
 
 		/// <summary>
@@ -210,9 +254,11 @@ namespace Confuser.Core {
 		public static FieldDef ResolveThrow(this IField field) {
 			var def = field as FieldDef;
 			if (def != null)
-				return def;
+            {
+                return def;
+            }
 
-			return ((MemberRef)field).ResolveFieldThrow();
+            return ((MemberRef)field).ResolveFieldThrow();
 		}
 
 		/// <summary>
@@ -222,13 +268,21 @@ namespace Confuser.Core {
 		/// <returns>A <see cref="ITypeDefOrRef" /> instance, or null if the typeSig cannot be resolved to basic type.</returns>
 		public static ITypeDefOrRef ToBasicTypeDefOrRef(this TypeSig typeSig) {
 			while (typeSig.Next != null)
-				typeSig = typeSig.Next;
+            {
+                typeSig = typeSig.Next;
+            }
 
-			if (typeSig is GenericInstSig)
-				return ((GenericInstSig)typeSig).GenericType.TypeDefOrRef;
-			if (typeSig is TypeDefOrRefSig)
-				return ((TypeDefOrRefSig)typeSig).TypeDefOrRef;
-			return null;
+            if (typeSig is GenericInstSig)
+            {
+                return ((GenericInstSig)typeSig).GenericType.TypeDefOrRef;
+            }
+
+            if (typeSig is TypeDefOrRefSig)
+            {
+                return ((TypeDefOrRefSig)typeSig).TypeDefOrRef;
+            }
+
+            return null;
 		}
 
 		/// <summary>
@@ -245,16 +299,21 @@ namespace Confuser.Core {
 		static void FindTypeRefsInternal(TypeSig typeSig, IList<ITypeDefOrRef> ret) {
 			while (typeSig.Next != null) {
 				if (typeSig is ModifierSig)
-					ret.Add(((ModifierSig)typeSig).Modifier);
-				typeSig = typeSig.Next;
+                {
+                    ret.Add(((ModifierSig)typeSig).Modifier);
+                }
+
+                typeSig = typeSig.Next;
 			}
 
 			if (typeSig is GenericInstSig) {
 				var genInst = (GenericInstSig)typeSig;
 				ret.Add(genInst.GenericType.TypeDefOrRef);
 				foreach (TypeSig genArg in genInst.GenericArguments)
-					FindTypeRefsInternal(genArg, ret);
-			}
+                {
+                    FindTypeRefsInternal(genArg, ret);
+                }
+            }
 			else if (typeSig is TypeDefOrRefSig) {
 				var type = ((TypeDefOrRefSig)typeSig).TypeDefOrRef;
 				while (type != null) {
@@ -271,12 +330,16 @@ namespace Confuser.Core {
 		/// <returns><c>true</c> if the specified property is public; otherwise, <c>false</c>.</returns>
 		public static bool IsPublic(this PropertyDef property) {
 			if (property.GetMethod != null && property.GetMethod.IsPublic)
-				return true;
+            {
+                return true;
+            }
 
-			if (property.SetMethod != null && property.SetMethod.IsPublic)
-				return true;
+            if (property.SetMethod != null && property.SetMethod.IsPublic)
+            {
+                return true;
+            }
 
-			return property.OtherMethods.Any(method => method.IsPublic);
+            return property.OtherMethods.Any(method => method.IsPublic);
 		}
 
 		/// <summary>
@@ -286,12 +349,16 @@ namespace Confuser.Core {
 		/// <returns><c>true</c> if the specified property is static; otherwise, <c>false</c>.</returns>
 		public static bool IsStatic(this PropertyDef property) {
 			if (property.GetMethod != null && property.GetMethod.IsStatic)
-				return true;
+            {
+                return true;
+            }
 
-			if (property.SetMethod != null && property.SetMethod.IsStatic)
-				return true;
+            if (property.SetMethod != null && property.SetMethod.IsStatic)
+            {
+                return true;
+            }
 
-			return property.OtherMethods.Any(method => method.IsStatic);
+            return property.OtherMethods.Any(method => method.IsStatic);
 		}
 
 		/// <summary>
@@ -301,15 +368,21 @@ namespace Confuser.Core {
 		/// <returns><c>true</c> if the specified event is public; otherwise, <c>false</c>.</returns>
 		public static bool IsPublic(this EventDef evt) {
 			if (evt.AddMethod != null && evt.AddMethod.IsPublic)
-				return true;
+            {
+                return true;
+            }
 
-			if (evt.RemoveMethod != null && evt.RemoveMethod.IsPublic)
-				return true;
+            if (evt.RemoveMethod != null && evt.RemoveMethod.IsPublic)
+            {
+                return true;
+            }
 
-			if (evt.InvokeMethod != null && evt.InvokeMethod.IsPublic)
-				return true;
+            if (evt.InvokeMethod != null && evt.InvokeMethod.IsPublic)
+            {
+                return true;
+            }
 
-			return evt.OtherMethods.Any(method => method.IsPublic);
+            return evt.OtherMethods.Any(method => method.IsPublic);
 		}
 
 		/// <summary>
@@ -319,15 +392,21 @@ namespace Confuser.Core {
 		/// <returns><c>true</c> if the specified event is static; otherwise, <c>false</c>.</returns>
 		public static bool IsStatic(this EventDef evt) {
 			if (evt.AddMethod != null && evt.AddMethod.IsStatic)
-				return true;
+            {
+                return true;
+            }
 
-			if (evt.RemoveMethod != null && evt.RemoveMethod.IsStatic)
-				return true;
+            if (evt.RemoveMethod != null && evt.RemoveMethod.IsStatic)
+            {
+                return true;
+            }
 
-			if (evt.InvokeMethod != null && evt.InvokeMethod.IsStatic)
-				return true;
+            if (evt.InvokeMethod != null && evt.InvokeMethod.IsStatic)
+            {
+                return true;
+            }
 
-			return evt.OtherMethods.Any(method => method.IsStatic);
+            return evt.OtherMethods.Any(method => method.IsStatic);
 		}
 
 		/// <summary>
@@ -339,23 +418,40 @@ namespace Confuser.Core {
 		public static void ReplaceReference(this CilBody body, Instruction target, Instruction newInstr) {
 			foreach (ExceptionHandler eh in body.ExceptionHandlers) {
 				if (eh.TryStart == target)
-					eh.TryStart = newInstr;
-				if (eh.TryEnd == target)
-					eh.TryEnd = newInstr;
-				if (eh.HandlerStart == target)
-					eh.HandlerStart = newInstr;
-				if (eh.HandlerEnd == target)
-					eh.HandlerEnd = newInstr;
-			}
+                {
+                    eh.TryStart = newInstr;
+                }
+
+                if (eh.TryEnd == target)
+                {
+                    eh.TryEnd = newInstr;
+                }
+
+                if (eh.HandlerStart == target)
+                {
+                    eh.HandlerStart = newInstr;
+                }
+
+                if (eh.HandlerEnd == target)
+                {
+                    eh.HandlerEnd = newInstr;
+                }
+            }
 			foreach (Instruction instr in body.Instructions) {
 				if (instr.Operand == target)
-					instr.Operand = newInstr;
-				else if (instr.Operand is Instruction[]) {
+                {
+                    instr.Operand = newInstr;
+                }
+                else if (instr.Operand is Instruction[]) {
 					var targets = (Instruction[])instr.Operand;
 					for (int i = 0; i < targets.Length; i++)
-						if (targets[i] == target)
-							targets[i] = newInstr;
-				}
+                    {
+                        if (targets[i] == target)
+                        {
+                            targets[i] = newInstr;
+                        }
+                    }
+                }
 			}
 		}
 
@@ -367,9 +463,11 @@ namespace Confuser.Core {
 		public static bool IsArrayAccessors(this IMethod method) {
 			var declType = method.DeclaringType.ToTypeSig();
 			if (declType is GenericInstSig)
-				declType = ((GenericInstSig)declType).GenericType;
+            {
+                declType = ((GenericInstSig)declType).GenericType;
+            }
 
-			if (declType.IsArray) {
+            if (declType.IsArray) {
 				return method.Name == "Get" || method.Name == "Set" || method.Name == "Address";
 			}
 			return false;

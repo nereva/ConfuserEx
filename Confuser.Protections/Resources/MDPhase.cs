@@ -32,14 +32,19 @@ namespace Confuser.Protections.Resources {
 
 				List<EmbeddedResource> resources = ctx.Module.Resources.OfType<EmbeddedResource>().ToList();
 				if (!hasPacker)
-					ctx.Module.Resources.RemoveWhere(res => res is EmbeddedResource);
+                {
+                    ctx.Module.Resources.RemoveWhere(res => res is EmbeddedResource);
+                }
 
-				// move resources
-				string asmName = ctx.Name.RandomName(RenameMode.Letters);
+                // move resources
+                string asmName = ctx.Name.RandomName(RenameMode.Letters);
 				PublicKey pubKey = null;
 				if (writer.TheOptions.StrongNameKey != null)
-					pubKey = PublicKeyBase.CreatePublicKey(writer.TheOptions.StrongNameKey.PublicKey);
-				var assembly = new AssemblyDefUser(asmName, new Version(0, 0), pubKey);
+                {
+                    pubKey = PublicKeyBase.CreatePublicKey(writer.TheOptions.StrongNameKey.PublicKey);
+                }
+
+                var assembly = new AssemblyDefUser(asmName, new Version(0, 0), pubKey);
 				assembly.Modules.Add(new ModuleDefUser(asmName + ".dll"));
 				ModuleDef module = assembly.ManifestModule;
 				assembly.ManifestModule.Kind = ModuleKind.Dll;
@@ -86,8 +91,11 @@ namespace Confuser.Protections.Resources {
 				while (buffIndex < compressedBuff.Length) {
 					uint[] enc = ctx.ModeHandler.Encrypt(compressedBuff, buffIndex, key);
 					for (int j = 0; j < 0x10; j++)
-						key[j] ^= compressedBuff[buffIndex + j];
-					Buffer.BlockCopy(enc, 0, encryptedBuffer, buffIndex * 4, 0x40);
+                    {
+                        key[j] ^= compressedBuff[buffIndex + j];
+                    }
+
+                    Buffer.BlockCopy(enc, 0, encryptedBuffer, buffIndex * 4, 0x40);
 					buffIndex += 0x10;
 				}
 				Debug.Assert(buffIndex == compressedBuff.Length);

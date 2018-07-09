@@ -30,24 +30,33 @@ namespace Confuser.DynCipher.Generation {
 			}
 			catch (Exception ex) {
 				if (ex.Message == "Register overflowed.")
-					return null;
-				throw;
+                {
+                    return null;
+                }
+
+                throw;
 			}
 		}
 
 		x86Register GetFreeRegister() {
 			for (int i = 0; i < 8; i++)
-				if (!usedRegs[i])
-					return (x86Register)i;
+            {
+                if (!usedRegs[i])
+                {
+                    return (x86Register)i;
+                }
+            }
 
-			throw new Exception("Register overflowed.");
+            throw new Exception("Register overflowed.");
 		}
 
 		void TakeRegister(x86Register reg) {
 			usedRegs[(int)reg] = true;
 			if ((int)reg > MaxUsedRegister)
-				MaxUsedRegister = (int)reg;
-		}
+            {
+                MaxUsedRegister = (int)reg;
+            }
+        }
 
 		void ReleaseRegister(x86Register reg) {
 			usedRegs[(int)reg] = false;
@@ -127,9 +136,11 @@ namespace Confuser.DynCipher.Generation {
 			Debug.Assert(instr.Operands[0] is x86RegisterOperand);
 
 			if (instr.Operands.Length == 2 && instr.Operands[1] is x86RegisterOperand)
-				ReleaseRegister(((x86RegisterOperand)instr.Operands[1]).Register);
+            {
+                ReleaseRegister(((x86RegisterOperand)instr.Operands[1]).Register);
+            }
 
-			instrs.Add(instr);
+            instrs.Add(instr);
 
 			return ((x86RegisterOperand)instr.Operands[0]).Register;
 		}
@@ -182,9 +193,11 @@ namespace Confuser.DynCipher.Generation {
 			}
 
 			if (exp is LiteralExpression)
-				return new x86ImmediateOperand((int)((LiteralExpression)exp).Value);
+            {
+                return new x86ImmediateOperand((int)((LiteralExpression)exp).Value);
+            }
 
-			if (exp is VariableExpression) {
+            if (exp is VariableExpression) {
 				x86Register reg = GetFreeRegister();
 				TakeRegister(reg);
 				instrs.AddRange(loadArg(((VariableExpression)exp).Variable, reg));
@@ -262,8 +275,12 @@ namespace Confuser.DynCipher.Generation {
 		public byte[] Assemble() {
 			switch (OpCode) {
 				case x86OpCode.MOV: {
-					if (Operands.Length != 2) throw new InvalidOperationException();
-					if (Operands[0] is x86RegisterOperand &&
+					if (Operands.Length != 2)
+                        {
+                            throw new InvalidOperationException();
+                        }
+
+                        if (Operands[0] is x86RegisterOperand &&
 					    Operands[1] is x86RegisterOperand) {
 						var ret = new byte[2];
 						ret[0] = 0x89;
@@ -284,8 +301,12 @@ namespace Confuser.DynCipher.Generation {
 				}
 
 				case x86OpCode.ADD: {
-					if (Operands.Length != 2) throw new InvalidOperationException();
-					if (Operands[0] is x86RegisterOperand &&
+					if (Operands.Length != 2)
+                        {
+                            throw new InvalidOperationException();
+                        }
+
+                        if (Operands[0] is x86RegisterOperand &&
 					    Operands[1] is x86RegisterOperand) {
 						var ret = new byte[2];
 						ret[0] = 0x01;
@@ -307,8 +328,12 @@ namespace Confuser.DynCipher.Generation {
 				}
 
 				case x86OpCode.SUB: {
-					if (Operands.Length != 2) throw new InvalidOperationException();
-					if (Operands[0] is x86RegisterOperand &&
+					if (Operands.Length != 2)
+                        {
+                            throw new InvalidOperationException();
+                        }
+
+                        if (Operands[0] is x86RegisterOperand &&
 					    Operands[1] is x86RegisterOperand) {
 						var ret = new byte[2];
 						ret[0] = 0x29;
@@ -330,8 +355,12 @@ namespace Confuser.DynCipher.Generation {
 				}
 
 				case x86OpCode.NEG: {
-					if (Operands.Length != 1) throw new InvalidOperationException();
-					if (Operands[0] is x86RegisterOperand) {
+					if (Operands.Length != 1)
+                        {
+                            throw new InvalidOperationException();
+                        }
+
+                        if (Operands[0] is x86RegisterOperand) {
 						var ret = new byte[2];
 						ret[0] = 0xf7;
 						ret[1] = 0xd8;
@@ -342,8 +371,12 @@ namespace Confuser.DynCipher.Generation {
 				}
 
 				case x86OpCode.NOT: {
-					if (Operands.Length != 1) throw new InvalidOperationException();
-					if (Operands[0] is x86RegisterOperand) {
+					if (Operands.Length != 1)
+                        {
+                            throw new InvalidOperationException();
+                        }
+
+                        if (Operands[0] is x86RegisterOperand) {
 						var ret = new byte[2];
 						ret[0] = 0xf7;
 						ret[1] = 0xd0;
@@ -354,8 +387,12 @@ namespace Confuser.DynCipher.Generation {
 				}
 
 				case x86OpCode.XOR: {
-					if (Operands.Length != 2) throw new InvalidOperationException();
-					if (Operands[0] is x86RegisterOperand &&
+					if (Operands.Length != 2)
+                        {
+                            throw new InvalidOperationException();
+                        }
+
+                        if (Operands[0] is x86RegisterOperand &&
 					    Operands[1] is x86RegisterOperand) {
 						var ret = new byte[2];
 						ret[0] = 0x31;
@@ -377,8 +414,12 @@ namespace Confuser.DynCipher.Generation {
 				}
 
 				case x86OpCode.POP: {
-					if (Operands.Length != 1) throw new InvalidOperationException();
-					if (Operands[0] is x86RegisterOperand) {
+					if (Operands.Length != 1)
+                        {
+                            throw new InvalidOperationException();
+                        }
+
+                        if (Operands[0] is x86RegisterOperand) {
 						var ret = new byte[1];
 						ret[0] = 0x58;
 						ret[0] |= (byte)((int)(Operands[0] as x86RegisterOperand).Register << 0);
@@ -388,8 +429,12 @@ namespace Confuser.DynCipher.Generation {
 				}
 
 				case x86OpCode.IMUL: {
-					if (Operands.Length != 2) throw new InvalidOperationException();
-					if (Operands[0] is x86RegisterOperand &&
+					if (Operands.Length != 2)
+                        {
+                            throw new InvalidOperationException();
+                        }
+
+                        if (Operands[0] is x86RegisterOperand &&
 					    Operands[1] is x86RegisterOperand) {
 						var ret = new byte[3];
 						ret[0] = 0x0f;

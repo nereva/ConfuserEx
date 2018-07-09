@@ -34,25 +34,30 @@ namespace Confuser.Runtime {
 			MethodBase method = fieldInfo.Module.ResolveMethod(token);
 			Type delegateType = fieldInfo.FieldType;
 			if (method.IsStatic)
-				fieldInfo.SetValue(null, Delegate.CreateDelegate(delegateType, (MethodInfo)method));
-
-			else {
+            {
+                fieldInfo.SetValue(null, Delegate.CreateDelegate(delegateType, (MethodInfo)method));
+            }
+            else {
 				DynamicMethod dm = null;
 				Type[] argTypes = null;
 
 				foreach (MethodInfo invoke in fieldInfo.FieldType.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance))
-					if (invoke.DeclaringType == delegateType) {
+                {
+                    if (invoke.DeclaringType == delegateType) {
 						ParameterInfo[] paramTypes = invoke.GetParameters();
 						argTypes = new Type[paramTypes.Length];
 						for (int i = 0; i < argTypes.Length; i++)
-							argTypes[i] = paramTypes[i].ParameterType;
+                        {
+                            argTypes[i] = paramTypes[i].ParameterType;
+                        }
 
-						Type declType = method.DeclaringType;
+                        Type declType = method.DeclaringType;
 						dm = new DynamicMethod("", invoke.ReturnType, argTypes, (declType.IsInterface || declType.IsArray) ? delegateType : declType, true);
 						break;
 					}
+                }
 
-				DynamicILInfo info = dm.GetDynamicILInfo();
+                DynamicILInfo info = dm.GetDynamicILInfo();
 				info.SetLocalSignature(new byte[] { 0x7, 0x0 });
 				var code = new byte[(2 + 5) * argTypes.Length + 6];
 				int index = 0;
@@ -72,8 +77,11 @@ namespace Confuser.Runtime {
 						code[index++] = (byte)(cToken >> 24);
 					}
 					else
-						index += 5;
-					mIndex++;
+                    {
+                        index += 5;
+                    }
+
+                    mIndex++;
 				}
 				code[index++] = (byte)((byte)fieldInfo.Name[Mutation.KeyI8] ^ opKey);
 				int dmToken = info.GetTokenFor(method.MethodHandle);

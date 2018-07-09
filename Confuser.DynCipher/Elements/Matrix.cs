@@ -33,16 +33,24 @@ namespace Confuser.DynCipher.Elements {
 		static uint[,] mul(uint[,] a, uint[,] b) {
 			int n = a.GetLength(0), p = b.GetLength(1);
 			int m = a.GetLength(1);
-			if (b.GetLength(0) != m) return null;
+			if (b.GetLength(0) != m)
+            {
+                return null;
+            }
 
-			var ret = new uint[n, p];
+            var ret = new uint[n, p];
 			for (int i = 0; i < n; i++)
-				for (int j = 0; j < p; j++) {
+            {
+                for (int j = 0; j < p; j++) {
 					ret[i, j] = 0;
 					for (int k = 0; k < m; k++)
-						ret[i, j] += a[i, k] * b[k, j];
-				}
-			return ret;
+                    {
+                        ret[i, j] += a[i, k] * b[k, j];
+                    }
+                }
+            }
+
+            return ret;
 		}
 
 		static uint cofactor4(uint[,] mat, int i, int j) {
@@ -61,8 +69,12 @@ namespace Confuser.DynCipher.Elements {
 				}
 			}
 			uint ret = det3(sub);
-			if ((i + j) % 2 == 0) return ret;
-			return (uint)(-ret);
+			if ((i + j) % 2 == 0)
+            {
+                return ret;
+            }
+
+            return (uint)(-ret);
 		}
 
 		static uint det3(uint[,] mat) {
@@ -77,9 +89,14 @@ namespace Confuser.DynCipher.Elements {
 		static uint[,] transpose4(uint[,] mat) {
 			var ret = new uint[4, 4];
 			for (int i = 0; i < 4; i++)
-				for (int j = 0; j < 4; j++)
-					ret[j, i] = mat[i, j];
-			return ret;
+            {
+                for (int j = 0; j < 4; j++)
+                {
+                    ret[j, i] = mat[i, j];
+                }
+            }
+
+            return ret;
 		}
 
 		public override void Initialize(RandomGenerator random) {
@@ -87,9 +104,14 @@ namespace Confuser.DynCipher.Elements {
 
 			var cof = new uint[4, 4];
 			for (int i = 0; i < 4; i++)
-				for (int j = 0; j < 4; j++)
-					cof[i, j] = cofactor4(InverseKey, i, j);
-			Key = transpose4(cof);
+            {
+                for (int j = 0; j < 4; j++)
+                {
+                    cof[i, j] = cofactor4(InverseKey, i, j);
+                }
+            }
+
+            Key = transpose4(cof);
 		}
 
 		void EmitCore(CipherGenContext context, uint[,] k) {

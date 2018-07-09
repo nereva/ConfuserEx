@@ -163,13 +163,21 @@ namespace Confuser.Core {
 		/// <returns>The native writer options.</returns>
 		public NativeModuleWriterOptions RequestNative() {
 			if (CurrentModule == null)
-				return null;
-			if (CurrentModuleWriterOptions == null)
-				CurrentModuleWriterOptions = new NativeModuleWriterOptions(CurrentModule);
+            {
+                return null;
+            }
 
-			if (CurrentModuleWriterOptions is NativeModuleWriterOptions)
-				return (NativeModuleWriterOptions)CurrentModuleWriterOptions;
-			var newOptions = new NativeModuleWriterOptions(CurrentModule, CurrentModuleWriterOptions.Listener);
+            if (CurrentModuleWriterOptions == null)
+            {
+                CurrentModuleWriterOptions = new NativeModuleWriterOptions(CurrentModule);
+            }
+
+            if (CurrentModuleWriterOptions is NativeModuleWriterOptions)
+            {
+                return (NativeModuleWriterOptions)CurrentModuleWriterOptions;
+            }
+
+            var newOptions = new NativeModuleWriterOptions(CurrentModule, CurrentModuleWriterOptions.Listener);
 			// Clone the current options to the new options
 			newOptions.AddCheckSum = CurrentModuleWriterOptions.AddCheckSum;
 			newOptions.Cor20HeaderOptions = CurrentModuleWriterOptions.Cor20HeaderOptions;

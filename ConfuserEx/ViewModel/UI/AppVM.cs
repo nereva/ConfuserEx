@@ -29,13 +29,17 @@ namespace ConfuserEx.ViewModel {
 			get { return proj; }
 			set {
 				if (proj != null)
-					proj.PropertyChanged -= OnProjectPropertyChanged;
+                {
+                    proj.PropertyChanged -= OnProjectPropertyChanged;
+                }
 
-				SetProperty(ref proj, value, "Project");
+                SetProperty(ref proj, value, "Project");
 
 				if (proj != null)
-					proj.PropertyChanged += OnProjectPropertyChanged;
-			}
+                {
+                    proj.PropertyChanged += OnProjectPropertyChanged;
+                }
+            }
 		}
 
 		public string FileName {
@@ -87,8 +91,11 @@ namespace ConfuserEx.ViewModel {
 				sfd.DefaultExt = ".crproj";
 				sfd.AddExtension = true;
 				if (!(sfd.ShowDialog(Application.Current.MainWindow) ?? false) || sfd.FileName == null)
-					return false;
-				FileName = sfd.FileName;
+                {
+                    return false;
+                }
+
+                FileName = sfd.FileName;
 			}
 			ConfuserProject proj = ((IViewModel<ConfuserProject>)Project).Model;
 			proj.Save().Save(FileName);
@@ -99,8 +106,11 @@ namespace ConfuserEx.ViewModel {
 
 		bool PromptSave() {
 			if (!Project.IsModified)
-				return true;
-			switch (MessageBox.Show("The current project has unsaved changes. Do you want to save them?", "ConfuserEx", MessageBoxButton.YesNoCancel, MessageBoxImage.Question)) {
+            {
+                return true;
+            }
+
+            switch (MessageBox.Show("The current project has unsaved changes. Do you want to save them?", "ConfuserEx", MessageBoxButton.YesNoCancel, MessageBoxImage.Question)) {
 				case MessageBoxResult.Yes:
 					return SaveProj();
 				case MessageBoxResult.No:
@@ -113,17 +123,21 @@ namespace ConfuserEx.ViewModel {
 
 		void NewProj() {
 			if (!PromptSave())
-				return;
+            {
+                return;
+            }
 
-			Project = new ProjectVM(new ConfuserProject(), null);
+            Project = new ProjectVM(new ConfuserProject(), null);
 			FileName = "Unnamed.crproj";
 		}
 
 		void OpenProj() {
 			if (!PromptSave())
-				return;
+            {
+                return;
+            }
 
-			var ofd = new VistaOpenFileDialog();
+            var ofd = new VistaOpenFileDialog();
 			ofd.Filter = "ConfuserEx Projects (*.crproj)|*.crproj|All Files (*.*)|*.*";
 			if ((ofd.ShowDialog(Application.Current.MainWindow) ?? false) && ofd.FileName != null) {
 				string fileName = ofd.FileName;
@@ -143,14 +157,18 @@ namespace ConfuserEx.ViewModel {
 
 		void OnProjectPropertyChanged(object sender, PropertyChangedEventArgs e) {
 			if (e.PropertyName == "IsModified")
-				OnPropertyChanged("Title");
-		}
+            {
+                OnPropertyChanged("Title");
+            }
+        }
 
 		protected override void OnPropertyChanged(string property) {
 			base.OnPropertyChanged(property);
 			if (property == "Project")
-				LoadPlugins();
-		}
+            {
+                LoadPlugins();
+            }
+        }
 
 		void LoadPlugins() {
 			foreach (var plugin in Project.Plugins) {

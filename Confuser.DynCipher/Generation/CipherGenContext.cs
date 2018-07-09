@@ -16,8 +16,10 @@ namespace Confuser.DynCipher.Generation {
 			Block = new StatementBlock(); // new LoopStatement() { Begin = 0, Limit = 4 };
 			dataVars = new Variable[dataVarCount];
 			for (int i = 0; i < dataVarCount; i++)
-				dataVars[i] = new Variable("v" + i) { Tag = i };
-		}
+            {
+                dataVars[i] = new Variable("v" + i) { Tag = i };
+            }
+        }
 
 		public StatementBlock Block { get; private set; }
 
@@ -40,8 +42,10 @@ namespace Confuser.DynCipher.Generation {
 		public IDisposable AcquireTempVar(out VariableExpression exp) {
 			Variable var;
 			if (tempVars.Count == 0)
-				var = new Variable("t" + tempVarCounter++);
-			else {
+            {
+                var = new Variable("t" + tempVarCounter++);
+            }
+            else {
 				var = tempVars[random.NextInt32(tempVars.Count)];
 				tempVars.Remove(var);
 			}

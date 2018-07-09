@@ -10,9 +10,11 @@ namespace Confuser.Runtime {
 			var method = env.GetMethod("GetEnvironmentVariable", new[] { typeof(string) });
 			if (method != null &&
 			    "1".Equals(method.Invoke(null, new object[] { x + "_ENABLE_PROFILING" })))
-				Environment.FailFast(null);
+            {
+                Environment.FailFast(null);
+            }
 
-			var thread = new Thread(Worker);
+            var thread = new Thread(Worker);
 			thread.IsBackground = true;
 			thread.Start(null);
 		}
@@ -27,12 +29,16 @@ namespace Confuser.Runtime {
 			}
 			while (true) {
 				if (Debugger.IsAttached || Debugger.IsLogging())
-					Environment.FailFast(null);
+                {
+                    Environment.FailFast(null);
+                }
 
-				if (!th.IsAlive)
-					Environment.FailFast(null);
+                if (!th.IsAlive)
+                {
+                    Environment.FailFast(null);
+                }
 
-				Thread.Sleep(1000);
+                Thread.Sleep(1000);
 			}
 		}
 	}

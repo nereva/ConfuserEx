@@ -74,9 +74,11 @@ namespace Confuser.Protections.AntiTamper {
 			}
 			initMethod.Body.Instructions.Clear();
 			foreach (Instruction instr in instrs)
-				initMethod.Body.Instructions.Add(instr);
+            {
+                initMethod.Body.Instructions.Add(instr);
+            }
 
-			MutationHelper.InjectKeys(initMethod,
+            MutationHelper.InjectKeys(initMethod,
 			                          new[] { 0, 1, 2, 3, 4 },
 			                          new[] { (int)(name1 * name2), (int)z, (int)x, (int)c, (int)v });
 
@@ -85,8 +87,10 @@ namespace Confuser.Protections.AntiTamper {
 			foreach (IDnlibDef def in members) {
 				name.MarkHelper(def, marker, parent);
 				if (def is MethodDef)
-					parent.ExcludeMethod(context, (MethodDef)def);
-			}
+                {
+                    parent.ExcludeMethod(context, (MethodDef)def);
+                }
+            }
 
 			MethodDef cctor = context.CurrentModule.GlobalType.FindStaticConstructor();
 			cctor.Body.Instructions.Insert(0, Instruction.Create(OpCodes.Call, initMethod));
@@ -155,15 +159,20 @@ namespace Confuser.Protections.AntiTamper {
 				}
 			}
 			if (moved)
-				writer.Sections.Add(peSection);
+            {
+                writer.Sections.Add(peSection);
+            }
 
-			// move encrypted methods
-			var encryptedChunk = new MethodBodyChunks(writer.TheOptions.ShareMethodBodies);
+            // move encrypted methods
+            var encryptedChunk = new MethodBodyChunks(writer.TheOptions.ShareMethodBodies);
 			newSection.Add(encryptedChunk, 4);
 			foreach (MethodDef method in methods) {
 				if (!method.HasBody)
-					continue;
-				MethodBody body = writer.MetaData.GetMethodBody(method);
+                {
+                    continue;
+                }
+
+                MethodBody body = writer.MetaData.GetMethodBody(method);
 				bool ok = writer.MethodBodies.Remove(body);
 				encryptedChunk.Add(body);
 			}
@@ -187,8 +196,11 @@ namespace Confuser.Protections.AntiTamper {
 			uint encLoc = 0, encSize = 0;
 			int origSects = -1;
 			if (writer is NativeModuleWriter && writer.Module is ModuleDefMD)
-				origSects = ((ModuleDefMD)writer.Module).MetaData.PEImage.ImageSectionHeaders.Count;
-			for (int i = 0; i < sections; i++) {
+            {
+                origSects = ((ModuleDefMD)writer.Module).MetaData.PEImage.ImageSectionHeaders.Count;
+            }
+
+            for (int i = 0; i < sections; i++) {
 				uint nameHash;
 				if (origSects > 0) {
 					origSects--;
@@ -196,8 +208,11 @@ namespace Confuser.Protections.AntiTamper {
 					nameHash = 0;
 				}
 				else
-					nameHash = reader.ReadUInt32() * reader.ReadUInt32();
-				stream.Position += 8;
+                {
+                    nameHash = reader.ReadUInt32() * reader.ReadUInt32();
+                }
+
+                stream.Position += 8;
 				if (nameHash == name1 * name2) {
 					encSize = reader.ReadUInt32();
 					encLoc = reader.ReadUInt32();
@@ -208,8 +223,11 @@ namespace Confuser.Protections.AntiTamper {
 					Hash(stream, reader, sectLoc, sectSize);
 				}
 				else
-					stream.Position += 8;
-				stream.Position += 16;
+                {
+                    stream.Position += 8;
+                }
+
+                stream.Position += 16;
 			}
 
 			uint[] key = DeriveKey();

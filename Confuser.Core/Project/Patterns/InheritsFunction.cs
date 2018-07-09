@@ -24,14 +24,21 @@ namespace Confuser.Core.Project.Patterns {
 
 			var type = definition as TypeDef;
 			if (type == null && definition is IMemberDef)
-				type = ((IMemberDef)definition).DeclaringType;
-			if (type == null)
-				return false;
+            {
+                type = ((IMemberDef)definition).DeclaringType;
+            }
 
-			if (type.InheritsFrom(name) || type.Implements(name))
-				return true;
+            if (type == null)
+            {
+                return false;
+            }
 
-			return false;
+            if (type.InheritsFrom(name) || type.Implements(name))
+            {
+                return true;
+            }
+
+            return false;
 		}
 	}
 }

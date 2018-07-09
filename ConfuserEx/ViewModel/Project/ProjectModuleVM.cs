@@ -61,16 +61,20 @@ namespace ConfuserEx.ViewModel {
 			get { return module.SNKeyPath; }
 			set {
 				if (SetProperty(module.SNKeyPath != value, val => module.SNKeyPath = val, value, "SNKeyPath"))
-					parent.IsModified = true;
-			}
+                {
+                    parent.IsModified = true;
+                }
+            }
 		}
 
 		public string SNKeyPassword {
 			get { return module.SNKeyPassword; }
 			set {
 				if (SetProperty(module.SNKeyPassword != value, val => module.SNKeyPassword = val, value, "SNKeyPassword"))
-					parent.IsModified = true;
-			}
+                {
+                    parent.IsModified = true;
+                }
+            }
 		}
 
 		public IList<ProjectRuleVM> Rules { get; private set; }
@@ -85,8 +89,11 @@ namespace ConfuserEx.ViewModel {
 				try {
 					string path = System.IO.Path.Combine(parent.BaseDirectory, Path);
 					if (!string.IsNullOrEmpty(parent.FileName))
-						path = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(parent.FileName), path);
-					AssemblyName name = System.Reflection.AssemblyName.GetAssemblyName(path);
+                    {
+                        path = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(parent.FileName), path);
+                    }
+
+                    AssemblyName name = System.Reflection.AssemblyName.GetAssemblyName(path);
 					AssemblyName = name.FullName;
 				}
 				catch {

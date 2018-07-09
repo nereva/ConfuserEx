@@ -23,8 +23,11 @@ namespace Confuser.Runtime {
 			var o = new byte[l * 4];
 			while (s < l) {
 				for (int j = 0; j < 0x10; j++)
-					w[j] = q[s + j];
-				Mutation.Crypt(w, k);
+                {
+                    w[j] = q[s + j];
+                }
+
+                Mutation.Crypt(w, k);
 				for (int j = 0; j < 0x10; j++) {
 					uint e = w[j];
 					o[d++] = (byte)e;

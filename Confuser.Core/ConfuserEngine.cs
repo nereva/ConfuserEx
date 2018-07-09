@@ -41,9 +41,14 @@ namespace Confuser.Core {
 				try {
 					var asmName = new AssemblyName(e.Name);
 					foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
-						if (asm.GetName().Name == asmName.Name)
-							return asm;
-					return null;
+                    {
+                        if (asm.GetName().Name == asmName.Name)
+                        {
+                            return asm;
+                        }
+                    }
+
+                    return null;
 				}
 				catch {
 					return null;
@@ -62,10 +67,16 @@ namespace Confuser.Core {
 		/// </exception>
 		public static Task Run(ConfuserParameters parameters, CancellationToken? token = null) {
 			if (parameters.Project == null)
-				throw new ArgumentNullException("parameters");
-			if (token == null)
-				token = new CancellationTokenSource().Token;
-			return Task.Factory.StartNew(() => RunInternal(parameters, token.Value), token.Value);
+            {
+                throw new ArgumentNullException("parameters");
+            }
+
+            if (token == null)
+            {
+                token = new CancellationTokenSource().Token;
+            }
+
+            return Task.Factory.StartNew(() => RunInternal(parameters, token.Value), token.Value);
 		}
 
 		/// <summary>
@@ -92,9 +103,11 @@ namespace Confuser.Core {
 				context.BaseDirectory = Path.Combine(Environment.CurrentDirectory, parameters.Project.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar);
 				context.OutputDirectory = Path.Combine(parameters.Project.BaseDirectory, parameters.Project.OutputDirectory.TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar);
 				foreach (string probePath in parameters.Project.ProbePaths)
-					asmResolver.PostSearchPaths.Insert(0, Path.Combine(context.BaseDirectory, probePath));
+                {
+                    asmResolver.PostSearchPaths.Insert(0, Path.Combine(context.BaseDirectory, probePath));
+                }
 
-				context.CheckCancellation();
+                context.CheckCancellation();
 
 				Marker marker = parameters.GetMarker();
 
@@ -123,11 +136,16 @@ namespace Confuser.Core {
 
 				components.Insert(0, new CoreComponent(parameters, marker));
 				foreach (Protection prot in prots)
-					components.Add(prot);
-				foreach (Packer packer in packers)
-					components.Add(packer);
+                {
+                    components.Add(prot);
+                }
 
-				context.CheckCancellation();
+                foreach (Packer packer in packers)
+                {
+                    components.Add(packer);
+                }
+
+                context.CheckCancellation();
 
 				// 4. Load modules
 				context.Logger.Info("Loading input modules...");
@@ -135,8 +153,11 @@ namespace Confuser.Core {
 				MarkerResult markings = marker.MarkProject(parameters.Project, context);
 				context.Modules = new ModuleSorter(markings.Modules).Sort().ToList().AsReadOnly();
 				foreach (var module in context.Modules)
-					module.EnableTypeDefFindCache = false;
-				context.OutputModules = Enumerable.Repeat<byte[]>(null, context.Modules.Count).ToArray();
+                {
+                    module.EnableTypeDefFindCache = false;
+                }
+
+                context.OutputModules = Enumerable.Repeat<byte[]>(null, context.Modules.Count).ToArray();
 				context.OutputSymbols = Enumerable.Repeat<byte[]>(null, context.Modules.Count).ToArray();
 				context.OutputPaths = Enumerable.Repeat<string>(null, context.Modules.Count).ToArray();
 				context.Packer = markings.Packer;
@@ -200,8 +221,11 @@ namespace Confuser.Core {
 			}
 			finally {
 				if (context.Resolver != null)
-					context.Resolver.Clear();
-				context.Logger.Finish(ok);
+                {
+                    context.Resolver.Clear();
+                }
+
+                context.Logger.Finish(ok);
 			}
 		}
 
@@ -256,8 +280,10 @@ namespace Confuser.Core {
 			pipeline.ExecuteStage(PipelineStage.SaveModules, SaveModules, () => getAllDefs(), context);
 
 			if (!context.PackerInitiated)
-				context.Logger.Info("Done.");
-		}
+            {
+                context.Logger.Info("Done.");
+            }
+        }
 
 		static void Inspection(ConfuserContext context) {
 			context.Logger.Info("Resolving dependencies...");
@@ -276,13 +302,19 @@ namespace Confuser.Core {
 			foreach (ModuleDefMD module in context.Modules) {
 				var snKey = context.Annotations.Get<StrongNameKey>(module, Marker.SNKey);
 				if (snKey == null && module.IsStrongNameSigned)
-					context.Logger.WarnFormat("[{0}] SN Key is not provided for a signed module, the output may not be working.", module.Name);
-				else if (snKey != null && !module.IsStrongNameSigned)
-					context.Logger.WarnFormat("[{0}] SN Key is provided for an unsigned module, the output may not be working.", module.Name);
-				else if (snKey != null && module.IsStrongNameSigned &&
+                {
+                    context.Logger.WarnFormat("[{0}] SN Key is not provided for a signed module, the output may not be working.", module.Name);
+                }
+                else if (snKey != null && !module.IsStrongNameSigned)
+                {
+                    context.Logger.WarnFormat("[{0}] SN Key is provided for an unsigned module, the output may not be working.", module.Name);
+                }
+                else if (snKey != null && module.IsStrongNameSigned &&
 				         !module.Assembly.PublicKey.Data.SequenceEqual(snKey.PublicKey))
-					context.Logger.WarnFormat("[{0}] Provided SN Key and signed module's public key do not match, the output may not be working.", module.Name);
-			}
+                {
+                    context.Logger.WarnFormat("[{0}] Provided SN Key and signed module's public key do not match, the output may not be working.", module.Name);
+                }
+            }
 
 			var marker = context.Registry.GetService<IMarkerService>();
 
@@ -297,8 +329,10 @@ namespace Confuser.Core {
 				}
 				MethodDef cctor = modType.FindOrCreateStaticConstructor();
 				if (!marker.IsMarked(cctor))
-					marker.Mark(cctor, null);
-			}
+                {
+                    marker.Mark(cctor, null);
+                }
+            }
 
 			context.Logger.Debug("Watermarking...");
 			foreach (ModuleDefMD module in context.Modules) {
@@ -348,35 +382,46 @@ namespace Confuser.Core {
 			CopyPEHeaders(context.CurrentModuleWriterOptions.PEHeadersOptions, context.CurrentModule);
 
 			if (!context.CurrentModule.IsILOnly || context.CurrentModule.VTableFixups != null)
-				context.RequestNative();
-			
-			var snKey = context.Annotations.Get<StrongNameKey>(context.CurrentModule, Marker.SNKey);
+            {
+                context.RequestNative();
+            }
+
+            var snKey = context.Annotations.Get<StrongNameKey>(context.CurrentModule, Marker.SNKey);
 			context.CurrentModuleWriterOptions.InitializeStrongNameSigning(context.CurrentModule, snKey);
 
 			foreach (TypeDef type in context.CurrentModule.GetTypes())
-				foreach (MethodDef method in type.Methods) {
+            {
+                foreach (MethodDef method in type.Methods) {
 					if (method.Body != null) {
 						method.Body.Instructions.SimplifyMacros(method.Body.Variables, method.Parameters);
 					}
 				}
-		}
+            }
+        }
 
 		static void ProcessModule(ConfuserContext context) { }
 
 		static void OptimizeMethods(ConfuserContext context) {
 			foreach (TypeDef type in context.CurrentModule.GetTypes())
-				foreach (MethodDef method in type.Methods) {
+            {
+                foreach (MethodDef method in type.Methods) {
 					if (method.Body != null)
-						method.Body.Instructions.OptimizeMacros();
-				}
-		}
+                    {
+                        method.Body.Instructions.OptimizeMacros();
+                    }
+                }
+            }
+        }
 
 		static void EndModule(ConfuserContext context) {
 			string output = context.Modules[context.CurrentModuleIndex].Location;
 			if (output != null) {
 				if (!Path.IsPathRooted(output))
-					output = Path.Combine(Environment.CurrentDirectory, output);
-				output = Utils.GetRelativePath(output, context.BaseDirectory);
+                {
+                    output = Path.Combine(Environment.CurrentDirectory, output);
+                }
+
+                output = Utils.GetRelativePath(output, context.BaseDirectory);
 			}
 			else {
 				output = context.CurrentModule.Name;
@@ -397,25 +442,37 @@ namespace Confuser.Core {
 			}
 
 			if (context.CurrentModuleWriterOptions is ModuleWriterOptions)
-				context.CurrentModule.Write(output, (ModuleWriterOptions)context.CurrentModuleWriterOptions);
-			else
-				context.CurrentModule.NativeWrite(output, (NativeModuleWriterOptions)context.CurrentModuleWriterOptions);
+            {
+                context.CurrentModule.Write(output, (ModuleWriterOptions)context.CurrentModuleWriterOptions);
+            }
+            else
+            {
+                context.CurrentModule.NativeWrite(output, (NativeModuleWriterOptions)context.CurrentModuleWriterOptions);
+            }
 
-			context.CurrentModuleOutput = output.ToArray();
+            context.CurrentModuleOutput = output.ToArray();
 			if (context.CurrentModule.PdbState != null)
-				context.CurrentModuleSymbol = pdb.ToArray();
-		}
+            {
+                context.CurrentModuleSymbol = pdb.ToArray();
+            }
+        }
 
 		static void Debug(ConfuserContext context) {
 			context.Logger.Info("Finalizing...");
 			for (int i = 0; i < context.OutputModules.Count; i++) {
 				if (context.OutputSymbols[i] == null)
-					continue;
-				string path = Path.GetFullPath(Path.Combine(context.OutputDirectory, context.OutputPaths[i]));
+                {
+                    continue;
+                }
+
+                string path = Path.GetFullPath(Path.Combine(context.OutputDirectory, context.OutputPaths[i]));
 				string dir = Path.GetDirectoryName(path);
 				if (!Directory.Exists(dir))
-					Directory.CreateDirectory(dir);
-				File.WriteAllBytes(Path.ChangeExtension(path, "pdb"), context.OutputSymbols[i]);
+                {
+                    Directory.CreateDirectory(dir);
+                }
+
+                File.WriteAllBytes(Path.ChangeExtension(path, "pdb"), context.OutputSymbols[i]);
 			}
 		}
 
@@ -432,8 +489,11 @@ namespace Confuser.Core {
 				string path = Path.GetFullPath(Path.Combine(context.OutputDirectory, context.OutputPaths[i]));
 				string dir = Path.GetDirectoryName(path);
 				if (!Directory.Exists(dir))
-					Directory.CreateDirectory(dir);
-				context.Logger.DebugFormat("Saving to '{0}'...", path);
+                {
+                    Directory.CreateDirectory(dir);
+                }
+
+                context.Logger.DebugFormat("Saving to '{0}'...", path);
 				File.WriteAllBytes(path, context.OutputModules[i]);
 			}
 		}
@@ -467,30 +527,43 @@ namespace Confuser.Core {
 				            OpenSubKey(@"SOFTWARE\Microsoft\NET Framework Setup\NDP\")) {
 				foreach (string versionKeyName in ndpKey.GetSubKeyNames()) {
 					if (!versionKeyName.StartsWith("v"))
-						continue;
+                    {
+                        continue;
+                    }
 
-					RegistryKey versionKey = ndpKey.OpenSubKey(versionKeyName);
+                    RegistryKey versionKey = ndpKey.OpenSubKey(versionKeyName);
 					var name = (string)versionKey.GetValue("Version", "");
 					string sp = versionKey.GetValue("SP", "").ToString();
 					string install = versionKey.GetValue("Install", "").ToString();
 					if (install == "" || sp != "" && install == "1")
-						yield return versionKeyName + "  " + name;
+                    {
+                        yield return versionKeyName + "  " + name;
+                    }
 
-					if (name != "")
-						continue;
+                    if (name != "")
+                    {
+                        continue;
+                    }
 
-					foreach (string subKeyName in versionKey.GetSubKeyNames()) {
+                    foreach (string subKeyName in versionKey.GetSubKeyNames()) {
 						RegistryKey subKey = versionKey.OpenSubKey(subKeyName);
 						name = (string)subKey.GetValue("Version", "");
 						if (name != "")
-							sp = subKey.GetValue("SP", "").ToString();
-						install = subKey.GetValue("Install", "").ToString();
+                        {
+                            sp = subKey.GetValue("SP", "").ToString();
+                        }
+
+                        install = subKey.GetValue("Install", "").ToString();
 
 						if (install == "")
-							yield return versionKeyName + "  " + name;
-						else if (install == "1")
-							yield return "  " + subKeyName + "  " + name;
-					}
+                        {
+                            yield return versionKeyName + "  " + name;
+                        }
+                        else if (install == "1")
+                        {
+                            yield return "  " + subKeyName + "  " + name;
+                        }
+                    }
 				}
 			}
 
@@ -498,8 +571,11 @@ namespace Confuser.Core {
 				RegistryKey.OpenRemoteBaseKey(RegistryHive.LocalMachine, "").
 				            OpenSubKey(@"SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full\")) {
 				if (ndpKey.GetValue("Release") == null)
-					yield break;
-				var releaseKey = (int)ndpKey.GetValue("Release");
+                {
+                    yield break;
+                }
+
+                var releaseKey = (int)ndpKey.GetValue("Release");
 				yield return "v4.5 " + releaseKey;
 			}
 		}
@@ -510,9 +586,11 @@ namespace Confuser.Core {
 		/// <param name="context">The working context.</param>
 		static void PrintEnvironmentInfo(ConfuserContext context) {
 			if (context.PackerInitiated)
-				return;
+            {
+                return;
+            }
 
-			context.Logger.Error("---BEGIN DEBUG INFO---");
+            context.Logger.Error("---BEGIN DEBUG INFO---");
 
 			context.Logger.Error("Installed Framework Versions:");
 			foreach (string ver in GetFrameworkVersions()) {
@@ -524,12 +602,19 @@ namespace Confuser.Core {
 				context.Logger.Error("Cached assemblies:");
 				foreach (AssemblyDef asm in context.Resolver.GetCachedAssemblies()) {
 					if (string.IsNullOrEmpty(asm.ManifestModule.Location))
-						context.Logger.ErrorFormat("    {0}", asm.FullName);
-					else
-						context.Logger.ErrorFormat("    {0} ({1})", asm.FullName, asm.ManifestModule.Location);
-					foreach (var reference in asm.Modules.OfType<ModuleDefMD>().SelectMany(m => m.GetAssemblyRefs()))
-						context.Logger.ErrorFormat("        {0}", reference.FullName);
-				}
+                    {
+                        context.Logger.ErrorFormat("    {0}", asm.FullName);
+                    }
+                    else
+                    {
+                        context.Logger.ErrorFormat("    {0} ({1})", asm.FullName, asm.ManifestModule.Location);
+                    }
+
+                    foreach (var reference in asm.Modules.OfType<ModuleDefMD>().SelectMany(m => m.GetAssemblyRefs()))
+                    {
+                        context.Logger.ErrorFormat("        {0}", reference.FullName);
+                    }
+                }
 			}
 
 			context.Logger.Error("---END DEBUG INFO---");

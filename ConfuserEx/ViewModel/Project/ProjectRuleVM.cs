@@ -55,16 +55,20 @@ namespace ConfuserEx.ViewModel {
 			get { return rule.Preset; }
 			set {
 				if (SetProperty(rule.Preset != value, val => rule.Preset = val, value, "Preset"))
-					parent.IsModified = true;
-			}
+                {
+                    parent.IsModified = true;
+                }
+            }
 		}
 
 		public bool Inherit {
 			get { return rule.Inherit; }
 			set {
 				if (SetProperty(rule.Inherit != value, val => rule.Inherit = val, value, "Inherit"))
-					parent.IsModified = true;
-			}
+                {
+                    parent.IsModified = true;
+                }
+            }
 		}
 
 		public IList<ProjectSettingVM<Protection>> Protections { get; private set; }
@@ -75,8 +79,11 @@ namespace ConfuserEx.ViewModel {
 
 		void ParseExpression() {
 			if (Pattern == null)
-				return;
-			PatternExpression expression;
+            {
+                return;
+            }
+
+            PatternExpression expression;
 			try {
 				expression = new PatternParser().Parse(Pattern);
 				ExpressionError = null;

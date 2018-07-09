@@ -24,36 +24,55 @@ namespace Confuser.Core.Project.Patterns {
 		public override object Evaluate(IDnlibDef definition) {
 			TypeDef type = definition as TypeDef;
 			if (type == null && definition is IMemberDef)
-				type = ((IMemberDef)definition).DeclaringType;
-			if (type == null)
-				return false;
+            {
+                type = ((IMemberDef)definition).DeclaringType;
+            }
 
-			string typeRegex = Arguments[0].Evaluate(definition).ToString();
+            if (type == null)
+            {
+                return false;
+            }
+
+            string typeRegex = Arguments[0].Evaluate(definition).ToString();
 
 			var typeType = new StringBuilder();
 
 			if (type.IsEnum)
-				typeType.Append("enum ");
+            {
+                typeType.Append("enum ");
+            }
 
-			if (type.IsInterface)
-				typeType.Append("interface ");
+            if (type.IsInterface)
+            {
+                typeType.Append("interface ");
+            }
 
-			if (type.IsValueType)
-				typeType.Append("valuetype ");
+            if (type.IsValueType)
+            {
+                typeType.Append("valuetype ");
+            }
 
-			if (type.IsDelegate())
-				typeType.Append("delegate ");
+            if (type.IsDelegate())
+            {
+                typeType.Append("delegate ");
+            }
 
-			if (type.IsAbstract)
-				typeType.Append("abstract ");
+            if (type.IsAbstract)
+            {
+                typeType.Append("abstract ");
+            }
 
-			if (type.IsNested)
-				typeType.Append("nested ");
+            if (type.IsNested)
+            {
+                typeType.Append("nested ");
+            }
 
-			if (type.IsSerializable)
-				typeType.Append("serializable ");
+            if (type.IsSerializable)
+            {
+                typeType.Append("serializable ");
+            }
 
-			return Regex.IsMatch(typeType.ToString(), typeRegex);
+            return Regex.IsMatch(typeType.ToString(), typeRegex);
 		}
 	}
 }

@@ -39,8 +39,12 @@ namespace Confuser.Core {
 		/// <returns><c>true</c> if the specified type has an accessible default constructor; otherwise, <c>false</c>.</returns>
 		public static bool HasAccessibleDefConstructor(Type type) {
 			ConstructorInfo ctor = type.GetConstructor(Type.EmptyTypes);
-			if (ctor == null) return false;
-			return ctor.IsPublic;
+			if (ctor == null)
+            {
+                return false;
+            }
+
+            return ctor.IsPublic;
 		}
 
 		/// <summary>
@@ -55,11 +59,14 @@ namespace Confuser.Core {
 			ConfuserContext context, IList<Protection> protections, IList<Packer> packers,
 			IList<ConfuserComponent> components, Assembly asm) {
 			foreach(var module in asm.GetLoadedModules())
-				foreach (var i in module.GetTypes()) {
+            {
+                foreach (var i in module.GetTypes()) {
 					if (i.IsAbstract || !HasAccessibleDefConstructor(i))
-						continue;
+                    {
+                        continue;
+                    }
 
-					if (typeof(Protection).IsAssignableFrom(i)) {
+                    if (typeof(Protection).IsAssignableFrom(i)) {
 						try {
 							protections.Add((Protection)Activator.CreateInstance(i));
 						}
@@ -84,7 +91,9 @@ namespace Confuser.Core {
 						}
 					}
 				}
-			context.CheckCancellation();
+            }
+
+            context.CheckCancellation();
 		}
 
 		/// <summary>

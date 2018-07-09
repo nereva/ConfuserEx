@@ -13,10 +13,15 @@ namespace Confuser.DynCipher.Elements {
 
 		public override void Initialize(RandomGenerator random) {
 			if (random.NextInt32(3) == 0)
-				Mask = 0xffffffff;
-			else
-				Mask = random.NextUInt32();
-			Key = random.NextUInt32() | 1;
+            {
+                Mask = 0xffffffff;
+            }
+            else
+            {
+                Mask = random.NextUInt32();
+            }
+
+            Key = random.NextUInt32() | 1;
 		}
 
 		void EmitCore(CipherGenContext context) {

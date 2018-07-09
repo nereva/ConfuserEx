@@ -43,8 +43,10 @@ namespace Confuser.CLI {
 				try {
 					files = p.Parse(args);
 					if (files.Count == 0)
-						throw new ArgumentException("No input files specified.");
-				}
+                    {
+                        throw new ArgumentException("No input files specified.");
+                    }
+                }
 				catch (Exception ex) {
 					Console.Write("ConfuserEx.CLI: ");
 					Console.WriteLine(ex.Message);
@@ -87,21 +89,31 @@ namespace Confuser.CLI {
 						files.RemoveAt(files.Count - 1);
 
 						foreach (var rule in templateProj.Rules)
-							proj.Rules.Add(rule);
-					}
+                        {
+                            proj.Rules.Add(rule);
+                        }
+                    }
 
 					// Generate a ConfuserProject for input modules
 					// Assuming first file = main module
 					foreach (var input in files)
-						proj.Add(new ProjectModule { Path = input });
+                    {
+                        proj.Add(new ProjectModule { Path = input });
+                    }
 
-					proj.BaseDirectory = Path.GetDirectoryName(files[0]);
+                    proj.BaseDirectory = Path.GetDirectoryName(files[0]);
 					proj.OutputDirectory = outDir;
 					foreach (var path in probePaths)
-						proj.ProbePaths.Add(path);
-					foreach (var path in plugins)
-						proj.PluginPaths.Add(path);
-					proj.Debug = debug;
+                    {
+                        proj.ProbePaths.Add(path);
+                    }
+
+                    foreach (var path in plugins)
+                    {
+                        proj.PluginPaths.Add(path);
+                    }
+
+                    proj.Debug = debug;
 					parameters.Project = proj;
 				}
 

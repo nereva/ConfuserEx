@@ -27,9 +27,11 @@ namespace Confuser.Protections.Constants {
 		protected override void Execute(ConfuserContext context, ProtectionParameters parameters) {
 			var moduleCtx = context.Annotations.Get<CEContext>(context.CurrentModule, ConstantProtection.ContextKey);
 			if (!parameters.Targets.Any() || moduleCtx == null)
-				return;
+            {
+                return;
+            }
 
-			var ldc = new Dictionary<object, List<Tuple<MethodDef, Instruction>>>();
+            var ldc = new Dictionary<object, List<Tuple<MethodDef, Instruction>>>();
 			var ldInit = new Dictionary<byte[], List<Tuple<MethodDef, Instruction>>>(new ByteArrayComparer());
 
 			// Extract constants
@@ -64,8 +66,11 @@ namespace Confuser.Protections.Constants {
 					EncodeConstant64(moduleCtx, t.Hi, t.Lo, context.CurrentModule.CorLibTypes.Double, entry.Value);
 				}
 				else
-					throw new UnreachableException();
-				context.CheckCancellation();
+                {
+                    throw new UnreachableException();
+                }
+
+                context.CheckCancellation();
 			}
 			ReferenceReplacer.ReplaceReference(moduleCtx, parameters);
 
@@ -104,8 +109,11 @@ namespace Confuser.Protections.Constants {
 			while (buffIndex < compressedBuff.Length) {
 				uint[] enc = moduleCtx.ModeHandler.Encrypt(compressedBuff, buffIndex, key);
 				for (int j = 0; j < 0x10; j++)
-					key[j] ^= compressedBuff[buffIndex + j];
-				Buffer.BlockCopy(enc, 0, encryptedBuffer, buffIndex * 4, 0x40);
+                {
+                    key[j] ^= compressedBuff[buffIndex + j];
+                }
+
+                Buffer.BlockCopy(enc, 0, encryptedBuffer, buffIndex * 4, 0x40);
 				buffIndex += 0x10;
 			}
 			Debug.Assert(buffIndex == compressedBuff.Length);
@@ -148,8 +156,10 @@ namespace Confuser.Protections.Constants {
 			do {
 				buffIndex = moduleCtx.EncodedBuffer.IndexOf(lo, buffIndex + 1);
 				if (buffIndex + 1 < moduleCtx.EncodedBuffer.Count && moduleCtx.EncodedBuffer[buffIndex + 1] == hi)
-					break;
-			} while (buffIndex >= 0);
+                {
+                    break;
+                }
+            } while (buffIndex >= 0);
 			
 			if (buffIndex == -1) {
 				buffIndex = moduleCtx.EncodedBuffer.Count;
@@ -168,9 +178,11 @@ namespace Confuser.Protections.Constants {
 				int i = instrs.IndexOf(instr.Item2);
 
 				if (buffIndex == -1)
-					buffIndex = EncodeByteArray(moduleCtx, init);
+                {
+                    buffIndex = EncodeByteArray(moduleCtx, init);
+                }
 
-				Tuple<MethodDef, DecoderDesc> decoder = moduleCtx.Decoders[moduleCtx.Random.NextInt32(moduleCtx.Decoders.Count)];
+                Tuple<MethodDef, DecoderDesc> decoder = moduleCtx.Decoders[moduleCtx.Random.NextInt32(moduleCtx.Decoders.Count)];
 				uint id = (uint)buffIndex | (uint)(decoder.Item2.InitializerID << 30);
 				id = moduleCtx.ModeHandler.Encode(decoder.Item2.Data, moduleCtx, id);
 
@@ -198,8 +210,11 @@ namespace Confuser.Protections.Constants {
 				int baseIndex = integral * 4;
 				uint r = 0;
 				for (int i = 0; i < remainder; i++)
-					r |= (uint)(buff[baseIndex + i] << (i * 8));
-				moduleCtx.EncodedBuffer.Add(r);
+                {
+                    r |= (uint)(buff[baseIndex + i] << (i * 8));
+                }
+
+                moduleCtx.EncodedBuffer.Add(r);
 			}
 			return buffIndex;
 		}
@@ -217,13 +232,19 @@ namespace Confuser.Protections.Constants {
 
 		void RemoveDataFieldRefs(ConfuserContext context, HashSet<FieldDef> dataFields, HashSet<Instruction> fieldRefs) {
 			foreach (var type in context.CurrentModule.GetTypes())
-				foreach (var method in type.Methods.Where(m => m.HasBody)) {
+            {
+                foreach (var method in type.Methods.Where(m => m.HasBody)) {
 					foreach (var instr in method.Body.Instructions)
-						if (instr.Operand is FieldDef && !fieldRefs.Contains(instr))
-							dataFields.Remove((FieldDef)instr.Operand);
-				}
+                    {
+                        if (instr.Operand is FieldDef && !fieldRefs.Contains(instr))
+                        {
+                            dataFields.Remove((FieldDef)instr.Operand);
+                        }
+                    }
+                }
+            }
 
-			foreach (var fieldToRemove in dataFields) {
+            foreach (var fieldToRemove in dataFields) {
 				fieldToRemove.DeclaringType.Fields.Remove(fieldToRemove);
 			}
 		}
@@ -236,12 +257,15 @@ namespace Confuser.Protections.Constants {
 			var fieldRefs = new HashSet<Instruction>();
 			foreach (MethodDef method in parameters.Targets.OfType<MethodDef>().WithProgress(context.Logger)) {
 				if (!method.HasBody)
-					continue;
+                {
+                    continue;
+                }
 
-				moduleCtx.Elements = 0;
+                moduleCtx.Elements = 0;
 				string elements = parameters.GetParameter(context, method, "elements", "SI");
 				foreach (char elem in elements)
-					switch (elem) {
+                {
+                    switch (elem) {
 						case 'S':
 						case 's':
 							moduleCtx.Elements |= EncodeElements.Strings;
@@ -259,17 +283,23 @@ namespace Confuser.Protections.Constants {
 							moduleCtx.Elements |= EncodeElements.Initializers;
 							break;
 					}
+                }
 
-				if (moduleCtx.Elements == 0)
-					continue;
+                if (moduleCtx.Elements == 0)
+                {
+                    continue;
+                }
 
-				foreach (Instruction instr in method.Body.Instructions) {
+                foreach (Instruction instr in method.Body.Instructions) {
 					bool eligible = false;
 					if (instr.OpCode == OpCodes.Ldstr && (moduleCtx.Elements & EncodeElements.Strings) != 0) {
 						var operand = (string)instr.Operand;
 						if (string.IsNullOrEmpty(operand) && (moduleCtx.Elements & EncodeElements.Primitive) == 0)
-							continue;
-						eligible = true;
+                        {
+                            continue;
+                        }
+
+                        eligible = true;
 					}
 					else if (instr.OpCode == OpCodes.Call && (moduleCtx.Elements & EncodeElements.Initializers) != 0) {
 						var operand = (IMethod)instr.Operand;
@@ -279,25 +309,47 @@ namespace Confuser.Protections.Constants {
 						    operand.Name == "InitializeArray") {
 							IList<Instruction> instrs = method.Body.Instructions;
 							int i = instrs.IndexOf(instr);
-							if (instrs[i - 1].OpCode != OpCodes.Ldtoken) continue;
-							if (instrs[i - 2].OpCode != OpCodes.Dup) continue;
-							if (instrs[i - 3].OpCode != OpCodes.Newarr) continue;
-							if (instrs[i - 4].OpCode != OpCodes.Ldc_I4) continue;
+							if (instrs[i - 1].OpCode != OpCodes.Ldtoken)
+                            {
+                                continue;
+                            }
 
-							var dataField = instrs[i - 1].Operand as FieldDef;
+                            if (instrs[i - 2].OpCode != OpCodes.Dup)
+                            {
+                                continue;
+                            }
+
+                            if (instrs[i - 3].OpCode != OpCodes.Newarr)
+                            {
+                                continue;
+                            }
+
+                            if (instrs[i - 4].OpCode != OpCodes.Ldc_I4)
+                            {
+                                continue;
+                            }
+
+                            var dataField = instrs[i - 1].Operand as FieldDef;
 							if (dataField == null)
-								continue;
-							if (!dataField.HasFieldRVA || dataField.InitialValue == null)
-								continue;
+                            {
+                                continue;
+                            }
 
-							// Prevent array length from being encoded
-							var arrLen = (int)instrs[i - 4].Operand;
+                            if (!dataField.HasFieldRVA || dataField.InitialValue == null)
+                            {
+                                continue;
+                            }
+
+                            // Prevent array length from being encoded
+                            var arrLen = (int)instrs[i - 4].Operand;
 							if (ldc.ContainsKey(arrLen)) {
 								List<Tuple<MethodDef, Instruction>> list = ldc[arrLen];
 								list.RemoveWhere(entry => entry.Item2 == instrs[i - 4]);
 								if (list.Count == 0)
-									ldc.Remove(arrLen);
-							}
+                                {
+                                    ldc.Remove(arrLen);
+                                }
+                            }
 
 							dataFields.Add(dataField);
 							fieldRefs.Add(instrs[i - 1]);
@@ -315,32 +367,46 @@ namespace Confuser.Protections.Constants {
 						if (instr.OpCode == OpCodes.Ldc_I4) {
 							var operand = (int)instr.Operand;
 							if ((operand >= -1 && operand <= 8) && (moduleCtx.Elements & EncodeElements.Primitive) == 0)
-								continue;
-							eligible = true;
+                            {
+                                continue;
+                            }
+
+                            eligible = true;
 						}
 						else if (instr.OpCode == OpCodes.Ldc_I8) {
 							var operand = (long)instr.Operand;
 							if ((operand >= -1 && operand <= 1) && (moduleCtx.Elements & EncodeElements.Primitive) == 0)
-								continue;
-							eligible = true;
+                            {
+                                continue;
+                            }
+
+                            eligible = true;
 						}
 						else if (instr.OpCode == OpCodes.Ldc_R4) {
 							var operand = (float)instr.Operand;
 							if ((operand == -1 || operand == 0 || operand == 1) && (moduleCtx.Elements & EncodeElements.Primitive) == 0)
-								continue;
-							eligible = true;
+                            {
+                                continue;
+                            }
+
+                            eligible = true;
 						}
 						else if (instr.OpCode == OpCodes.Ldc_R8) {
 							var operand = (double)instr.Operand;
 							if ((operand == -1 || operand == 0 || operand == 1) && (moduleCtx.Elements & EncodeElements.Primitive) == 0)
-								continue;
-							eligible = true;
+                            {
+                                continue;
+                            }
+
+                            eligible = true;
 						}
 					}
 
 					if (eligible)
-						ldc.AddListEntry(instr.Operand, Tuple.Create(method, instr));
-				}
+                    {
+                        ldc.AddListEntry(instr.Operand, Tuple.Create(method, instr));
+                    }
+                }
 
 				context.CheckCancellation();
 			}
@@ -355,8 +421,11 @@ namespace Confuser.Protections.Constants {
 			public int GetHashCode(byte[] obj) {
 				int ret = 31;
 				foreach (byte v in obj)
-					ret = ret * 17 + v;
-				return ret;
+                {
+                    ret = ret * 17 + v;
+                }
+
+                return ret;
 			}
 		}
 

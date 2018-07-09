@@ -30,8 +30,11 @@ namespace Confuser.Core.Project.Patterns {
 			tokens.Add(new PatternToken(TokenType.LParens));
 			for (int i = 0; i < Arguments.Count; i++) {
 				if (i != 0)
-					tokens.Add(new PatternToken(TokenType.Comma));
-				Arguments[i].Serialize(tokens);
+                {
+                    tokens.Add(new PatternToken(TokenType.Comma));
+                }
+
+                Arguments[i].Serialize(tokens);
 			}
 			tokens.Add(new PatternToken(TokenType.RParens));
 		}

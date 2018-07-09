@@ -36,11 +36,15 @@ namespace Confuser.Core.Services {
 		internal static byte[] Seed(string seed) {
 			byte[] ret;
 			if (!string.IsNullOrEmpty(seed))
-				ret = Utils.SHA256(Encoding.UTF8.GetBytes(seed));
-			else
-				ret = Utils.SHA256(Guid.NewGuid().ToByteArray());
+            {
+                ret = Utils.SHA256(Encoding.UTF8.GetBytes(seed));
+            }
+            else
+            {
+                ret = Utils.SHA256(Guid.NewGuid().ToByteArray());
+            }
 
-			for (int i = 0; i < 32; i++) {
+            for (int i = 0; i < 32; i++) {
 				ret[i] *= primes[i % primes.Length];
 				ret = Utils.SHA256(ret);
 			}
@@ -52,8 +56,11 @@ namespace Confuser.Core.Services {
 		/// </summary>
 		void NextState() {
 			for (int i = 0; i < 32; i++)
-				state[i] ^= primes[mixIndex = (mixIndex + 1) % primes.Length];
-			state = sha256.ComputeHash(state);
+            {
+                state[i] ^= primes[mixIndex = (mixIndex + 1) % primes.Length];
+            }
+
+            state = sha256.ComputeHash(state);
 			stateFilled = 32;
 		}
 
@@ -70,15 +77,26 @@ namespace Confuser.Core.Services {
 		/// <exception cref="System.ArgumentException">Invalid <paramref name="offset" /> or <paramref name="length" />.</exception>
 		public void NextBytes(byte[] buffer, int offset, int length) {
 			if (buffer == null)
-				throw new ArgumentNullException("buffer");
-			if (offset < 0)
-				throw new ArgumentOutOfRangeException("offset");
-			if (length < 0)
-				throw new ArgumentOutOfRangeException("length");
-			if (buffer.Length - offset < length)
-				throw new ArgumentException("Invalid offset or length.");
+            {
+                throw new ArgumentNullException("buffer");
+            }
 
-			while (length > 0) {
+            if (offset < 0)
+            {
+                throw new ArgumentOutOfRangeException("offset");
+            }
+
+            if (length < 0)
+            {
+                throw new ArgumentOutOfRangeException("length");
+            }
+
+            if (buffer.Length - offset < length)
+            {
+                throw new ArgumentException("Invalid offset or length.");
+            }
+
+            while (length > 0) {
 				if (length >= stateFilled) {
 					Buffer.BlockCopy(state, 32 - stateFilled, buffer, offset, stateFilled);
 					offset += stateFilled;
@@ -91,8 +109,10 @@ namespace Confuser.Core.Services {
 					length = 0;
 				}
 				if (stateFilled == 0)
-					NextState();
-			}
+                {
+                    NextState();
+                }
+            }
 		}
 
 		/// <summary>
@@ -103,8 +123,11 @@ namespace Confuser.Core.Services {
 			byte ret = state[32 - stateFilled];
 			stateFilled--;
 			if (stateFilled == 0)
-				NextState();
-			return ret;
+            {
+                NextState();
+            }
+
+            return ret;
 		}
 
 		/// <summary>
@@ -142,8 +165,12 @@ namespace Confuser.Core.Services {
 		/// <param name="max">The exclusive upper bound.</param>
 		/// <returns>Requested random number.</returns>
 		public int NextInt32(int min, int max) {
-			if (max <= min) return min;
-			return min + (int)(NextUInt32() % (max - min));
+			if (max <= min)
+            {
+                return min;
+            }
+
+            return min + (int)(NextUInt32() % (max - min));
 		}
 
 		/// <summary>
@@ -170,8 +197,11 @@ namespace Confuser.Core.Services {
 			byte s = state[32 - stateFilled];
 			stateFilled--;
 			if (stateFilled == 0)
-				NextState();
-			return s % 2 == 0;
+            {
+                NextState();
+            }
+
+            return s % 2 == 0;
 		}
 
 		/// <summary>
@@ -206,12 +236,18 @@ namespace Confuser.Core.Services {
 		/// <inheritdoc />
 		public RandomGenerator GetRandomGenerator(string id) {
 			if (string.IsNullOrEmpty(id))
-				throw new ArgumentNullException("id");
-			byte[] newSeed = seed;
+            {
+                throw new ArgumentNullException("id");
+            }
+
+            byte[] newSeed = seed;
 			byte[] idHash = Utils.SHA256(Encoding.UTF8.GetBytes(id));
 			for (int i = 0; i < 32; i++)
-				newSeed[i] ^= idHash[i];
-			return new RandomGenerator(Utils.SHA256(newSeed));
+            {
+                newSeed[i] ^= idHash[i];
+            }
+
+            return new RandomGenerator(Utils.SHA256(newSeed));
 		}
 	}
 

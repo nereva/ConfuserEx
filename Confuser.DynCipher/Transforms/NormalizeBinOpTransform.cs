@@ -25,8 +25,10 @@ namespace Confuser.DynCipher.Transforms {
 
 				if (binOp.Right is LiteralExpression && ((LiteralExpression)binOp.Right).Value == 0 &&
 				    binOp.Operation == BinOps.Add) // x + 0 => x
-					return binOp.Left;
-			}
+                {
+                    return binOp.Left;
+                }
+            }
 			else if (exp is ArrayIndexExpression) {
 				((ArrayIndexExpression)exp).Array = ProcessExpression(((ArrayIndexExpression)exp).Array);
 			}
@@ -46,7 +48,9 @@ namespace Confuser.DynCipher.Transforms {
 
 		public static void Run(StatementBlock block) {
 			foreach (Statement st in block.Statements)
-				ProcessStatement(st);
-		}
+            {
+                ProcessStatement(st);
+            }
+        }
 	}
 }

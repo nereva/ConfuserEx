@@ -19,16 +19,20 @@ namespace Confuser.Renamer {
 		/// <exception cref="System.ArgumentException">No generic arguments to resolve.</exception>
 		public static TypeSig Resolve(TypeSig typeSig, IList<TypeSig> typeGenArgs) {
 			if (typeGenArgs == null)
-				throw new ArgumentException("No generic arguments to resolve.");
+            {
+                throw new ArgumentException("No generic arguments to resolve.");
+            }
 
-			var resolver = new GenericArgumentResolver();
+            var resolver = new GenericArgumentResolver();
 			resolver.genericArguments = new GenericArguments();
 			resolver.recursionCounter = new RecursionCounter();
 
 			if (typeGenArgs != null)
-				resolver.genericArguments.PushTypeArgs(typeGenArgs);
+            {
+                resolver.genericArguments.PushTypeArgs(typeGenArgs);
+            }
 
-			return resolver.ResolveGenericArgs(typeSig);
+            return resolver.ResolveGenericArgs(typeSig);
 		}
 
 		/// <summary>
@@ -40,22 +44,29 @@ namespace Confuser.Renamer {
 		/// <exception cref="System.ArgumentException">No generic arguments to resolve.</exception>
 		public static MethodSig Resolve(MethodSig methodSig, IList<TypeSig> typeGenArgs) {
 			if (typeGenArgs == null)
-				throw new ArgumentException("No generic arguments to resolve.");
+            {
+                throw new ArgumentException("No generic arguments to resolve.");
+            }
 
-			var resolver = new GenericArgumentResolver();
+            var resolver = new GenericArgumentResolver();
 			resolver.genericArguments = new GenericArguments();
 			resolver.recursionCounter = new RecursionCounter();
 
 			if (typeGenArgs != null)
-				resolver.genericArguments.PushTypeArgs(typeGenArgs);
+            {
+                resolver.genericArguments.PushTypeArgs(typeGenArgs);
+            }
 
-			return resolver.ResolveGenericArgs(methodSig);
+            return resolver.ResolveGenericArgs(methodSig);
 		}
 
 		bool ReplaceGenericArg(ref TypeSig typeSig) {
 			if (genericArguments == null)
-				return false;
-			TypeSig newTypeSig = genericArguments.Resolve(typeSig);
+            {
+                return false;
+            }
+
+            TypeSig newTypeSig = genericArguments.Resolve(typeSig);
 			if (newTypeSig != typeSig) {
 				typeSig = newTypeSig;
 				return true;
@@ -65,11 +76,16 @@ namespace Confuser.Renamer {
 
 		MethodSig ResolveGenericArgs(MethodSig sig) {
 			if (sig == null)
-				return null;
-			if (!recursionCounter.Increment())
-				return null;
+            {
+                return null;
+            }
 
-			MethodSig result = ResolveGenericArgs(new MethodSig(sig.GetCallingConvention()), sig);
+            if (!recursionCounter.Increment())
+            {
+                return null;
+            }
+
+            MethodSig result = ResolveGenericArgs(new MethodSig(sig.GetCallingConvention()), sig);
 
 			recursionCounter.Decrement();
 			return result;
@@ -78,20 +94,27 @@ namespace Confuser.Renamer {
 		MethodSig ResolveGenericArgs(MethodSig sig, MethodSig old) {
 			sig.RetType = ResolveGenericArgs(old.RetType);
 			foreach (TypeSig p in old.Params)
-				sig.Params.Add(ResolveGenericArgs(p));
-			sig.GenParamCount = old.GenParamCount;
+            {
+                sig.Params.Add(ResolveGenericArgs(p));
+            }
+
+            sig.GenParamCount = old.GenParamCount;
 			if (sig.ParamsAfterSentinel != null) {
 				foreach (TypeSig p in old.ParamsAfterSentinel)
-					sig.ParamsAfterSentinel.Add(ResolveGenericArgs(p));
-			}
+                {
+                    sig.ParamsAfterSentinel.Add(ResolveGenericArgs(p));
+                }
+            }
 			return sig;
 		}
 
 		TypeSig ResolveGenericArgs(TypeSig typeSig) {
 			if (!recursionCounter.Increment())
-				return null;
+            {
+                return null;
+            }
 
-			if (ReplaceGenericArg(ref typeSig)) {
+            if (ReplaceGenericArg(ref typeSig)) {
 				recursionCounter.Decrement();
 				return typeSig;
 			}

@@ -76,9 +76,11 @@ namespace Confuser.Protections.ControlFlow {
 
 		public void AddJunk(IList<Instruction> instrs) {
 			if (Method.Module.IsClr40 || !JunkCode)
-				return;
+            {
+                return;
+            }
 
-			switch (Random.NextInt32(6)) {
+            switch (Random.NextInt32(6)) {
 				case 0:
 					instrs.Add(Instruction.Create(OpCodes.Pop));
 					break;

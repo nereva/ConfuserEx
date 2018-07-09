@@ -15,23 +15,28 @@ namespace Confuser.Core {
 
 		static void Erase(List<Tuple<uint, uint, byte[]>> sections, uint beginOffset, uint size) {
 			foreach (var sect in sections)
-				if (beginOffset >= sect.Item1 && beginOffset + size < sect.Item2) {
+            {
+                if (beginOffset >= sect.Item1 && beginOffset + size < sect.Item2) {
 					Erase(sect, beginOffset, size);
 					break;
 				}
-		}
+            }
+        }
 
 		static void Erase(List<Tuple<uint, uint, byte[]>> sections, IFileSection s) {
 			foreach (var sect in sections)
-				if ((uint)s.StartOffset >= sect.Item1 && (uint)s.EndOffset < sect.Item2) {
+            {
+                if ((uint)s.StartOffset >= sect.Item1 && (uint)s.EndOffset < sect.Item2) {
 					Erase(sect, (uint)s.StartOffset, (uint)(s.EndOffset - s.StartOffset));
 					break;
 				}
-		}
+            }
+        }
 
 		static void Erase(List<Tuple<uint, uint, byte[]>> sections, uint methodOffset) {
 			foreach (var sect in sections)
-				if (methodOffset >= sect.Item1 && methodOffset - sect.Item1 < sect.Item3.Length) {
+            {
+                if (methodOffset >= sect.Item1 && methodOffset - sect.Item1 < sect.Item3.Length) {
 					uint f = sect.Item3[methodOffset - sect.Item1];
 					uint size;
 					switch ((f & 7)) {
@@ -51,13 +56,16 @@ namespace Confuser.Core {
 					}
 					Erase(sect, methodOffset, size);
 				}
-		}
+            }
+        }
 
 		public static void Erase(NativeModuleWriter writer, ModuleDefMD module) {
 			if (writer == null || module == null)
-				return;
+            {
+                return;
+            }
 
-			var sections = new List<Tuple<uint, uint, byte[]>>();
+            var sections = new List<Tuple<uint, uint, byte[]>>();
 			var s = new MemoryStream();
 			foreach (var origSect in writer.OrigSections) {
 				var oldChunk = origSect.Chunk;
@@ -84,17 +92,23 @@ namespace Confuser.Core {
 				var method = md.TablesStream.ReadMethodRow(i);
 				var codeType = ((MethodImplAttributes)method.ImplFlags & MethodImplAttributes.CodeTypeMask);
 				if (codeType == MethodImplAttributes.IL)
-					Erase(sections, (uint)md.PEImage.ToFileOffset((RVA)method.RVA));
-			}
+                {
+                    Erase(sections, (uint)md.PEImage.ToFileOffset((RVA)method.RVA));
+                }
+            }
 
 			var res = md.ImageCor20Header.Resources;
 			if (res.Size > 0)
-				Erase(sections, (uint)res.StartOffset, res.Size);
+            {
+                Erase(sections, (uint)res.StartOffset, res.Size);
+            }
 
-			Erase(sections, md.ImageCor20Header);
+            Erase(sections, md.ImageCor20Header);
 			Erase(sections, md.MetaDataHeader);
 			foreach (var stream in md.AllStreams)
-				Erase(sections, stream);
-		}
+            {
+                Erase(sections, stream);
+            }
+        }
 	}
 }

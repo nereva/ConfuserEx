@@ -24,8 +24,11 @@ namespace Confuser.Runtime {
 			var o = new byte[l * 4];
 			while (s < l) {
 				for (int j = 0; j < 0x10; j++)
-					w[j] = q[s + j];
-				Mutation.Crypt(w, k);
+                {
+                    w[j] = q[s + j];
+                }
+
+                Mutation.Crypt(w, k);
 				for (int j = 0; j < 0x10; j++) {
 					uint e = w[j];
 					o[d++] = (byte)e;
@@ -43,8 +46,11 @@ namespace Confuser.Runtime {
 
 		static Assembly Handler(object sender, ResolveEventArgs args) {
 			if (c.FullName == args.Name)
-				return c;
-			return null;
+            {
+                return c;
+            }
+
+            return null;
 		}
 	}
 
@@ -70,8 +76,11 @@ namespace Confuser.Runtime {
 			var o = new byte[l * 4];
 			while (s < l) {
 				for (int j = 0; j < 0x10; j++)
-					w[j] = q[s + j];
-				Mutation.Crypt(w, k);
+                {
+                    w[j] = q[s + j];
+                }
+
+                Mutation.Crypt(w, k);
 				for (int j = 0; j < 0x10; j++) {
 					uint e = w[j];
 					o[d++] = (byte)e;
@@ -90,8 +99,11 @@ namespace Confuser.Runtime {
 		static Assembly Handler(object sender, ResolveEventArgs args) {
 			var n = c.GetManifestResourceNames();
 			if (Array.IndexOf(n, args.Name) != -1)
-				return c;
-			return null;
+            {
+                return c;
+            }
+
+            return null;
 		}
 	}
 }

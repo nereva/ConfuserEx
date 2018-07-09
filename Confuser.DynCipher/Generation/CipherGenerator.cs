@@ -40,18 +40,36 @@ namespace Confuser.DynCipher.Generation {
 
 			var elems = new List<CryptoElement>();
 			for (int i = 0; i < totalElements * MAT_RATIO / RATIO_SUM; i++)
-				elems.Add(new Matrix());
-			for (int i = 0; i < totalElements * NUMOP_RATIO / RATIO_SUM; i++)
-				elems.Add(new NumOp());
-			for (int i = 0; i < totalElements * SWAP_RATIO / RATIO_SUM; i++)
-				elems.Add(new Swap());
-			for (int i = 0; i < totalElements * BINOP_RATIO / RATIO_SUM; i++)
-				elems.Add(new BinOp());
-			for (int i = 0; i < totalElements * ROTATE_RATIO / RATIO_SUM; i++)
-				elems.Add(new RotateBit());
-			for (int i = 0; i < 16; i++)
-				elems.Add(new AddKey(i));
-			Shuffle(random, elems);
+            {
+                elems.Add(new Matrix());
+            }
+
+            for (int i = 0; i < totalElements * NUMOP_RATIO / RATIO_SUM; i++)
+            {
+                elems.Add(new NumOp());
+            }
+
+            for (int i = 0; i < totalElements * SWAP_RATIO / RATIO_SUM; i++)
+            {
+                elems.Add(new Swap());
+            }
+
+            for (int i = 0; i < totalElements * BINOP_RATIO / RATIO_SUM; i++)
+            {
+                elems.Add(new BinOp());
+            }
+
+            for (int i = 0; i < totalElements * ROTATE_RATIO / RATIO_SUM; i++)
+            {
+                elems.Add(new RotateBit());
+            }
+
+            for (int i = 0; i < 16; i++)
+            {
+                elems.Add(new AddKey(i));
+            }
+
+            Shuffle(random, elems);
 
 
 			int[] x = Enumerable.Range(0, 16).ToArray();
@@ -75,15 +93,21 @@ namespace Confuser.DynCipher.Generation {
 
 			var encryptContext = new CipherGenContext(random, 16);
 			foreach (CryptoElement elem in elems)
-				elem.Emit(encryptContext);
-			encrypt = encryptContext.Block;
+            {
+                elem.Emit(encryptContext);
+            }
+
+            encrypt = encryptContext.Block;
 			PostProcessStatements(encrypt, random);
 
 
 			var decryptContext = new CipherGenContext(random, 16);
 			foreach (CryptoElement elem in Enumerable.Reverse(elems))
-				elem.EmitInverse(decryptContext);
-			decrypt = decryptContext.Block;
+            {
+                elem.EmitInverse(decryptContext);
+            }
+
+            decrypt = decryptContext.Block;
 			PostProcessStatements(decrypt, random);
 		}
 	}

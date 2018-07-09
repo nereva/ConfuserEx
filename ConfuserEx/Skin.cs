@@ -48,8 +48,10 @@ namespace ConfuserEx {
 				rtb.TextChanged += (sender, e) => rtb.ScrollToEnd();
 			}
 			else
-				rtb.Document = new FlowDocument();
-		}
+            {
+                rtb.Document = new FlowDocument();
+            }
+        }
 
 		public static FlowDocument GetRTBDocument(DependencyObject obj) {
 			return (FlowDocument)obj.GetValue(RTBDocumentProperty);

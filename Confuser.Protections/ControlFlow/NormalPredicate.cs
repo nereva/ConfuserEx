@@ -14,9 +14,11 @@ namespace Confuser.Protections.ControlFlow {
 
 		public void Init(CilBody body) {
 			if (inited)
-				return;
+            {
+                return;
+            }
 
-			xorKey = ctx.Random.NextInt32();
+            xorKey = ctx.Random.NextInt32();
 			inited = true;
 		}
 

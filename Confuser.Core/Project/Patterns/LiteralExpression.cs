@@ -33,7 +33,9 @@ namespace Confuser.Core.Project.Patterns {
 				tokens.Add(new PatternToken(TokenType.Identifier, value.ToString().ToLowerInvariant()));
 			}
 			else
-				tokens.Add(new PatternToken(TokenType.Literal, Literal.ToString()));
-		}
+            {
+                tokens.Add(new PatternToken(TokenType.Literal, Literal.ToString()));
+            }
+        }
 	}
 }

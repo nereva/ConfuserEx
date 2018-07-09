@@ -44,33 +44,47 @@ namespace Confuser.Core.Project {
 		/// </exception>
 		public PatternExpression Parse(string pattern) {
 			if (pattern == null)
-				throw new ArgumentNullException("pattern");
+            {
+                throw new ArgumentNullException("pattern");
+            }
 
-			try {
+            try {
 				tokenizer.Initialize(pattern);
 				lookAhead = tokenizer.NextToken();
 				PatternExpression ret = ParseExpression(true);
 				if (PeekToken() != null)
-					throw new InvalidPatternException("Extra tokens beyond the end of pattern.");
-				return ret;
+                {
+                    throw new InvalidPatternException("Extra tokens beyond the end of pattern.");
+                }
+
+                return ret;
 			}
 			catch (Exception ex) {
 				if (ex is InvalidPatternException)
-					throw;
-				throw new InvalidPatternException("Invalid pattern.", ex);
+                {
+                    throw;
+                }
+
+                throw new InvalidPatternException("Invalid pattern.", ex);
 			}
 		}
 
 		static bool IsFunction(PatternToken token) {
 			if (token.Type != TokenType.Identifier)
-				return false;
-			return fns.ContainsKey(token.Value);
+            {
+                return false;
+            }
+
+            return fns.ContainsKey(token.Value);
 		}
 
 		static bool IsOperator(PatternToken token) {
 			if (token.Type != TokenType.Identifier)
-				return false;
-			return ops.ContainsKey(token.Value);
+            {
+                return false;
+            }
+
+            return ops.ContainsKey(token.Value);
 		}
 
 		Exception UnexpectedEnd() {
@@ -99,8 +113,11 @@ namespace Confuser.Core.Project {
 
 		PatternToken ReadToken() {
 			if (lookAhead == null)
-				throw UnexpectedEnd();
-			PatternToken ret = lookAhead.Value;
+            {
+                throw UnexpectedEnd();
+            }
+
+            PatternToken ret = lookAhead.Value;
 			lookAhead = tokenizer.NextToken();
 			return ret;
 		}
@@ -120,16 +137,21 @@ namespace Confuser.Core.Project {
 					ret = ParseExpression(true);
 					PatternToken parens = ReadToken();
 					if (parens.Type != TokenType.RParens)
-						throw MismatchParens(token.Position.Value);
-				}
+                        {
+                            throw MismatchParens(token.Position.Value);
+                        }
+                    }
 					break;
 				case TokenType.Identifier:
 					if (IsOperator(token)) {
 						// unary operator
 						PatternOperator op = ops[token.Value]();
 						if (!op.IsUnary)
-							throw UnexpectedToken(token);
-						op.OperandA = ParseExpression();
+                        {
+                            throw UnexpectedToken(token);
+                        }
+
+                        op.OperandA = ParseExpression();
 						ret = op;
 					}
 					else if (IsFunction(token)) {
@@ -138,37 +160,56 @@ namespace Confuser.Core.Project {
 
 						PatternToken parens = ReadToken();
 						if (parens.Type != TokenType.LParens)
-							throw UnexpectedToken(parens, '(');
+                        {
+                            throw UnexpectedToken(parens, '(');
+                        }
 
-						fn.Arguments = new List<PatternExpression>(fn.ArgumentCount);
+                        fn.Arguments = new List<PatternExpression>(fn.ArgumentCount);
 						for (int i = 0; i < fn.ArgumentCount; i++) {
 							if (PeekToken() == null)
-								throw UnexpectedEnd();
-							if (PeekToken().Value.Type == TokenType.RParens)
-								throw BadArgCount(token, fn.ArgumentCount);
-							if (i != 0) {
+                            {
+                                throw UnexpectedEnd();
+                            }
+
+                            if (PeekToken().Value.Type == TokenType.RParens)
+                            {
+                                throw BadArgCount(token, fn.ArgumentCount);
+                            }
+
+                            if (i != 0) {
 								PatternToken comma = ReadToken();
 								if (comma.Type != TokenType.Comma)
-									throw UnexpectedToken(comma, ',');
-							}
+                                {
+                                    throw UnexpectedToken(comma, ',');
+                                }
+                            }
 							fn.Arguments.Add(ParseExpression());
 						}
 
 						parens = ReadToken();
 						if (parens.Type == TokenType.Comma)
-							throw BadArgCount(token, fn.ArgumentCount);
-						if (parens.Type != TokenType.RParens)
-							throw MismatchParens(parens.Position.Value);
+                        {
+                            throw BadArgCount(token, fn.ArgumentCount);
+                        }
 
-						ret = fn;
+                        if (parens.Type != TokenType.RParens)
+                        {
+                            throw MismatchParens(parens.Position.Value);
+                        }
+
+                        ret = fn;
 					}
 					else {
 						bool boolValue;
 						if (bool.TryParse(token.Value, out boolValue))
-							ret = new LiteralExpression(boolValue);
-						else
-							throw UnknownToken(token);
-					}
+                        {
+                            ret = new LiteralExpression(boolValue);
+                        }
+                        else
+                        {
+                            throw UnknownToken(token);
+                        }
+                    }
 
 					break;
 				default:
@@ -176,21 +217,31 @@ namespace Confuser.Core.Project {
 			}
 
 			if (!readBinOp)
-				return ret;
+            {
+                return ret;
+            }
 
-			// binary operator
-			PatternToken? peek = PeekToken();
+            // binary operator
+            PatternToken? peek = PeekToken();
 			while (peek != null) {
 				if (peek.Value.Type != TokenType.Identifier)
-					break;
-				if (!IsOperator(peek.Value))
-					break;
+                {
+                    break;
+                }
 
-				PatternToken binOpToken = ReadToken();
+                if (!IsOperator(peek.Value))
+                {
+                    break;
+                }
+
+                PatternToken binOpToken = ReadToken();
 				PatternOperator binOp = ops[binOpToken.Value]();
 				if (binOp.IsUnary)
-					throw UnexpectedToken(binOpToken);
-				binOp.OperandA = ret;
+                {
+                    throw UnexpectedToken(binOpToken);
+                }
+
+                binOp.OperandA = ret;
 				binOp.OperandB = ParseExpression();
 				ret = binOp;
 

@@ -11,9 +11,12 @@ namespace Confuser.Renamer.Analyzers {
 
 		public void Analyze(ConfuserContext context, INameService service, ProtectionParameters parameters, IDnlibDef def) {
 			var module = def as ModuleDef;
-			if (module == null) return;
+			if (module == null)
+            {
+                return;
+            }
 
-			string asmName = module.Assembly.Name.String;
+            string asmName = module.Assembly.Name.String;
 			if (!string.IsNullOrEmpty(module.Assembly.Culture) &&
 			    asmName.EndsWith(".resources")) {
 				// Satellite assembly
@@ -29,8 +32,11 @@ namespace Confuser.Renamer.Analyzers {
 				foreach (Resource res in module.Resources) {
 					Match match = satellitePattern.Match(res.Name);
 					if (!match.Success)
-						continue;
-					string typeName = match.Groups[1].Value;
+                    {
+                        continue;
+                    }
+
+                    string typeName = match.Groups[1].Value;
 					TypeDef type = mainModule.FindReflectionThrow(typeName);
 					if (type == null) {
 						context.Logger.WarnFormat("Could not find resource type '{0}'.", typeName);
@@ -45,13 +51,18 @@ namespace Confuser.Renamer.Analyzers {
 				foreach (Resource res in module.Resources) {
 					Match match = ResourceNamePattern.Match(res.Name);
 					if (!match.Success || res.ResourceType != ResourceType.Embedded)
-						continue;
-					string typeName = match.Groups[1].Value;
+                    {
+                        continue;
+                    }
+
+                    string typeName = match.Groups[1].Value;
 
 					if (typeName.EndsWith(".g")) // WPF resources, ignore
-						continue;
+                    {
+                        continue;
+                    }
 
-					TypeDef type = module.FindReflection(typeName);
+                    TypeDef type = module.FindReflection(typeName);
 					if (type == null) {
 						context.Logger.WarnFormat("Could not find resource type '{0}'.", typeName);
 						continue;

@@ -72,8 +72,11 @@ namespace Confuser.Protections.ReferenceProxy {
 					ret.EncodingHandler = store.x86 ?? (store.x86 = new x86Encoding());
 
 					if ((context.CurrentModule.Cor20HeaderFlags & ComImageFlags.ILOnly) != 0)
-						context.CurrentModuleWriterOptions.Cor20HeaderOptions.Flags &= ~ComImageFlags.ILOnly;
-					break;
+                    {
+                        context.CurrentModuleWriterOptions.Cor20HeaderOptions.Flags &= ~ComImageFlags.ILOnly;
+                    }
+
+                    break;
 				default:
 					throw new UnreachableException();
 			}
@@ -104,19 +107,25 @@ namespace Confuser.Protections.ReferenceProxy {
 			var store = new RPStore { random = random };
 
 			foreach (MethodDef method in parameters.Targets.OfType<MethodDef>().WithProgress(context.Logger))
-				if (method.HasBody && method.Body.Instructions.Count > 0) {
+            {
+                if (method.HasBody && method.Body.Instructions.Count > 0) {
 					ProcessMethod(ParseParameters(method, context, parameters, store));
 					context.CheckCancellation();
 				}
+            }
 
-			RPContext ctx = ParseParameters(context.CurrentModule, context, parameters, store);
+            RPContext ctx = ParseParameters(context.CurrentModule, context, parameters, store);
 
 			if (store.mild != null)
-				store.mild.Finalize(ctx);
+            {
+                store.mild.Finalize(ctx);
+            }
 
-			if (store.strong != null)
-				store.strong.Finalize(ctx);
-		}
+            if (store.strong != null)
+            {
+                store.strong.Finalize(ctx);
+            }
+        }
 
 		void ProcessMethod(RPContext ctx) {
 			for (int i = 0; i < ctx.Body.Instructions.Count; i++) {
@@ -126,36 +135,55 @@ namespace Confuser.Protections.ReferenceProxy {
 					var def = operand.ResolveMethodDef();
 
 					if (def != null && ctx.Context.Annotations.Get<object>(def, ReferenceProxyProtection.TargetExcluded) != null)
-						return;
+                    {
+                        return;
+                    }
 
-					// Call constructor
-					if (instr.OpCode.Code != Code.Newobj && operand.Name == ".ctor")
-						continue;
-					// Internal reference option
-					if (operand is MethodDef && !ctx.InternalAlso)
-						continue;
-					// No generic methods
-					if (operand is MethodSpec)
-						continue;
-					// No generic types / array types
-					if (operand.DeclaringType is TypeSpec)
-						continue;
-					// No varargs
-					if (operand.MethodSig.ParamsAfterSentinel != null &&
+                    // Call constructor
+                    if (instr.OpCode.Code != Code.Newobj && operand.Name == ".ctor")
+                    {
+                        continue;
+                    }
+                    // Internal reference option
+                    if (operand is MethodDef && !ctx.InternalAlso)
+                    {
+                        continue;
+                    }
+                    // No generic methods
+                    if (operand is MethodSpec)
+                    {
+                        continue;
+                    }
+                    // No generic types / array types
+                    if (operand.DeclaringType is TypeSpec)
+                    {
+                        continue;
+                    }
+                    // No varargs
+                    if (operand.MethodSig.ParamsAfterSentinel != null &&
 						operand.MethodSig.ParamsAfterSentinel.Count > 0)
-						continue;
-					TypeDef declType = operand.DeclaringType.ResolveTypeDefThrow();
+                    {
+                        continue;
+                    }
+
+                    TypeDef declType = operand.DeclaringType.ResolveTypeDefThrow();
 					// No delegates
 					if (declType.IsDelegate())
-						continue;
-					// No instance value type methods
-					if (declType.IsValueType && operand.MethodSig.HasThis)
-						return;
-					// No prefixed call
-					if (i - 1 >= 0 && ctx.Body.Instructions[i - 1].OpCode.OpCodeType == OpCodeType.Prefix)
-						continue;
+                    {
+                        continue;
+                    }
+                    // No instance value type methods
+                    if (declType.IsValueType && operand.MethodSig.HasThis)
+                    {
+                        return;
+                    }
+                    // No prefixed call
+                    if (i - 1 >= 0 && ctx.Body.Instructions[i - 1].OpCode.OpCodeType == OpCodeType.Prefix)
+                    {
+                        continue;
+                    }
 
-					ctx.ModeHandler.ProcessCall(ctx, i);
+                    ctx.ModeHandler.ProcessCall(ctx, i);
 				}
 			}
 		}

@@ -21,23 +21,30 @@ namespace ConfuserEx {
 
 		void PathBox_TextChanged(object sender, TextChangedEventArgs e) {
 			if (File.Exists(PathBox.Text))
-				LoadSymMap(PathBox.Text);
-		}
+            {
+                LoadSymMap(PathBox.Text);
+            }
+        }
 
 		void LoadSymMap(string path) {
 			string shortPath = path;
 			if (path.Length > 35)
-				shortPath = "..." + path.Substring(path.Length - 35, 35);
+            {
+                shortPath = "..." + path.Substring(path.Length - 35, 35);
+            }
 
-			try {
+            try {
 				symMap.Clear();
 				using (var reader = new StreamReader(File.OpenRead(path))) {
 					var line = reader.ReadLine();
 					while (line != null) {
 						int tabIndex = line.IndexOf('\t');
 						if (tabIndex == -1)
-							throw new FileFormatException();
-						symMap.Add(line.Substring(0, tabIndex), line.Substring(tabIndex + 1));
+                        {
+                            throw new FileFormatException();
+                        }
+
+                        symMap.Add(line.Substring(0, tabIndex), line.Substring(tabIndex + 1));
 						line = reader.ReadLine();
 					}
 				}
@@ -63,8 +70,10 @@ namespace ConfuserEx {
 		void Decode_Click(object sender, RoutedEventArgs e) {
 			var trace = stackTrace.Text;
 			if (optSym.IsChecked ?? true)
-				stackTrace.Text = mapSymbolMatcher.Replace(trace, DecodeSymbolMap);
-			else {
+            {
+                stackTrace.Text = mapSymbolMatcher.Replace(trace, DecodeSymbolMap);
+            }
+            else {
 				renamer = new ReversibleRenamer(PassBox.Text);
 				stackTrace.Text = passSymbolMatcher.Replace(trace, DecodeSymbolPass);
 			}

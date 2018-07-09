@@ -114,23 +114,29 @@ namespace Confuser.Protections {
 			var modules = new Dictionary<string, byte[]>();
 			for (int i = 0; i < context.OutputModules.Count; i++) {
 				if (i == compCtx.ModuleIndex)
-					continue;
+                {
+                    continue;
+                }
 
-				string id = GetId(context.Modules[i].Assembly);
+                string id = GetId(context.Modules[i].Assembly);
 				modules.Add(id, context.OutputModules[i]);
 
 				int strLen = Encoding.UTF8.GetByteCount(id);
 				if (strLen > maxLen)
-					maxLen = strLen;
-			}
+                {
+                    maxLen = strLen;
+                }
+            }
 			foreach (var extModule in context.ExternalModules) {
 				var name = GetId(extModule).ToUpperInvariant();
 				modules.Add(name, extModule);
 
 				int strLen = Encoding.UTF8.GetByteCount(name);
 				if (strLen > maxLen)
-					maxLen = strLen;
-			}
+                {
+                    maxLen = strLen;
+                }
+            }
 
 			byte[] key = random.NextBytes(4 + maxLen);
 			key[0] = (byte)(compCtx.EntryPointToken >> 0);
@@ -138,19 +144,27 @@ namespace Confuser.Protections {
 			key[2] = (byte)(compCtx.EntryPointToken >> 16);
 			key[3] = (byte)(compCtx.EntryPointToken >> 24);
 			for (int i = 4; i < key.Length; i++) // no zero bytes
-				key[i] |= 1;
-			compCtx.KeySig = key;
+            {
+                key[i] |= 1;
+            }
+
+            compCtx.KeySig = key;
 
 			int moduleIndex = 0;
 			foreach (var entry in modules) {
 				byte[] name = Encoding.UTF8.GetBytes(entry.Key);
 				for (int i = 0; i < name.Length; i++)
-					name[i] *= key[i + 4];
+                {
+                    name[i] *= key[i + 4];
+                }
 
-				uint state = 0x6fff61;
+                uint state = 0x6fff61;
 				foreach (byte chr in name)
-					state = state * 0x5e3f1f + chr;
-				byte[] encrypted = compCtx.Encrypt(comp, entry.Value, state, progress => {
+                {
+                    state = state * 0x5e3f1f + chr;
+                }
+
+                byte[] encrypted = compCtx.Encrypt(comp, entry.Value, state, progress => {
 					progress = (progress + moduleIndex) / modules.Count;
 					context.Logger.Progress((int)(progress * 10000), 10000);
 				});
@@ -271,22 +285,28 @@ namespace Confuser.Protections {
 			}
 			decrypter.Body.Instructions.Clear();
 			foreach (Instruction instr in instrs)
-				decrypter.Body.Instructions.Add(instr);
+            {
+                decrypter.Body.Instructions.Add(instr);
+            }
 
-			// Pack modules
-			PackModules(context, compCtx, stubModule, comp, random);
+            // Pack modules
+            PackModules(context, compCtx, stubModule, comp, random);
 		}
 
 		void ImportAssemblyTypeReferences(ModuleDef originModule, ModuleDef stubModule) {
 			var assembly = stubModule.Assembly;
 			foreach (var ca in assembly.CustomAttributes) {
 				if (ca.AttributeType.Scope == originModule)
-					ca.Constructor = (ICustomAttributeType)stubModule.Import(ca.Constructor);
-			}
+                {
+                    ca.Constructor = (ICustomAttributeType)stubModule.Import(ca.Constructor);
+                }
+            }
 			foreach (var ca in assembly.DeclSecurities.SelectMany(declSec => declSec.CustomAttributes)) {
 				if (ca.AttributeType.Scope == originModule)
-					ca.Constructor = (ICustomAttributeType)stubModule.Import(ca.Constructor);
-			}
+                {
+                    ca.Constructor = (ICustomAttributeType)stubModule.Import(ca.Constructor);
+                }
+            }
 		}
 
 		class KeyInjector : IModuleWriterListener {
@@ -321,14 +341,19 @@ namespace Confuser.Protections {
 					// Add resources
 					MDTable<RawManifestResourceRow> resTbl = writer.MetaData.TablesHeap.ManifestResourceTable;
 					foreach (var resource in ctx.ManifestResources)
-						resTbl.Add(new RawManifestResourceRow(resource.Item1, resource.Item2, writer.MetaData.StringsHeap.Add(resource.Item3), impl));
+                    {
+                        resTbl.Add(new RawManifestResourceRow(resource.Item1, resource.Item2, writer.MetaData.StringsHeap.Add(resource.Item3), impl));
+                    }
 
-					// Add exported types
-					var exTbl = writer.MetaData.TablesHeap.ExportedTypeTable;
+                    // Add exported types
+                    var exTbl = writer.MetaData.TablesHeap.ExportedTypeTable;
 					foreach (var type in ctx.OriginModuleDef.GetTypes()) {
 						if (!type.IsVisibleOutside())
-							continue;
-						exTbl.Add(new RawExportedTypeRow((uint)type.Attributes, 0,
+                        {
+                            continue;
+                        }
+
+                        exTbl.Add(new RawExportedTypeRow((uint)type.Attributes, 0,
 						                                 writer.MetaData.StringsHeap.Add(type.Name),
 						                                 writer.MetaData.StringsHeap.Add(type.Namespace), impl));
 					}

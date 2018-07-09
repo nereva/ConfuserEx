@@ -129,16 +129,20 @@ namespace Confuser.Renamer.BAML {
 			XmlNamespace = reader.ReadString();
 			AssemblyIds = new ushort[reader.ReadUInt16()];
 			for (int i = 0; i < AssemblyIds.Length; i++)
-				AssemblyIds[i] = reader.ReadUInt16();
-		}
+            {
+                AssemblyIds[i] = reader.ReadUInt16();
+            }
+        }
 
 		protected override void WriteData(BamlBinaryWriter writer) {
 			writer.Write(Prefix);
 			writer.Write(XmlNamespace);
 			writer.Write((ushort)AssemblyIds.Length);
 			foreach (ushort i in AssemblyIds)
-				writer.Write(i);
-		}
+            {
+                writer.Write(i);
+            }
+        }
 	}
 
 	internal class PresentationOptionsAttributeRecord : SizedBamlRecord {
@@ -368,10 +372,15 @@ namespace Confuser.Renamer.BAML {
 			while (true) //Assume there alway is a end
 			{
 				if (doc[index].Type == start)
-					NavigateTree(doc, start, end, ref index);
-				else if (doc[index].Type == end)
-					return;
-				index++;
+                {
+                    NavigateTree(doc, start, end, ref index);
+                }
+                else if (doc[index].Type == end)
+                {
+                    return;
+                }
+
+                index++;
 			}
 		}
 	}
@@ -820,10 +829,15 @@ namespace Confuser.Renamer.BAML {
 			index++;
 			while (true) {
 				if (doc[index].Type == start)
-					NavigateTree(doc, start, end, ref index);
-				else if (doc[index].Type == end)
-					return;
-				index++;
+                {
+                    NavigateTree(doc, start, end, ref index);
+                }
+                else if (doc[index].Type == end)
+                {
+                    return;
+                }
+
+                index++;
 			}
 		}
 	}

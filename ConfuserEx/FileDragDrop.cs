@@ -27,14 +27,21 @@ namespace ConfuserEx {
 					Debug.Assert(files.All(file => File.Exists(file)));
 					var list = (IList<StringItem>)((ListBox)data.Item1).ItemsSource;
 					foreach (string file in files)
-						list.Add(new StringItem(file));
-				}
+                    {
+                        list.Add(new StringItem(file));
+                    }
+                }
 				else
-					throw new NotSupportedException();
-			}, data => {
+                {
+                    throw new NotSupportedException();
+                }
+            }, data => {
 				if (!data.Item2.GetDataPresent(DataFormats.FileDrop))
-					return false;
-				return ((string[])data.Item2.GetData(DataFormats.FileDrop)).All(file => File.Exists(file));
+    {
+        return false;
+    }
+
+    return ((string[])data.Item2.GetData(DataFormats.FileDrop)).All(file => File.Exists(file));
 			});
 
 
@@ -51,14 +58,21 @@ namespace ConfuserEx {
 					Debug.Assert(dirs.All(dir => Directory.Exists(dir)));
 					var list = (IList<StringItem>)((ListBox)data.Item1).ItemsSource;
 					foreach (string dir in dirs)
-						list.Add(new StringItem(dir));
-				}
+                    {
+                        list.Add(new StringItem(dir));
+                    }
+                }
 				else
-					throw new NotSupportedException();
-			}, data => {
+                {
+                    throw new NotSupportedException();
+                }
+            }, data => {
 				if (!data.Item2.GetDataPresent(DataFormats.FileDrop))
-					return false;
-				return ((string[])data.Item2.GetData(DataFormats.FileDrop)).All(dir => Directory.Exists(dir));
+    {
+        return false;
+    }
+
+    return ((string[])data.Item2.GetData(DataFormats.FileDrop)).All(dir => Directory.Exists(dir));
 			});
 
 		public static ICommand GetCommand(DependencyObject obj) {
@@ -88,12 +102,16 @@ namespace ConfuserEx {
 			e.Effects = DragDropEffects.None;
 			if (cmd is DragDropCommand) {
 				if (cmd.CanExecute(Tuple.Create((UIElement)sender, e.Data)))
-					e.Effects = DragDropEffects.Link;
-			}
+                {
+                    e.Effects = DragDropEffects.Link;
+                }
+            }
 			else {
 				if (cmd.CanExecute(e.Data))
-					e.Effects = DragDropEffects.Link;
-			}
+                {
+                    e.Effects = DragDropEffects.Link;
+                }
+            }
 			e.Handled = true;
 		}
 
@@ -101,12 +119,16 @@ namespace ConfuserEx {
 			ICommand cmd = GetCommand((DependencyObject)sender);
 			if (cmd is DragDropCommand) {
 				if (cmd.CanExecute(Tuple.Create((UIElement)sender, e.Data)))
-					cmd.Execute(Tuple.Create((UIElement)sender, e.Data));
-			}
+                {
+                    cmd.Execute(Tuple.Create((UIElement)sender, e.Data));
+                }
+            }
 			else {
 				if (cmd.CanExecute(e.Data))
-					cmd.Execute(e.Data);
-			}
+                {
+                    cmd.Execute(e.Data);
+                }
+            }
 			e.Handled = true;
 		}
 

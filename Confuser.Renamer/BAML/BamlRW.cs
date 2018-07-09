@@ -32,16 +32,22 @@ namespace Confuser.Renamer.BAML {
 				ret.Signature = new string(rdr.ReadChars((int)(len >> 1)));
 				rdr.ReadBytes((int)(((len + 3) & ~3) - len));
 			}
-			if (ret.Signature != "MSBAML") throw new NotSupportedException();
-			ret.ReaderVersion = new BamlDocument.BamlVersion { Major = reader.ReadUInt16(), Minor = reader.ReadUInt16() };
+			if (ret.Signature != "MSBAML")
+            {
+                throw new NotSupportedException();
+            }
+
+            ret.ReaderVersion = new BamlDocument.BamlVersion { Major = reader.ReadUInt16(), Minor = reader.ReadUInt16() };
 			ret.UpdaterVersion = new BamlDocument.BamlVersion { Major = reader.ReadUInt16(), Minor = reader.ReadUInt16() };
 			ret.WriterVersion = new BamlDocument.BamlVersion { Major = reader.ReadUInt16(), Minor = reader.ReadUInt16() };
 			if (ret.ReaderVersion.Major != 0 || ret.ReaderVersion.Minor != 0x60 ||
 			    ret.UpdaterVersion.Major != 0 || ret.UpdaterVersion.Minor != 0x60 ||
 			    ret.WriterVersion.Major != 0 || ret.WriterVersion.Minor != 0x60)
-				throw new NotSupportedException();
+            {
+                throw new NotSupportedException();
+            }
 
-			var recs = new Dictionary<long, BamlRecord>();
+            var recs = new Dictionary<long, BamlRecord>();
 			while (str.Position < str.Length) {
 				long pos = str.Position;
 				var type = (BamlRecordType)reader.ReadByte();
@@ -216,8 +222,10 @@ namespace Confuser.Renamer.BAML {
 			for (int i = 0; i < ret.Count; i++) {
 				var defer = ret[i] as IBamlDeferRecord;
 				if (defer != null)
-					defer.ReadDefer(ret, i, _ => recs[_]);
-			}
+                {
+                    defer.ReadDefer(ret, i, _ => recs[_]);
+                }
+            }
 
 			return ret;
 		}
@@ -246,10 +254,15 @@ namespace Confuser.Renamer.BAML {
 				rec.Position = str.Position;
 				writer.Write((byte)rec.Type);
 				rec.Write(writer);
-				if (rec is IBamlDeferRecord) defers.Add(i);
-			}
+				if (rec is IBamlDeferRecord)
+                {
+                    defers.Add(i);
+                }
+            }
 			foreach (int i in defers)
-				(doc[i] as IBamlDeferRecord).WriteDefer(doc, i, writer);
-		}
+            {
+                (doc[i] as IBamlDeferRecord).WriteDefer(doc, i, writer);
+            }
+        }
 	}
 }

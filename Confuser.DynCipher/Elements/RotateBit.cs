@@ -21,22 +21,26 @@ namespace Confuser.DynCipher.Elements {
 			VariableExpression tmp;
 			using (context.AcquireTempVar(out tmp)) {
 				if (IsAlternate)
-					context.Emit(new AssignmentStatement {
+                {
+                    context.Emit(new AssignmentStatement {
 						Value = (val >> (32 - Bits)),
 						Target = tmp
 					}).Emit(new AssignmentStatement {
 						Value = (val << Bits) | tmp,
 						Target = val
 					});
-				else
-					context.Emit(new AssignmentStatement {
+                }
+                else
+                {
+                    context.Emit(new AssignmentStatement {
 						Value = (val << (32 - Bits)),
 						Target = tmp
 					}).Emit(new AssignmentStatement {
 						Value = (val >> Bits) | tmp,
 						Target = val
 					});
-			}
+                }
+            }
 		}
 
 		public override void EmitInverse(CipherGenContext context) {
@@ -44,22 +48,26 @@ namespace Confuser.DynCipher.Elements {
 			VariableExpression tmp;
 			using (context.AcquireTempVar(out tmp)) {
 				if (IsAlternate)
-					context.Emit(new AssignmentStatement {
+                {
+                    context.Emit(new AssignmentStatement {
 						Value = (val << (32 - Bits)),
 						Target = tmp
 					}).Emit(new AssignmentStatement {
 						Value = (val >> Bits) | tmp,
 						Target = val
 					});
-				else
-					context.Emit(new AssignmentStatement {
+                }
+                else
+                {
+                    context.Emit(new AssignmentStatement {
 						Value = (val >> (32 - Bits)),
 						Target = tmp
 					}).Emit(new AssignmentStatement {
 						Value = (val << Bits) | tmp,
 						Target = val
 					});
-			}
+                }
+            }
 		}
 	}
 }

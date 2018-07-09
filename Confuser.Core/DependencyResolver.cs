@@ -86,12 +86,16 @@ namespace Confuser.Core {
 				foreach (DependencyGraphEdge edge in edges.Where(edge => edge.From == root).ToList()) {
 					edges.Remove(edge);
 					if (!edges.Any(e => e.To == edge.To)) // No more incoming edge to edge.To
-						queue.Enqueue(edge.To); // Add new root node
-				}
+                    {
+                        queue.Enqueue(edge.To); // Add new root node
+                    }
+                }
 			}
 			if (edges.Count != 0)
-				throw new CircularDependencyException(edges[0].From, edges[0].To);
-		}
+            {
+                throw new CircularDependencyException(edges[0].From, edges[0].To);
+            }
+        }
 
 		/// <summary>
 		///     An edge of dependency graph.

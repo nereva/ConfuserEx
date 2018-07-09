@@ -50,8 +50,10 @@ namespace ConfuserEx.Views {
 			AddProbe.Command = new RelayCommand(() => {
 				var fbd = new VistaFolderBrowserDialog();
 				if (fbd.ShowDialog() ?? false)
-					project.ProbePaths.Add(new StringItem(fbd.SelectedPath));
-			});
+                {
+                    project.ProbePaths.Add(new StringItem(fbd.SelectedPath));
+                }
+            });
 
 			RemoveProbe.Command = new RelayCommand(() => {
 				int selIndex = ProbePaths.SelectedIndex;

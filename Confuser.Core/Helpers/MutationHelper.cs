@@ -88,17 +88,25 @@ namespace Confuser.Core.Helpers {
 					    operand.Name == "Placeholder") {
 						int[] argIndexes = trace.TraceArguments(instr);
 						if (argIndexes == null)
-							throw new ArgumentException("Failed to trace placeholder argument.");
+                        {
+                            throw new ArgumentException("Failed to trace placeholder argument.");
+                        }
 
-						int argIndex = argIndexes[0];
+                        int argIndex = argIndexes[0];
 						Instruction[] arg = method.Body.Instructions.Skip(argIndex).Take(i - argIndex).ToArray();
 						for (int j = 0; j < arg.Length; j++)
-							method.Body.Instructions.RemoveAt(argIndex);
-						method.Body.Instructions.RemoveAt(argIndex);
+                        {
+                            method.Body.Instructions.RemoveAt(argIndex);
+                        }
+
+                        method.Body.Instructions.RemoveAt(argIndex);
 						arg = repl(arg);
 						for (int j = arg.Length - 1; j >= 0; j--)
-							method.Body.Instructions.Insert(argIndex, arg[j]);
-						return;
+                        {
+                            method.Body.Instructions.Insert(argIndex, arg[j]);
+                        }
+
+                        return;
 					}
 				}
 			}

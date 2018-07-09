@@ -54,8 +54,11 @@ namespace Confuser.Protections.Constants {
 					case Mode.x86:
 						moduleCtx.ModeHandler = new x86Mode();
 						if ((context.CurrentModule.Cor20HeaderFlags & ComImageFlags.ILOnly) != 0)
-							context.CurrentModuleWriterOptions.Cor20HeaderOptions.Flags &= ~ComImageFlags.ILOnly;
-						break;
+                        {
+                            context.CurrentModuleWriterOptions.Cor20HeaderOptions.Flags &= ~ComImageFlags.ILOnly;
+                        }
+
+                        break;
 					default:
 						throw new UnreachableException();
 				}
@@ -64,8 +67,10 @@ namespace Confuser.Protections.Constants {
 				MethodDef decomp = compression.GetRuntimeDecompressor(context.CurrentModule, member => {
 					name.MarkHelper(member, marker, (Protection)Parent);
 					if (member is MethodDef)
-						ProtectionParameters.GetParameters(context, member).Remove(Parent);
-				});
+                    {
+                        ProtectionParameters.GetParameters(context, member).Remove(Parent);
+                    }
+                });
 				InjectHelpers(context, compression, rt, moduleCtx);
 
 				// Mutate codes
@@ -86,10 +91,15 @@ namespace Confuser.Protections.Constants {
 					continue;
 				}
 				if (member.Name == "b")
-					moduleCtx.BufferField = (FieldDef)member;
-				else if (member.Name == "Initialize")
-					moduleCtx.InitMethod = (MethodDef)member;
-				moduleCtx.Name.MarkHelper(member, moduleCtx.Marker, (Protection)Parent);
+                {
+                    moduleCtx.BufferField = (FieldDef)member;
+                }
+                else if (member.Name == "Initialize")
+                {
+                    moduleCtx.InitMethod = (MethodDef)member;
+                }
+
+                moduleCtx.Name.MarkHelper(member, moduleCtx.Marker, (Protection)Parent);
 			}
 			ProtectionParameters.GetParameters(context, moduleCtx.InitMethod).Remove(Parent);
 
@@ -123,9 +133,15 @@ namespace Confuser.Protections.Constants {
 					}
 					else if (instr.OpCode == OpCodes.Ldsfld &&
 					         method.DeclaringType.Name == "Constant") {
-						if (field.Name == "b") instr.Operand = moduleCtx.BufferField;
-						else throw new UnreachableException();
-					}
+						if (field.Name == "b")
+                        {
+                            instr.Operand = moduleCtx.BufferField;
+                        }
+                        else
+                        {
+                            throw new UnreachableException();
+                        }
+                    }
 				}
 				context.CurrentModule.GlobalType.Methods.Add(decoderInst);
 				moduleCtx.Name.MarkHelper(decoderInst, moduleCtx.Marker, (Protection)Parent);
@@ -135,9 +151,17 @@ namespace Confuser.Protections.Constants {
 
 				decoderDesc.StringID = (byte)(moduleCtx.Random.NextByte() & 3);
 
-				do decoderDesc.NumberID = (byte)(moduleCtx.Random.NextByte() & 3); while (decoderDesc.NumberID == decoderDesc.StringID);
+				do
+                {
+                    decoderDesc.NumberID = (byte)(moduleCtx.Random.NextByte() & 3);
+                }
+                while (decoderDesc.NumberID == decoderDesc.StringID);
 
-				do decoderDesc.InitializerID = (byte)(moduleCtx.Random.NextByte() & 3); while (decoderDesc.InitializerID == decoderDesc.StringID || decoderDesc.InitializerID == decoderDesc.NumberID);
+				do
+                {
+                    decoderDesc.InitializerID = (byte)(moduleCtx.Random.NextByte() & 3);
+                }
+                while (decoderDesc.InitializerID == decoderDesc.StringID || decoderDesc.InitializerID == decoderDesc.NumberID);
 
 				MutationHelper.InjectKeys(decoderInst,
 				                          new[] { 0, 1, 2 },
@@ -172,7 +196,9 @@ namespace Confuser.Protections.Constants {
 			}
 			moduleCtx.InitMethod.Body.Instructions.Clear();
 			foreach (Instruction instr in instrs)
-				moduleCtx.InitMethod.Body.Instructions.Add(instr);
-		}
+            {
+                moduleCtx.InitMethod.Body.Instructions.Add(instr);
+            }
+        }
 	}
 }

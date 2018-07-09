@@ -13,10 +13,14 @@ namespace Confuser.Protections.Constants {
 		public static void ReplaceReference(CEContext ctx, ProtectionParameters parameters) {
 			foreach (var entry in ctx.ReferenceRepl) {
 				if (parameters.GetParameter<bool>(ctx.Context, entry.Key, "cfg"))
-					ReplaceCFG(entry.Key, entry.Value, ctx);
-				else
-					ReplaceNormal(entry.Key, entry.Value);
-			}
+                {
+                    ReplaceCFG(entry.Key, entry.Value, ctx);
+                }
+                else
+                {
+                    ReplaceNormal(entry.Key, entry.Value);
+                }
+            }
 		}
 
 		static void ReplaceNormal(MethodDef method, List<Tuple<Instruction, uint, IMethod>> instrs) {
@@ -130,19 +134,26 @@ namespace Confuser.Protections.Constants {
 
 				ctx.Name.MarkHelper(ctx.CfgCtxType, ctx.Marker, ctx.Protection);
 				foreach (var def in ctx.CfgCtxType.Fields)
-					ctx.Name.MarkHelper(def, ctx.Marker, ctx.Protection);
-				foreach (var def in ctx.CfgCtxType.Methods)
-					ctx.Name.MarkHelper(def, ctx.Marker, ctx.Protection);
-			}
+                {
+                    ctx.Name.MarkHelper(def, ctx.Marker, ctx.Protection);
+                }
+
+                foreach (var def in ctx.CfgCtxType.Methods)
+                {
+                    ctx.Name.MarkHelper(def, ctx.Marker, ctx.Protection);
+                }
+            }
 		}
 
 		static void InsertEmptyStateUpdate(CFGContext ctx, ControlFlowBlock block) {
 			var body = ctx.Graph.Body;
 			var key = ctx.Keys[block.Id];
 			if (key.EntryState == key.ExitState)
-				return;
+            {
+                return;
+            }
 
-			Instruction first = null;
+            Instruction first = null;
 			// Cannot use graph.IndexOf because instructions has been modified.
 			int targetIndex = body.Instructions.IndexOf(block.Header);
 
@@ -181,9 +192,11 @@ namespace Confuser.Protections.Constants {
 					var headerIndex = targetIndex;
 					for (int stateId = 0; stateId < 4; stateId++) {
 						if (entry.Get(stateId) == exit.Get(stateId))
-							continue;
+                        {
+                            continue;
+                        }
 
-						uint targetValue = exit.Get(stateId);
+                        uint targetValue = exit.Get(stateId);
 						int getId = ctx.Random.NextInt32(3);
 						var fl = CFGState.EncodeFlag(false, stateId, getId);
 						var incr = entry.GetIncrementalUpdate(stateId, targetValue);
@@ -281,10 +294,14 @@ namespace Confuser.Protections.Constants {
 
 					i++;
 					if (i == stateIds.Length)
-						getValue = currentState.Get(getId);
-					else
-						body.Instructions.Insert(index++, Instruction.Create(OpCodes.Pop));
-				}
+                    {
+                        getValue = currentState.Get(getId);
+                    }
+                    else
+                    {
+                        body.Instructions.Insert(index++, Instruction.Create(OpCodes.Pop));
+                    }
+                }
 				return getValue;
 			}
 			else {
@@ -333,10 +350,14 @@ namespace Confuser.Protections.Constants {
 
 						i++;
 						if (i == stateIds.Length)
-							getValue = targetState.Value.Get(getId);
-						else
-							body.Instructions.Insert(index++, Instruction.Create(OpCodes.Pop));
-					}
+                        {
+                            getValue = targetState.Value.Get(getId);
+                        }
+                        else
+                        {
+                            body.Instructions.Insert(index++, Instruction.Create(OpCodes.Pop));
+                        }
+                    }
 					return getValue;
 				}
 			}
@@ -367,17 +388,22 @@ namespace Confuser.Protections.Constants {
 
 				SortedList<int, Tuple<Instruction, uint, IMethod>> list;
 				if (!blockReferences.TryGetValue(block.Id, out list))
-					list = blockReferences[block.Id] = new SortedList<int, Tuple<Instruction, uint, IMethod>>();
+                {
+                    list = blockReferences[block.Id] = new SortedList<int, Tuple<Instruction, uint, IMethod>>();
+                }
 
-				list.Add(index, instr);
+                list.Add(index, instr);
 			}
 
 			// Update state for blocks not in use
 			for (int i = 0; i < graph.Count; i++) {
 				var block = graph[i];
 				if (blockReferences.ContainsKey(block.Id))
-					continue;
-				InsertEmptyStateUpdate(cfgCtx, block);
+                {
+                    continue;
+                }
+
+                InsertEmptyStateUpdate(cfgCtx, block);
 			}
 
 			// Update references
@@ -410,8 +436,10 @@ namespace Confuser.Protections.Constants {
 					if (i == blockRef.Value.Count - 1) {
 						CFGState exitState;
 						if (cfgCtx.StatesMap.TryGetValue(key.ExitState, out exitState))
-							targetState = exitState;
-					}
+                        {
+                            targetState = exitState;
+                        }
+                    }
 
 					var index = graph.Body.Instructions.IndexOf(refEntry.Item1) + 1;
 					var value = InsertStateGetAndUpdate(cfgCtx, ref index, type, ref currentState, targetState);

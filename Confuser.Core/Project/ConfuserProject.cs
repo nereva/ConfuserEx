@@ -57,8 +57,11 @@ namespace Confuser.Core.Project {
 		/// <returns>The resolved module.</returns>
 		public ModuleDefMD Resolve(string basePath, ModuleContext context = null) {
 			if (basePath == null)
-				return ModuleDefMD.Load(Path, context);
-			return ModuleDefMD.Load(System.IO.Path.Combine(basePath, Path), context);
+            {
+                return ModuleDefMD.Load(Path, context);
+            }
+
+            return ModuleDefMD.Load(System.IO.Path.Combine(basePath, Path), context);
 		}
 
 		/// <summary>
@@ -71,8 +74,11 @@ namespace Confuser.Core.Project {
 		/// <returns>The loaded module.</returns>
 		public byte[] LoadRaw(string basePath) {
 			if (basePath == null)
-				return File.ReadAllBytes(Path);
-			return File.ReadAllBytes(System.IO.Path.Combine(basePath, Path));
+            {
+                return File.ReadAllBytes(Path);
+            }
+
+            return File.ReadAllBytes(System.IO.Path.Combine(basePath, Path));
 		}
 
 		/// <summary>
@@ -105,9 +111,11 @@ namespace Confuser.Core.Project {
 
 
 			foreach (Rule i in Rules)
-				elem.AppendChild(i.Save(xmlDoc));
+            {
+                elem.AppendChild(i.Save(xmlDoc));
+            }
 
-			return elem;
+            return elem;
 		}
 
 		/// <summary>
@@ -118,21 +126,33 @@ namespace Confuser.Core.Project {
 			Path = elem.Attributes["path"].Value;
 
 			if (elem.Attributes["external"] != null)
-				IsExternal = bool.Parse(elem.Attributes["external"].Value);
-			else
-				IsExternal = false;
+            {
+                IsExternal = bool.Parse(elem.Attributes["external"].Value);
+            }
+            else
+            {
+                IsExternal = false;
+            }
 
-			if (elem.Attributes["snKey"] != null)
-				SNKeyPath = elem.Attributes["snKey"].Value.NullIfEmpty();
-			else
-				SNKeyPath = null;
+            if (elem.Attributes["snKey"] != null)
+            {
+                SNKeyPath = elem.Attributes["snKey"].Value.NullIfEmpty();
+            }
+            else
+            {
+                SNKeyPath = null;
+            }
 
-			if (elem.Attributes["snKeyPass"] != null)
-				SNKeyPassword = elem.Attributes["snKeyPass"].Value.NullIfEmpty();
-			else
-				SNKeyPassword = null;
+            if (elem.Attributes["snKeyPass"] != null)
+            {
+                SNKeyPassword = elem.Attributes["snKeyPass"].Value.NullIfEmpty();
+            }
+            else
+            {
+                SNKeyPassword = null;
+            }
 
-			Rules.Clear();
+            Rules.Clear();
 			foreach (XmlElement i in elem.ChildNodes.OfType<XmlElement>()) {
 				var rule = new Rule();
 				rule.Load(i);
@@ -159,8 +179,11 @@ namespace Confuser.Core.Project {
 			ret.SNKeyPath = SNKeyPath;
 			ret.SNKeyPassword = SNKeyPassword;
 			foreach (var r in Rules)
-				ret.Rules.Add(r.Clone());
-			return ret;
+            {
+                ret.Rules.Add(r.Clone());
+            }
+
+            return ret;
 		}
 	}
 
@@ -249,14 +272,20 @@ namespace Confuser.Core.Project {
 			Id = elem.Attributes["id"].Value;
 
 			if (elem.Attributes["action"] != null)
-				Action = (SettingItemAction)Enum.Parse(typeof(SettingItemAction), elem.Attributes["action"].Value, true);
-			else
-				Action = SettingItemAction.Add;
+            {
+                Action = (SettingItemAction)Enum.Parse(typeof(SettingItemAction), elem.Attributes["action"].Value, true);
+            }
+            else
+            {
+                Action = SettingItemAction.Add;
+            }
 
-			Clear();
+            Clear();
 			foreach (XmlElement i in elem.ChildNodes.OfType<XmlElement>())
-				Add(i.Attributes["name"].Value, i.Attributes["value"].Value);
-		}
+            {
+                Add(i.Attributes["name"].Value, i.Attributes["value"].Value);
+            }
+        }
 
 		/// <summary>
 		///     Clones this instance.
@@ -265,8 +294,11 @@ namespace Confuser.Core.Project {
 		public SettingItem<T> Clone() {
 			var item = new SettingItem<T>(Id, Action);
 			foreach (var entry in this)
-				item.Add(entry.Key, entry.Value);
-			return item;
+            {
+                item.Add(entry.Key, entry.Value);
+            }
+
+            return item;
 		}
 	}
 
@@ -330,9 +362,11 @@ namespace Confuser.Core.Project {
 			}
 
 			foreach (var i in this)
-				elem.AppendChild(i.Save(xmlDoc));
+            {
+                elem.AppendChild(i.Save(xmlDoc));
+            }
 
-			return elem;
+            return elem;
 		}
 
 		/// <summary>
@@ -343,16 +377,24 @@ namespace Confuser.Core.Project {
 			Pattern = elem.Attributes["pattern"].Value;
 
 			if (elem.Attributes["preset"] != null)
-				Preset = (ProtectionPreset)Enum.Parse(typeof(ProtectionPreset), elem.Attributes["preset"].Value, true);
-			else
-				Preset = ProtectionPreset.None;
+            {
+                Preset = (ProtectionPreset)Enum.Parse(typeof(ProtectionPreset), elem.Attributes["preset"].Value, true);
+            }
+            else
+            {
+                Preset = ProtectionPreset.None;
+            }
 
-			if (elem.Attributes["inherit"] != null)
-				Inherit = bool.Parse(elem.Attributes["inherit"].Value);
-			else
-				Inherit = true;
+            if (elem.Attributes["inherit"] != null)
+            {
+                Inherit = bool.Parse(elem.Attributes["inherit"].Value);
+            }
+            else
+            {
+                Inherit = true;
+            }
 
-			Clear();
+            Clear();
 			foreach (XmlElement i in elem.ChildNodes.OfType<XmlElement>()) {
 				var x = new SettingItem<Protection>();
 				x.Load(i);
@@ -375,8 +417,11 @@ namespace Confuser.Core.Project {
 				item.Id = i.Id;
 				item.Action = i.Action;
 				foreach (string j in i.Keys)
-					item.Add(j, i[j]);
-				ret.Add(item);
+                {
+                    item.Add(j, i[j]);
+                }
+
+                ret.Add(item);
 			}
 			return ret;
 		}
@@ -504,15 +549,21 @@ namespace Confuser.Core.Project {
 			}
 
 			foreach (Rule i in Rules)
-				elem.AppendChild(i.Save(xmlDoc));
+            {
+                elem.AppendChild(i.Save(xmlDoc));
+            }
 
-			if (Packer != null)
-				elem.AppendChild(Packer.Save(xmlDoc));
+            if (Packer != null)
+            {
+                elem.AppendChild(Packer.Save(xmlDoc));
+            }
 
-			foreach (ProjectModule i in this)
-				elem.AppendChild(i.Save(xmlDoc));
+            foreach (ProjectModule i in this)
+            {
+                elem.AppendChild(i.Save(xmlDoc));
+            }
 
-			foreach (string i in ProbePaths) {
+            foreach (string i in ProbePaths) {
 				XmlElement path = xmlDoc.CreateElement("probePath", Namespace);
 				path.InnerText = i;
 				elem.AppendChild(path);
@@ -539,8 +590,12 @@ namespace Confuser.Core.Project {
 			doc.Schemas.Add(Schema);
 			var exceptions = new List<XmlSchemaException>();
 			doc.Validate((sender, e) => {
-				if (e.Severity != XmlSeverityType.Error) return;
-				exceptions.Add(e.Exception);
+				if (e.Severity != XmlSeverityType.Error)
+                {
+                    return;
+                }
+
+                exceptions.Add(e.Exception);
 			});
 			if (exceptions.Count > 0) {
 				throw new ProjectValidationException(exceptions);
@@ -552,16 +607,24 @@ namespace Confuser.Core.Project {
 			BaseDirectory = docElem.Attributes["baseDir"].Value;
 
 			if (docElem.Attributes["seed"] != null)
-				Seed = docElem.Attributes["seed"].Value.NullIfEmpty();
-			else
-				Seed = null;
+            {
+                Seed = docElem.Attributes["seed"].Value.NullIfEmpty();
+            }
+            else
+            {
+                Seed = null;
+            }
 
-			if (docElem.Attributes["debug"] != null)
-				Debug = bool.Parse(docElem.Attributes["debug"].Value);
-			else
-				Debug = false;
+            if (docElem.Attributes["debug"] != null)
+            {
+                Debug = bool.Parse(docElem.Attributes["debug"].Value);
+            }
+            else
+            {
+                Debug = false;
+            }
 
-			Packer = null;
+            Packer = null;
 			Clear();
 			ProbePaths.Clear();
 			PluginPaths.Clear();
@@ -604,10 +667,16 @@ namespace Confuser.Core.Project {
 			ret.ProbePaths = new List<string>(ProbePaths);
 			ret.PluginPaths = new List<string>(PluginPaths);
 			foreach (var module in this)
-				ret.Add(module.Clone());
-			foreach (var r in Rules)
-				ret.Rules.Add(r);
-			return ret;
+            {
+                ret.Add(module.Clone());
+            }
+
+            foreach (var r in Rules)
+            {
+                ret.Rules.Add(r);
+            }
+
+            return ret;
 		}
 	}
 }

@@ -43,8 +43,11 @@ namespace Confuser.Protections.Compress {
 
 		protected override void PopulatePipeline(ProtectionPipeline pipeline) {
 			if (!ctx.CompatMode)
-				pipeline.InsertPreStage(PipelineStage.Inspection, new InjPhase(this));
-			pipeline.InsertPostStage(PipelineStage.BeginModule, new SigPhase(this));
+            {
+                pipeline.InsertPreStage(PipelineStage.Inspection, new InjPhase(this));
+            }
+
+            pipeline.InsertPostStage(PipelineStage.BeginModule, new SigPhase(this));
 		}
 
 		class InjPhase : ProtectionPhase {
@@ -98,10 +101,12 @@ namespace Confuser.Protections.Compress {
 						Debug.Assert((0x11000000 | rid) == prot.ctx.KeyToken);
 
 						if (prot.ctx.CompatMode)
-							return;
+                        {
+                            return;
+                        }
 
-						// Add File reference
-						byte[] hash = SHA1.Create().ComputeHash(prot.ctx.OriginModule);
+                        // Add File reference
+                        byte[] hash = SHA1.Create().ComputeHash(prot.ctx.OriginModule);
 						uint hashBlob = writer.MetaData.BlobHeap.Add(hash);
 
 						MDTable<RawFileRow> fileTbl = writer.MetaData.TablesHeap.FileTable;

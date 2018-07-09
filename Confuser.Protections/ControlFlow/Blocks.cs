@@ -39,32 +39,50 @@ namespace Confuser.Protections.ControlFlow {
 		public override string ToString() {
 			var ret = new StringBuilder();
 			if (Type == BlockType.Try)
-				ret.Append("try ");
-			else if (Type == BlockType.Handler)
-				ret.Append("handler ");
-			else if (Type == BlockType.Finally)
-				ret.Append("finally ");
-			else if (Type == BlockType.Fault)
-				ret.Append("fault ");
-			ret.AppendLine("{");
+            {
+                ret.Append("try ");
+            }
+            else if (Type == BlockType.Handler)
+            {
+                ret.Append("handler ");
+            }
+            else if (Type == BlockType.Finally)
+            {
+                ret.Append("finally ");
+            }
+            else if (Type == BlockType.Fault)
+            {
+                ret.Append("fault ");
+            }
+
+            ret.AppendLine("{");
 			foreach (BlockBase child in Children)
-				ret.Append(child);
-			ret.AppendLine("}");
+            {
+                ret.Append(child);
+            }
+
+            ret.AppendLine("}");
 			return ret.ToString();
 		}
 
 		public Instruction GetFirstInstr() {
 			BlockBase firstBlock = Children.First();
 			if (firstBlock is ScopeBlock)
-				return ((ScopeBlock)firstBlock).GetFirstInstr();
-			return ((InstrBlock)firstBlock).Instructions.First();
+            {
+                return ((ScopeBlock)firstBlock).GetFirstInstr();
+            }
+
+            return ((InstrBlock)firstBlock).Instructions.First();
 		}
 
 		public Instruction GetLastInstr() {
 			BlockBase firstBlock = Children.Last();
 			if (firstBlock is ScopeBlock)
-				return ((ScopeBlock)firstBlock).GetLastInstr();
-			return ((InstrBlock)firstBlock).Instructions.Last();
+            {
+                return ((ScopeBlock)firstBlock).GetLastInstr();
+            }
+
+            return ((InstrBlock)firstBlock).Instructions.Last();
 		}
 
 		public override void ToBody(CilBody body) {
@@ -83,8 +101,10 @@ namespace Confuser.Protections.ControlFlow {
 			}
 
 			foreach (BlockBase block in Children)
-				block.ToBody(body);
-		}
+            {
+                block.ToBody(body);
+            }
+        }
 	}
 
 	internal class InstrBlock : BlockBase {
@@ -98,13 +118,18 @@ namespace Confuser.Protections.ControlFlow {
 		public override string ToString() {
 			var ret = new StringBuilder();
 			foreach (Instruction instr in Instructions)
-				ret.AppendLine(instr.ToString());
-			return ret.ToString();
+            {
+                ret.AppendLine(instr.ToString());
+            }
+
+            return ret.ToString();
 		}
 
 		public override void ToBody(CilBody body) {
 			foreach (Instruction instr in Instructions)
-				body.Instructions.Add(instr);
-		}
+            {
+                body.Instructions.Add(instr);
+            }
+        }
 	}
 }

@@ -13,14 +13,19 @@ namespace Confuser.Renamer.Analyzers {
 			if (def is TypeDef) {
 				var type = (TypeDef)def;
 				if (type.IsInterface)
-					return;
+                {
+                    return;
+                }
 
-				vTbl = service.GetVTables()[type];
+                vTbl = service.GetVTables()[type];
 				foreach (var ifaceVTbl in vTbl.InterfaceSlots.Values) {
 					foreach (var slot in ifaceVTbl) {
 						if (slot.Overrides == null)
-							continue;
-						Debug.Assert(slot.Overrides.MethodDef.DeclaringType.IsInterface);
+                        {
+                            continue;
+                        }
+
+                        Debug.Assert(slot.Overrides.MethodDef.DeclaringType.IsInterface);
 						// A method in base type can implements an interface method for a
 						// derived type. If the base type/interface is not in our control, we should
 						// not rename the methods.
@@ -38,26 +43,33 @@ namespace Confuser.Renamer.Analyzers {
 			else if (def is MethodDef) {
 				var method = (MethodDef)def;
 				if (!method.IsVirtual)
-					return;
+                {
+                    return;
+                }
 
-				vTbl = service.GetVTables()[method.DeclaringType];
+                vTbl = service.GetVTables()[method.DeclaringType];
 				VTableSignature sig = VTableSignature.FromMethod(method);
 				var slots = vTbl.FindSlots(method);
 
 				if (!method.IsAbstract) {
 					foreach (var slot in slots) {
 						if (slot.Overrides == null)
-							continue;
-						// Better on safe side, add references to both methods.
-						service.AddReference(method, new OverrideDirectiveReference(slot, slot.Overrides));
+                        {
+                            continue;
+                        }
+                        // Better on safe side, add references to both methods.
+                        service.AddReference(method, new OverrideDirectiveReference(slot, slot.Overrides));
 						service.AddReference(slot.Overrides.MethodDef, new OverrideDirectiveReference(slot, slot.Overrides));
 					}
 				}
 				else {
 					foreach (var slot in slots) {
 						if (slot.Overrides == null)
-							continue;
-						service.SetCanRename(method, false);
+                        {
+                            continue;
+                        }
+
+                        service.SetCanRename(method, false);
 						service.SetCanRename(slot.Overrides.MethodDef, false);
 					}
 				}
@@ -71,9 +83,11 @@ namespace Confuser.Renamer.Analyzers {
 		public void PostRename(ConfuserContext context, INameService service, ProtectionParameters parameters, IDnlibDef def) {
 			var method = def as MethodDef;
 			if (method == null || !method.IsVirtual || method.Overrides.Count == 0)
-				return;
+            {
+                return;
+            }
 
-			var methods = new HashSet<IMethodDefOrRef>(MethodDefOrRefComparer.Instance);
+            var methods = new HashSet<IMethodDefOrRef>(MethodDefOrRefComparer.Instance);
 			method.Overrides
 			      .RemoveWhere(impl => MethodDefOrRefComparer.Instance.Equals(impl.MethodDeclaration, method));
 		}

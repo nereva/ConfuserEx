@@ -14,19 +14,25 @@ namespace Confuser.Protections.ControlFlow {
 				var handlerType = BlockType.Handler;
 
 				if (eh.HandlerType == ExceptionHandlerType.Finally)
-					handlerType = BlockType.Finally;
-				else if (eh.HandlerType == ExceptionHandlerType.Fault)
-					handlerType = BlockType.Fault;
+                {
+                    handlerType = BlockType.Finally;
+                }
+                else if (eh.HandlerType == ExceptionHandlerType.Fault)
+                {
+                    handlerType = BlockType.Fault;
+                }
 
-				var handlerBlock = new ScopeBlock(handlerType, eh);
+                var handlerBlock = new ScopeBlock(handlerType, eh);
 
 				if (eh.FilterStart != null) {
 					var filterBlock = new ScopeBlock(BlockType.Filter, eh);
 					ehScopes[eh] = Tuple.Create(tryBlock, handlerBlock, filterBlock);
 				}
 				else
-					ehScopes[eh] = Tuple.Create(tryBlock, handlerBlock, (ScopeBlock)null);
-			}
+                {
+                    ehScopes[eh] = Tuple.Create(tryBlock, handlerBlock, (ScopeBlock)null);
+                }
+            }
 
 			var root = new ScopeBlock(BlockType.Normal, null);
 			var scopeStack = new Stack<ScopeBlock>();
@@ -37,12 +43,16 @@ namespace Confuser.Protections.ControlFlow {
 					Tuple<ScopeBlock, ScopeBlock, ScopeBlock> ehScope = ehScopes[eh];
 
 					if (instr == eh.TryEnd)
-						scopeStack.Pop();
+                    {
+                        scopeStack.Pop();
+                    }
 
-					if (instr == eh.HandlerEnd)
-						scopeStack.Pop();
+                    if (instr == eh.HandlerEnd)
+                    {
+                        scopeStack.Pop();
+                    }
 
-					if (eh.FilterStart != null && instr == eh.HandlerStart) {
+                    if (eh.FilterStart != null && instr == eh.HandlerStart) {
 						// Filter must precede handler immediately
 						Debug.Assert(scopeStack.Peek().Type == BlockType.Filter);
 						scopeStack.Pop();
@@ -54,35 +64,52 @@ namespace Confuser.Protections.ControlFlow {
 
 					if (instr == eh.TryStart) {
 						if (parent != null)
-							parent.Children.Add(ehScope.Item1);
-						scopeStack.Push(ehScope.Item1);
+                        {
+                            parent.Children.Add(ehScope.Item1);
+                        }
+
+                        scopeStack.Push(ehScope.Item1);
 					}
 
 					if (instr == eh.HandlerStart) {
 						if (parent != null)
-							parent.Children.Add(ehScope.Item2);
-						scopeStack.Push(ehScope.Item2);
+                        {
+                            parent.Children.Add(ehScope.Item2);
+                        }
+
+                        scopeStack.Push(ehScope.Item2);
 					}
 
 					if (instr == eh.FilterStart) {
 						if (parent != null)
-							parent.Children.Add(ehScope.Item3);
-						scopeStack.Push(ehScope.Item3);
+                        {
+                            parent.Children.Add(ehScope.Item3);
+                        }
+
+                        scopeStack.Push(ehScope.Item3);
 					}
 				}
 
 				ScopeBlock scope = scopeStack.Peek();
 				var block = scope.Children.LastOrDefault() as InstrBlock;
 				if (block == null)
-					scope.Children.Add(block = new InstrBlock());
-				block.Instructions.Add(instr);
+                {
+                    scope.Children.Add(block = new InstrBlock());
+                }
+
+                block.Instructions.Add(instr);
 			}
 			foreach (ExceptionHandler eh in body.ExceptionHandlers) {
 				if (eh.TryEnd == null)
-					scopeStack.Pop();
-				if (eh.HandlerEnd == null)
-					scopeStack.Pop();
-			}
+                {
+                    scopeStack.Pop();
+                }
+
+                if (eh.HandlerEnd == null)
+                {
+                    scopeStack.Pop();
+                }
+            }
 			Debug.Assert(scopeStack.Count == 1);
 			return root;
 		}

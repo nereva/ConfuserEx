@@ -72,10 +72,16 @@ namespace Confuser.Protections.Constants {
 
 			protected override Local Var(Variable var) {
 				if (var.Name == "{BUFFER}")
-					return block;
-				if (var.Name == "{KEY}")
-					return key;
-				return base.Var(var);
+                {
+                    return block;
+                }
+
+                if (var.Name == "{KEY}")
+                {
+                    return key;
+                }
+
+                return base.Var(var);
 			}
 		}
 	}

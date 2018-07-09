@@ -28,8 +28,11 @@ namespace Confuser.Renamer.References {
 			string name = sig.ReflectionName;
 			string prefix = xmlnsCtx.GetPrefix(sig.ReflectionNamespace, sig.ToBasicTypeDefOrRef().ResolveTypeDefThrow().Module.Assembly);
 			if (!string.IsNullOrEmpty(prefix))
-				name = prefix + ":" + name;
-			if (indexer != null) {
+            {
+                name = prefix + ":" + name;
+            }
+
+            if (indexer != null) {
 				indexer.Type = name;
 			}
 			else {

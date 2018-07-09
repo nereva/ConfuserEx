@@ -66,8 +66,10 @@ namespace Confuser.Protections {
 				random.Shuffle(rows);
 				table.Reset();
 				foreach (T row in rows)
-					table.Add(row);
-			}
+                {
+                    table.Add(row);
+                }
+            }
 
 			void OnWriterEvent(object sender, ModuleWriterListenerEventArgs e) {
 				var writer = (ModuleWriterBase)sender;
@@ -103,13 +105,18 @@ namespace Confuser.Protections {
 
 					int r = random.NextInt32(8, 16);
 					for (int i = 0; i < r; i++)
-						writer.MetaData.TablesHeap.ENCLogTable.Add(new RawENCLogRow(random.NextUInt32(), random.NextUInt32()));
-					r = random.NextInt32(8, 16);
-					for (int i = 0; i < r; i++)
-						writer.MetaData.TablesHeap.ENCMapTable.Add(new RawENCMapRow(random.NextUInt32()));
+                    {
+                        writer.MetaData.TablesHeap.ENCLogTable.Add(new RawENCLogRow(random.NextUInt32(), random.NextUInt32()));
+                    }
 
-					//Randomize(writer.MetaData.TablesHeap.NestedClassTable);
-					Randomize(writer.MetaData.TablesHeap.ManifestResourceTable);
+                    r = random.NextInt32(8, 16);
+					for (int i = 0; i < r; i++)
+                    {
+                        writer.MetaData.TablesHeap.ENCMapTable.Add(new RawENCMapRow(random.NextUInt32()));
+                    }
+
+                    //Randomize(writer.MetaData.TablesHeap.NestedClassTable);
+                    Randomize(writer.MetaData.TablesHeap.ManifestResourceTable);
 					//Randomize(writer.MetaData.TablesHeap.GenericParamConstraintTable);
 
 					writer.TheOptions.MetaDataOptions.TablesHeapOptions.ExtraData = random.NextUInt32();

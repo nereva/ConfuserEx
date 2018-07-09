@@ -101,21 +101,33 @@ namespace Confuser.Protections {
 						if (member is MethodDef) {
 							var method = (MethodDef)member;
 							if (method.Access == MethodAttributes.Public)
-								method.Access = MethodAttributes.Assembly;
-							if (!method.IsConstructor)
-								method.IsSpecialName = false;
-							else
-								ren = false;
+                            {
+                                method.Access = MethodAttributes.Assembly;
+                            }
 
-							CustomAttribute ca = method.CustomAttributes.Find(attrName);
+                            if (!method.IsConstructor)
+                            {
+                                method.IsSpecialName = false;
+                            }
+                            else
+                            {
+                                ren = false;
+                            }
+
+                            CustomAttribute ca = method.CustomAttributes.Find(attrName);
 							if (ca != null)
-								ca.Constructor = attr.FindMethod(".ctor");
-						}
+                            {
+                                ca.Constructor = attr.FindMethod(".ctor");
+                            }
+                        }
 						else if (member is FieldDef) {
 							var field = (FieldDef)member;
 							if (field.Access == FieldAttributes.Public)
-								field.Access = FieldAttributes.Assembly;
-							if (field.IsLiteral) {
+                            {
+                                field.Access = FieldAttributes.Assembly;
+                            }
+
+                            if (field.IsLiteral) {
 								field.DeclaringType.Fields.Remove(field);
 								continue;
 							}

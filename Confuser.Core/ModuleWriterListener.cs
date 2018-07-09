@@ -10,8 +10,11 @@ namespace Confuser.Core {
 		/// <inheritdoc />
 		void IModuleWriterListener.OnWriterEvent(ModuleWriterBase writer, ModuleWriterEvent evt) {
 			if (evt == ModuleWriterEvent.PESectionsCreated)
-				NativeEraser.Erase(writer as NativeModuleWriter, writer.Module as ModuleDefMD);
-			if (OnWriterEvent != null) {
+            {
+                NativeEraser.Erase(writer as NativeModuleWriter, writer.Module as ModuleDefMD);
+            }
+
+            if (OnWriterEvent != null) {
 				OnWriterEvent(writer, new ModuleWriterListenerEventArgs(evt));
 			}
 		}

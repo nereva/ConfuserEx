@@ -90,14 +90,19 @@ namespace Confuser.Runtime {
 
 			public void Init() {
 				for (uint i = 1; i < (1 << NumBitLevels); i++)
-					Models[i].Init();
-			}
+                {
+                    Models[i].Init();
+                }
+            }
 
 			public uint Decode(Decoder rangeDecoder) {
 				uint m = 1;
 				for (int bitIndex = NumBitLevels; bitIndex > 0; bitIndex--)
-					m = (m << 1) + Models[m].Decode(rangeDecoder);
-				return m - ((uint)1 << NumBitLevels);
+                {
+                    m = (m << 1) + Models[m].Decode(rangeDecoder);
+                }
+
+                return m - ((uint)1 << NumBitLevels);
 			}
 
 			public uint ReverseDecode(Decoder rangeDecoder) {
@@ -139,8 +144,10 @@ namespace Confuser.Runtime {
 				Code = 0;
 				Range = 0xFFFFFFFF;
 				for (int i = 0; i < 5; i++)
-					Code = (Code << 8) | (byte)Stream.ReadByte();
-			}
+                {
+                    Code = (Code << 8) | (byte)Stream.ReadByte();
+                }
+            }
 
 			public void ReleaseStream() {
 				Stream = null;
@@ -209,8 +216,10 @@ namespace Confuser.Runtime {
 			public LzmaDecoder() {
 				m_DictionarySize = 0xFFFFFFFF;
 				for (int i = 0; i < kNumLenToPosStates; i++)
-					m_PosSlotDecoder[i] = new BitTreeDecoder(kNumPosSlotBits);
-			}
+                {
+                    m_PosSlotDecoder[i] = new BitTreeDecoder(kNumPosSlotBits);
+                }
+            }
 
 			void SetDictionarySize(uint dictionarySize) {
 				if (m_DictionarySize != dictionarySize) {
@@ -251,12 +260,16 @@ namespace Confuser.Runtime {
 
 				m_LiteralDecoder.Init();
 				for (i = 0; i < kNumLenToPosStates; i++)
-					m_PosSlotDecoder[i].Init();
-				// m_PosSpecDecoder.Init();
-				for (i = 0; i < kNumFullDistances - kEndPosModelIndex; i++)
-					m_PosDecoders[i].Init();
+                {
+                    m_PosSlotDecoder[i].Init();
+                }
+                // m_PosSpecDecoder.Init();
+                for (i = 0; i < kNumFullDistances - kEndPosModelIndex; i++)
+                {
+                    m_PosDecoders[i].Init();
+                }
 
-				m_LenDecoder.Init();
+                m_LenDecoder.Init();
 				m_RepLenDecoder.Init();
 				m_PosAlignDecoder.Init();
 			}
@@ -287,11 +300,16 @@ namespace Confuser.Runtime {
 							byte b;
 							byte prevByte = m_OutWindow.GetByte(0);
 							if (!state.IsCharState())
-								b = m_LiteralDecoder.DecodeWithMatchByte(m_RangeDecoder,
+                            {
+                                b = m_LiteralDecoder.DecodeWithMatchByte(m_RangeDecoder,
 								                                         (uint)nowPos64, prevByte, m_OutWindow.GetByte(rep0));
-							else
-								b = m_LiteralDecoder.DecodeNormal(m_RangeDecoder, (uint)nowPos64, prevByte);
-							m_OutWindow.PutByte(b);
+                            }
+                            else
+                            {
+                                b = m_LiteralDecoder.DecodeNormal(m_RangeDecoder, (uint)nowPos64, prevByte);
+                            }
+
+                            m_OutWindow.PutByte(b);
 							state.UpdateChar();
 							nowPos64++;
 						}
@@ -313,8 +331,10 @@ namespace Confuser.Runtime {
 									}
 									else {
 										if (m_IsRepG2Decoders[state.Index].Decode(m_RangeDecoder) == 0)
-											distance = rep2;
-										else {
+                                        {
+                                            distance = rep2;
+                                        }
+                                        else {
 											distance = rep3;
 											rep3 = rep2;
 										}
@@ -337,21 +357,27 @@ namespace Confuser.Runtime {
 									var numDirectBits = (int)((posSlot >> 1) - 1);
 									rep0 = ((2 | (posSlot & 1)) << numDirectBits);
 									if (posSlot < kEndPosModelIndex)
-										rep0 += BitTreeDecoder.ReverseDecode(m_PosDecoders,
+                                    {
+                                        rep0 += BitTreeDecoder.ReverseDecode(m_PosDecoders,
 										                                     rep0 - posSlot - 1, m_RangeDecoder, numDirectBits);
-									else {
+                                    }
+                                    else {
 										rep0 += (m_RangeDecoder.DecodeDirectBits(
 											numDirectBits - kNumAlignBits) << kNumAlignBits);
 										rep0 += m_PosAlignDecoder.ReverseDecode(m_RangeDecoder);
 									}
 								}
 								else
-									rep0 = posSlot;
-							}
+                                {
+                                    rep0 = posSlot;
+                                }
+                            }
 							if (rep0 >= nowPos64 || rep0 >= m_DictionarySizeCheck) {
 								if (rep0 == 0xFFFFFFFF)
-									break;
-							}
+                                {
+                                    break;
+                                }
+                            }
 							m_OutWindow.CopyBlock(rep0, len);
 							nowPos64 += len;
 						}
@@ -369,8 +395,11 @@ namespace Confuser.Runtime {
 				int pb = remainder / 5;
 				UInt32 dictionarySize = 0;
 				for (int i = 0; i < 4; i++)
-					dictionarySize += ((UInt32)(properties[1 + i])) << (i * 8);
-				SetDictionarySize(dictionarySize);
+                {
+                    dictionarySize += ((UInt32)(properties[1 + i])) << (i * 8);
+                }
+
+                SetDictionarySize(dictionarySize);
 				SetLiteralProperties(lp, lc);
 				SetPosBitsProperties(pb);
 			}
@@ -378,8 +407,11 @@ namespace Confuser.Runtime {
 			static uint GetLenToPosState(uint len) {
 				len -= kMatchMinLen;
 				if (len < kNumLenToPosStates)
-					return len;
-				return unchecked((kNumLenToPosStates - 1));
+                {
+                    return len;
+                }
+
+                return unchecked((kNumLenToPosStates - 1));
 			}
 
 			class LenDecoder {
@@ -410,11 +442,16 @@ namespace Confuser.Runtime {
 
 				public uint Decode(Decoder rangeDecoder, uint posState) {
 					if (m_Choice.Decode(rangeDecoder) == 0)
-						return m_LowCoder[posState].Decode(rangeDecoder);
-					uint symbol = kNumLowLenSymbols;
+                    {
+                        return m_LowCoder[posState].Decode(rangeDecoder);
+                    }
+
+                    uint symbol = kNumLowLenSymbols;
 					if (m_Choice2.Decode(rangeDecoder) == 0)
-						symbol += m_MidCoder[posState].Decode(rangeDecoder);
-					else {
+                    {
+                        symbol += m_MidCoder[posState].Decode(rangeDecoder);
+                    }
+                    else {
 						symbol += kNumMidLenSymbols;
 						symbol += m_HighCoder.Decode(rangeDecoder);
 					}
@@ -431,21 +468,28 @@ namespace Confuser.Runtime {
 				public void Create(int numPosBits, int numPrevBits) {
 					if (m_Coders != null && m_NumPrevBits == numPrevBits &&
 					    m_NumPosBits == numPosBits)
-						return;
-					m_NumPosBits = numPosBits;
+                    {
+                        return;
+                    }
+
+                    m_NumPosBits = numPosBits;
 					m_PosMask = ((uint)1 << numPosBits) - 1;
 					m_NumPrevBits = numPrevBits;
 					uint numStates = (uint)1 << (m_NumPrevBits + m_NumPosBits);
 					m_Coders = new Decoder2[numStates];
 					for (uint i = 0; i < numStates; i++)
-						m_Coders[i].Create();
-				}
+                    {
+                        m_Coders[i].Create();
+                    }
+                }
 
 				public void Init() {
 					uint numStates = (uint)1 << (m_NumPrevBits + m_NumPosBits);
 					for (uint i = 0; i < numStates; i++)
-						m_Coders[i].Init();
-				}
+                    {
+                        m_Coders[i].Init();
+                    }
+                }
 
 				uint GetState(uint pos, byte prevByte) {
 					return ((pos & m_PosMask) << m_NumPrevBits) + (uint)(prevByte >> (8 - m_NumPrevBits));
@@ -467,13 +511,19 @@ namespace Confuser.Runtime {
 					}
 
 					public void Init() {
-						for (int i = 0; i < 0x300; i++) m_Decoders[i].Init();
-					}
+						for (int i = 0; i < 0x300; i++)
+                        {
+                            m_Decoders[i].Init();
+                        }
+                    }
 
 					public byte DecodeNormal(Decoder rangeDecoder) {
 						uint symbol = 1;
 						do
-							symbol = (symbol << 1) | m_Decoders[symbol].Decode(rangeDecoder); while (symbol < 0x100);
+                        {
+                            symbol = (symbol << 1) | m_Decoders[symbol].Decode(rangeDecoder);
+                        }
+                        while (symbol < 0x100);
 						return (byte)symbol;
 					}
 
@@ -486,8 +536,11 @@ namespace Confuser.Runtime {
 							symbol = (symbol << 1) | bit;
 							if (matchBit != bit) {
 								while (symbol < 0x100)
-									symbol = (symbol << 1) | m_Decoders[symbol].Decode(rangeDecoder);
-								break;
+                                {
+                                    symbol = (symbol << 1) | m_Decoders[symbol].Decode(rangeDecoder);
+                                }
+
+                                break;
 							}
 						} while (symbol < 0x100);
 						return (byte)symbol;
@@ -530,37 +583,56 @@ namespace Confuser.Runtime {
 			public void Flush() {
 				uint size = _pos - _streamPos;
 				if (size == 0)
-					return;
-				_stream.Write(_buffer, (int)_streamPos, (int)size);
+                {
+                    return;
+                }
+
+                _stream.Write(_buffer, (int)_streamPos, (int)size);
 				if (_pos >= _windowSize)
-					_pos = 0;
-				_streamPos = _pos;
+                {
+                    _pos = 0;
+                }
+
+                _streamPos = _pos;
 			}
 
 			public void CopyBlock(uint distance, uint len) {
 				uint pos = _pos - distance - 1;
 				if (pos >= _windowSize)
-					pos += _windowSize;
-				for (; len > 0; len--) {
+                {
+                    pos += _windowSize;
+                }
+
+                for (; len > 0; len--) {
 					if (pos >= _windowSize)
-						pos = 0;
-					_buffer[_pos++] = _buffer[pos++];
+                    {
+                        pos = 0;
+                    }
+
+                    _buffer[_pos++] = _buffer[pos++];
 					if (_pos >= _windowSize)
-						Flush();
-				}
+                    {
+                        Flush();
+                    }
+                }
 			}
 
 			public void PutByte(byte b) {
 				_buffer[_pos++] = b;
 				if (_pos >= _windowSize)
-					Flush();
-			}
+                {
+                    Flush();
+                }
+            }
 
 			public byte GetByte(uint distance) {
 				uint pos = _pos - distance - 1;
 				if (pos >= _windowSize)
-					pos += _windowSize;
-				return _buffer[pos];
+                {
+                    pos += _windowSize;
+                }
+
+                return _buffer[pos];
 			}
 		}
 
@@ -572,10 +644,19 @@ namespace Confuser.Runtime {
 			}
 
 			public void UpdateChar() {
-				if (Index < 4) Index = 0;
-				else if (Index < 10) Index -= 3;
-				else Index -= 6;
-			}
+				if (Index < 4)
+                {
+                    Index = 0;
+                }
+                else if (Index < 10)
+                {
+                    Index -= 3;
+                }
+                else
+                {
+                    Index -= 6;
+                }
+            }
 
 			public void UpdateMatch() {
 				Index = (uint)(Index < 7 ? 7 : 10);

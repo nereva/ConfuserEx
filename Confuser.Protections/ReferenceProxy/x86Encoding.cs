@@ -72,11 +72,13 @@ namespace Confuser.Protections.ReferenceProxy {
 			var writer = (ModuleWriterBase)sender;
 			if (e.WriterEvent == ModuleWriterEvent.MDEndWriteMethodBodies) {
 				for (int n = 0; n < nativeCodes.Count; n++)
-					nativeCodes[n] = new Tuple<MethodDef, byte[], MethodBody>(
+                {
+                    nativeCodes[n] = new Tuple<MethodDef, byte[], MethodBody>(
 						nativeCodes[n].Item1,
 						nativeCodes[n].Item2,
 						writer.MethodBodies.Add(new MethodBody(nativeCodes[n].Item2)));
-			}
+                }
+            }
 			else if (e.WriterEvent == ModuleWriterEvent.EndCalculateRvasAndFileOffsets) {
 				foreach (var native in nativeCodes) {
 					uint rid = writer.MetaData.GetRid(native.Item1);
@@ -107,11 +109,15 @@ namespace Confuser.Protections.ReferenceProxy {
 			protected override void LoadVar(Variable var) {
 				if (var.Name == "{RESULT}") {
 					foreach (Instruction instr in arg)
-						Emit(instr);
-				}
+                    {
+                        Emit(instr);
+                    }
+                }
 				else
-					base.LoadVar(var);
-			}
+                {
+                    base.LoadVar(var);
+                }
+            }
 		}
 	}
 }

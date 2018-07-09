@@ -9,9 +9,11 @@ namespace Confuser.DynCipher.Generation {
 	internal class ExpressionGenerator {
 		static Expression GenerateExpression(RandomGenerator random, Expression current, int currentDepth, int targetDepth) {
 			if (currentDepth == targetDepth || (currentDepth > targetDepth / 3 && random.NextInt32(100) > 85))
-				return current;
+            {
+                return current;
+            }
 
-			switch ((ExpressionOps)random.NextInt32(6)) {
+            switch ((ExpressionOps)random.NextInt32(6)) {
 				case ExpressionOps.Add:
 					return GenerateExpression(random, current, currentDepth + 1, targetDepth) +
 					       GenerateExpression(random, (LiteralExpression)random.NextUInt32(), currentDepth + 1, targetDepth);
@@ -48,21 +50,31 @@ namespace Confuser.DynCipher.Generation {
 				SwapOperands(random, binExp.Right);
 			}
 			else if (exp is UnaryOpExpression)
-				SwapOperands(random, ((UnaryOpExpression)exp).Value);
-			else if (exp is LiteralExpression || exp is VariableExpression)
-				return;
-			else
-				throw new UnreachableException();
-		}
+            {
+                SwapOperands(random, ((UnaryOpExpression)exp).Value);
+            }
+            else if (exp is LiteralExpression || exp is VariableExpression)
+            {
+                return;
+            }
+            else
+            {
+                throw new UnreachableException();
+            }
+        }
 
 		static bool HasVariable(Expression exp, Dictionary<Expression, bool> hasVar) {
 			bool ret;
 			if (!hasVar.TryGetValue(exp, out ret)) {
 				if (exp is VariableExpression)
-					ret = true;
-				else if (exp is LiteralExpression)
-					ret = false;
-				else if (exp is BinOpExpression) {
+                {
+                    ret = true;
+                }
+                else if (exp is LiteralExpression)
+                {
+                    ret = false;
+                }
+                else if (exp is BinOpExpression) {
 					var binExp = (BinOpExpression)exp;
 					ret = HasVariable(binExp.Left, hasVar) || HasVariable(binExp.Right, hasVar);
 				}
@@ -70,8 +82,11 @@ namespace Confuser.DynCipher.Generation {
 					ret = HasVariable(((UnaryOpExpression)exp).Value, hasVar);
 				}
 				else
-					throw new UnreachableException();
-				hasVar[exp] = ret;
+                {
+                    throw new UnreachableException();
+                }
+
+                hasVar[exp] = ret;
 			}
 			return ret;
 		}
@@ -95,13 +110,14 @@ namespace Confuser.DynCipher.Generation {
 					Expression constExp = leftHasVar ? binOp.Right : binOp.Left;
 
 					if (binOp.Operation == BinOps.Add)
-						result = new BinOpExpression {
+                    {
+                        result = new BinOpExpression {
 							Operation = BinOps.Sub,
 							Left = result,
 							Right = constExp
 						};
-
-					else if (binOp.Operation == BinOps.Sub) {
+                    }
+                    else if (binOp.Operation == BinOps.Sub) {
 						if (leftHasVar) {
 							// v - k = r => v = r + k
 							result = new BinOpExpression {
@@ -130,13 +146,15 @@ namespace Confuser.DynCipher.Generation {
 						};
 					}
 					else if (binOp.Operation == BinOps.Xor)
-						result = new BinOpExpression {
+                    {
+                        result = new BinOpExpression {
 							Operation = BinOps.Xor,
 							Left = result,
 							Right = constExp
 						};
+                    }
 
-					exp = varExp;
+                    exp = varExp;
 				}
 			}
 			return result;

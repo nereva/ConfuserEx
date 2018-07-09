@@ -16,8 +16,11 @@ namespace Confuser.DynCipher.Generation {
 			dm = new DynamicMethod("", returnType, parameters.Select(param => param.Item2).ToArray(), true);
 			paramMap = new Dictionary<string, int>();
 			for (int i = 0; i < parameters.Length; i++)
-				paramMap.Add(parameters[i].Item1, i);
-			ilGen = dm.GetILGenerator();
+            {
+                paramMap.Add(parameters[i].Item1, i);
+            }
+
+            ilGen = dm.GetILGenerator();
 		}
 
 		protected virtual LocalBuilder Var(Variable var) {
@@ -31,17 +34,25 @@ namespace Confuser.DynCipher.Generation {
 
 		protected virtual void LoadVar(Variable var) {
 			if (paramMap.ContainsKey(var.Name))
-				ilGen.Emit(OpCodes.Ldarg, paramMap[var.Name]);
-			else
-				ilGen.Emit(OpCodes.Ldloc, Var(var));
-		}
+            {
+                ilGen.Emit(OpCodes.Ldarg, paramMap[var.Name]);
+            }
+            else
+            {
+                ilGen.Emit(OpCodes.Ldloc, Var(var));
+            }
+        }
 
 		protected virtual void StoreVar(Variable var) {
 			if (paramMap.ContainsKey(var.Name))
-				ilGen.Emit(OpCodes.Starg, paramMap[var.Name]);
-			else
-				ilGen.Emit(OpCodes.Stloc, Var(var));
-		}
+            {
+                ilGen.Emit(OpCodes.Starg, paramMap[var.Name]);
+            }
+            else
+            {
+                ilGen.Emit(OpCodes.Stloc, Var(var));
+            }
+        }
 
 		public T Compile<T>() {
 			ilGen.Emit(OpCodes.Ret);
@@ -129,8 +140,10 @@ namespace Confuser.DynCipher.Generation {
 				LoadVar(var.Variable);
 			}
 			else
-				throw new NotSupportedException();
-		}
+            {
+                throw new NotSupportedException();
+            }
+        }
 
 		void EmitStore(Expression exp, Expression value) {
 			if (exp is ArrayIndexExpression) {
@@ -146,8 +159,10 @@ namespace Confuser.DynCipher.Generation {
 				StoreVar(var.Variable);
 			}
 			else
-				throw new NotSupportedException();
-		}
+            {
+                throw new NotSupportedException();
+            }
+        }
 
 		void EmitStatement(Statement statement) {
 			if (statement is AssignmentStatement) {
@@ -178,9 +193,11 @@ namespace Confuser.DynCipher.Generation {
 				ilGen.MarkLabel(lbl);
 
 				foreach (Statement child in loop.Statements)
-					EmitStatement(child);
+                {
+                    EmitStatement(child);
+                }
 
-				ilGen.Emit(OpCodes.Ldc_I4_1);
+                ilGen.Emit(OpCodes.Ldc_I4_1);
 				ilGen.Emit(OpCodes.Add);
 				ilGen.MarkLabel(dup);
 				ilGen.Emit(OpCodes.Dup);
@@ -190,10 +207,14 @@ namespace Confuser.DynCipher.Generation {
 			}
 			else if (statement is StatementBlock) {
 				foreach (Statement child in ((StatementBlock)statement).Statements)
-					EmitStatement(child);
-			}
+                {
+                    EmitStatement(child);
+                }
+            }
 			else
-				throw new NotSupportedException();
-		}
+            {
+                throw new NotSupportedException();
+            }
+        }
 	}
 }

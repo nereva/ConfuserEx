@@ -37,14 +37,20 @@ namespace Confuser.Runtime {
 			public static PEInfo GetCLR() {
 				IntPtr clrAddr = GetCLRAddress();
 				if (clrAddr == IntPtr.Zero)
-					return null;
-				return new PEInfo(clrAddr);
+                {
+                    return null;
+                }
+
+                return new PEInfo(clrAddr);
 			}
 
 			private static IntPtr GetCLRAddress() {
 				if (Environment.Version.Major == 2)
-					return GetModuleHandle("mscorwks");
-				return GetModuleHandle("clr");
+                {
+                    return GetModuleHandle("mscorwks");
+                }
+
+                return GetModuleHandle("clr");
 			}
 
 			private unsafe void Init() {
@@ -93,16 +99,26 @@ namespace Confuser.Runtime {
 			/// <param name="size">Number of bytes</param>
 			public unsafe bool IsValidImageAddress(void* addr, uint size) {
 				if (addr < (void*)imageBase)
-					return false;
-				if (addr >= (void*)imageEnd)
-					return false;
+                {
+                    return false;
+                }
 
-				if (size != 0) {
+                if (addr >= (void*)imageEnd)
+                {
+                    return false;
+                }
+
+                if (size != 0) {
 					if ((byte*)addr + size < addr)
-						return false;
-					if ((byte*)addr + size > (void*)imageEnd)
-						return false;
-				}
+                    {
+                        return false;
+                    }
+
+                    if ((byte*)addr + size > (void*)imageEnd)
+                    {
+                        return false;
+                    }
+                }
 
 				return true;
 			}
@@ -119,9 +135,11 @@ namespace Confuser.Runtime {
 				for (int i = 0; i < numSects; i++) {
 					byte* p = (byte*)sectionsAddr + i * 0x28;
 					if (!CompareSectionName(p, nameBytes))
-						continue;
+                    {
+                        continue;
+                    }
 
-					sectionStart = new IntPtr((byte*)imageBase + *(uint*)(p + 12));
+                    sectionStart = new IntPtr((byte*)imageBase + *(uint*)(p + 12));
 					sectionSize = Math.Max(*(uint*)(p + 8), *(uint*)(p + 16));
 					return true;
 				}
@@ -134,8 +152,11 @@ namespace Confuser.Runtime {
 			private static unsafe bool CompareSectionName(byte* sectionName, byte[] nameBytes) {
 				for (int i = 0; i < 8; i++) {
 					if (*sectionName != nameBytes[i])
-						return false;
-					sectionName++;
+                    {
+                        return false;
+                    }
+
+                    sectionName++;
 				}
 				return true;
 			}

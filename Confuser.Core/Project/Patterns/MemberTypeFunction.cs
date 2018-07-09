@@ -27,39 +27,61 @@ namespace Confuser.Core.Project.Patterns {
 			var memberType = new StringBuilder();
 
 			if (definition is TypeDef)
-				memberType.Append("type ");
+            {
+                memberType.Append("type ");
+            }
 
-			if (definition is MethodDef) {
+            if (definition is MethodDef) {
 				memberType.Append("method ");
 
 				var method = (MethodDef)definition;
 				if (method.IsGetter)
-					memberType.Append("propertym getter ");
-				else if (method.IsSetter)
-					memberType.Append("propertym setter ");
-				else if (method.IsAddOn)
-					memberType.Append("eventm add ");
-				else if (method.IsRemoveOn)
-					memberType.Append("eventm remove ");
-				else if (method.IsFire)
-					memberType.Append("eventm fire ");
-				else if (method.IsOther)
-					memberType.Append("other ");
-			}
+                {
+                    memberType.Append("propertym getter ");
+                }
+                else if (method.IsSetter)
+                {
+                    memberType.Append("propertym setter ");
+                }
+                else if (method.IsAddOn)
+                {
+                    memberType.Append("eventm add ");
+                }
+                else if (method.IsRemoveOn)
+                {
+                    memberType.Append("eventm remove ");
+                }
+                else if (method.IsFire)
+                {
+                    memberType.Append("eventm fire ");
+                }
+                else if (method.IsOther)
+                {
+                    memberType.Append("other ");
+                }
+            }
 
 			if (definition is FieldDef)
-				memberType.Append("field ");
+            {
+                memberType.Append("field ");
+            }
 
-			if (definition is PropertyDef)
-				memberType.Append("property ");
+            if (definition is PropertyDef)
+            {
+                memberType.Append("property ");
+            }
 
-			if (definition is EventDef)
-				memberType.Append("event ");
+            if (definition is EventDef)
+            {
+                memberType.Append("event ");
+            }
 
-			if (definition is ModuleDef)
-				memberType.Append("module ");
+            if (definition is ModuleDef)
+            {
+                memberType.Append("module ");
+            }
 
-			return Regex.IsMatch(memberType.ToString(), typeRegex);
+            return Regex.IsMatch(memberType.ToString(), typeRegex);
 		}
 	}
 }

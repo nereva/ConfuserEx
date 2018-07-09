@@ -26,12 +26,20 @@ namespace Confuser.Renamer.References {
 			string name = sig.ReflectionName;
 			string prefix = xmlnsCtx.GetPrefix(sig.ReflectionNamespace, sig.ToBasicTypeDefOrRef().ResolveTypeDefThrow().Module.Assembly);
 			if (!string.IsNullOrEmpty(prefix))
-				name = prefix + ":" + name;
-			if (propRec != null)
-				propRec.Value = name;
-			else
-				textRec.Value = name;
-			return true;
+            {
+                name = prefix + ":" + name;
+            }
+
+            if (propRec != null)
+            {
+                propRec.Value = name;
+            }
+            else
+            {
+                textRec.Value = name;
+            }
+
+            return true;
 		}
 
 		public bool ShouldCancelRename() {

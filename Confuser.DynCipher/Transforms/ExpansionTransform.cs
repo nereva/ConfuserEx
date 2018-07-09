@@ -38,8 +38,10 @@ namespace Confuser.DynCipher.Transforms {
 				Statement[] copy = block.Statements.ToArray();
 				block.Statements.Clear();
 				foreach (Statement st in copy)
-					workDone |= ProcessStatement(st, block);
-			} while (workDone);
+                {
+                    workDone |= ProcessStatement(st, block);
+                }
+            } while (workDone);
 		}
 	}
 }

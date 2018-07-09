@@ -15,12 +15,16 @@ namespace Confuser.Protections.ReferenceProxy {
 
 			// Value type proxy is not supported in mild mode.
 			if (target.DeclaringType.ResolveTypeDefThrow().IsValueType)
-				return;
-			// Skipping visibility is not supported in mild mode.
-			if (!target.ResolveThrow().IsPublic && !target.ResolveThrow().IsAssembly)
-				return;
+            {
+                return;
+            }
+            // Skipping visibility is not supported in mild mode.
+            if (!target.ResolveThrow().IsPublic && !target.ResolveThrow().IsAssembly)
+            {
+                return;
+            }
 
-			Tuple<Code, TypeDef, IMethod> key = Tuple.Create(invoke.OpCode.Code, ctx.Method.DeclaringType, target);
+            Tuple<Code, TypeDef, IMethod> key = Tuple.Create(invoke.OpCode.Code, ctx.Method.DeclaringType, target);
 			MethodDef proxy;
 			if (!proxies.TryGetValue(key, out proxy)) {
 				MethodSig sig = CreateProxySignature(ctx, target, invoke.OpCode.Code == Code.Newobj);
@@ -43,8 +47,11 @@ namespace Confuser.Protections.ReferenceProxy {
 
 				proxy.Body = new CilBody();
 				for (int i = 0; i < proxy.Parameters.Count; i++)
-					proxy.Body.Instructions.Add(Instruction.Create(OpCodes.Ldarg, proxy.Parameters[i]));
-				proxy.Body.Instructions.Add(Instruction.Create(invoke.OpCode, target));
+                {
+                    proxy.Body.Instructions.Add(Instruction.Create(OpCodes.Ldarg, proxy.Parameters[i]));
+                }
+
+                proxy.Body.Instructions.Add(Instruction.Create(invoke.OpCode, target));
 				proxy.Body.Instructions.Add(Instruction.Create(OpCodes.Ret));
 
 				proxies[key] = proxy;
@@ -54,21 +61,27 @@ namespace Confuser.Protections.ReferenceProxy {
 			if (ctx.Method.DeclaringType.HasGenericParameters) {
 				var genArgs = new GenericVar[ctx.Method.DeclaringType.GenericParameters.Count];
 				for (int i = 0; i < genArgs.Length; i++)
-					genArgs[i] = new GenericVar(i);
+                {
+                    genArgs[i] = new GenericVar(i);
+                }
 
-				invoke.Operand = new MemberRefUser(
+                invoke.Operand = new MemberRefUser(
 					ctx.Module,
 					proxy.Name,
 					proxy.MethodSig,
 					new GenericInstSig((ClassOrValueTypeSig)ctx.Method.DeclaringType.ToTypeSig(), genArgs).ToTypeDefOrRef());
 			}
 			else
-				invoke.Operand = proxy;
+            {
+                invoke.Operand = proxy;
+            }
 
-			var targetDef = target.ResolveMethodDef();
+            var targetDef = target.ResolveMethodDef();
 			if (targetDef != null)
-				ctx.Context.Annotations.Set(targetDef, ReferenceProxyProtection.Targeted, ReferenceProxyProtection.Targeted);
-		}
+            {
+                ctx.Context.Annotations.Set(targetDef, ReferenceProxyProtection.Targeted, ReferenceProxyProtection.Targeted);
+            }
+        }
 
 		public override void Finalize(RPContext ctx) { }
 	}

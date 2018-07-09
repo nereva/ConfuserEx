@@ -18,11 +18,16 @@ namespace ConfuserEx.ViewModel {
 			get {
 				return new RelayCommand<IDataObject>(data => {
 					foreach (string file in (string[])data.GetData(DataFormats.FileDrop))
-						AddModule(file);
-				}, data => {
+                    {
+                        AddModule(file);
+                    }
+                }, data => {
 					if (!data.GetDataPresent(DataFormats.FileDrop))
-						return false;
-					var files = (string[])data.GetData(DataFormats.FileDrop);
+    {
+        return false;
+    }
+
+    var files = (string[])data.GetData(DataFormats.FileDrop);
 					bool ret = files.All(file => File.Exists(file));
 					return ret;
 				});
@@ -62,8 +67,10 @@ namespace ConfuserEx.ViewModel {
 					ofd.Multiselect = true;
 					if (ofd.ShowDialog() ?? false) {
 						foreach (var file in ofd.FileNames)
-							AddModule(file);
-					}
+                        {
+                            AddModule(file);
+                        }
+                    }
 				});
 			}
 		}
@@ -75,8 +82,10 @@ namespace ConfuserEx.ViewModel {
 					string msg = "Are you sure to remove selected modules?\r\nAll settings specific to it would be lost!";
 					if (MessageBox.Show(msg, "ConfuserEx", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes) {
 						foreach (var item in App.Project.Modules.Where(m => m.IsSelected).ToList())
-							App.Project.Modules.Remove(item);
-					}
+                        {
+                            App.Project.Modules.Remove(item);
+                        }
+                    }
 				}, () => App.Project.Modules.Any(m => m.IsSelected));
 			}
 		}

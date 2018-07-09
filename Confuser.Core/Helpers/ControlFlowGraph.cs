@@ -21,8 +21,10 @@ namespace Confuser.Core.Helpers {
 
 			indexMap = new Dictionary<Instruction, int>();
 			for (int i = 0; i < body.Instructions.Count; i++)
-				indexMap.Add(body.Instructions[i], i);
-		}
+            {
+                indexMap.Add(body.Instructions[i], i);
+            }
+        }
 
 		/// <summary>
 		///     Gets the number of blocks in this CFG.
@@ -82,14 +84,21 @@ namespace Confuser.Core.Helpers {
 				if (instr.Operand is Instruction) {
 					blockHeaders.Add((Instruction)instr.Operand);
 					if (i + 1 < body.Instructions.Count)
-						blockHeaders.Add(body.Instructions[i + 1]);
-				}
+                    {
+                        blockHeaders.Add(body.Instructions[i + 1]);
+                    }
+                }
 				else if (instr.Operand is Instruction[]) {
 					foreach (Instruction target in (Instruction[])instr.Operand)
-						blockHeaders.Add(target);
-					if (i + 1 < body.Instructions.Count)
-						blockHeaders.Add(body.Instructions[i + 1]);
-				}
+                    {
+                        blockHeaders.Add(target);
+                    }
+
+                    if (i + 1 < body.Instructions.Count)
+                    {
+                        blockHeaders.Add(body.Instructions[i + 1]);
+                    }
+                }
 				else if ((instr.OpCode.FlowControl == FlowControl.Throw || instr.OpCode.FlowControl == FlowControl.Return) &&
 				         i + 1 < body.Instructions.Count) {
 					blockHeaders.Add(body.Instructions[i + 1]);
@@ -118,11 +127,16 @@ namespace Confuser.Core.Helpers {
 
 						var type = ControlFlowBlockType.Normal;
 						if (entryHeaders.Contains(currentBlockHdr) || currentBlockHdr == body.Instructions[0])
-							type |= ControlFlowBlockType.Entry;
-						if (footer.OpCode.FlowControl == FlowControl.Return || footer.OpCode.FlowControl == FlowControl.Throw)
-							type |= ControlFlowBlockType.Exit;
+                        {
+                            type |= ControlFlowBlockType.Entry;
+                        }
 
-						blocks.Add(new ControlFlowBlock(currentBlockId, type, currentBlockHdr, footer));
+                        if (footer.OpCode.FlowControl == FlowControl.Return || footer.OpCode.FlowControl == FlowControl.Throw)
+                        {
+                            type |= ControlFlowBlockType.Exit;
+                        }
+
+                        blocks.Add(new ControlFlowBlock(currentBlockId, type, currentBlockHdr, footer));
 					}
 
 					currentBlockId = nextBlockId++;
@@ -136,11 +150,16 @@ namespace Confuser.Core.Helpers {
 
 				var type = ControlFlowBlockType.Normal;
 				if (entryHeaders.Contains(currentBlockHdr) || currentBlockHdr == body.Instructions[0])
-					type |= ControlFlowBlockType.Entry;
-				if (footer.OpCode.FlowControl == FlowControl.Return || footer.OpCode.FlowControl == FlowControl.Throw)
-					type |= ControlFlowBlockType.Exit;
+                {
+                    type |= ControlFlowBlockType.Entry;
+                }
 
-				blocks.Add(new ControlFlowBlock(currentBlockId, type, currentBlockHdr, footer));
+                if (footer.OpCode.FlowControl == FlowControl.Return || footer.OpCode.FlowControl == FlowControl.Throw)
+                {
+                    type |= ControlFlowBlockType.Exit;
+                }
+
+                blocks.Add(new ControlFlowBlock(currentBlockId, type, currentBlockHdr, footer));
 			}
 		}
 
@@ -180,10 +199,12 @@ namespace Confuser.Core.Helpers {
 		public static ControlFlowGraph Construct(CilBody body) {
 			var graph = new ControlFlowGraph(body);
 			if (body.Instructions.Count == 0)
-				return graph;
+            {
+                return graph;
+            }
 
-			// Populate block headers
-			var blockHeaders = new HashSet<Instruction>();
+            // Populate block headers
+            var blockHeaders = new HashSet<Instruction>();
 			var entryHeaders = new HashSet<Instruction>();
 			graph.PopulateBlockHeaders(blockHeaders, entryHeaders);
 

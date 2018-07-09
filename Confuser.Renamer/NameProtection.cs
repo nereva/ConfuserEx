@@ -59,17 +59,23 @@ namespace Confuser.Renamer {
 				var srv = (NameService)context.Registry.GetService<INameService>();
 				var map = srv.GetNameMap();
 				if (map.Count == 0)
-					return;
+                {
+                    return;
+                }
 
-				string path = Path.GetFullPath(Path.Combine(context.OutputDirectory, "symbols.map"));
+                string path = Path.GetFullPath(Path.Combine(context.OutputDirectory, "symbols.map"));
 				string dir = Path.GetDirectoryName(path);
 				if (!Directory.Exists(dir))
-					Directory.CreateDirectory(dir);
+                {
+                    Directory.CreateDirectory(dir);
+                }
 
-				using (var writer = new StreamWriter(File.OpenWrite(path))) {
+                using (var writer = new StreamWriter(File.OpenWrite(path))) {
 					foreach (var entry in map)
-						writer.WriteLine("{0}\t{1}", entry.Key, entry.Value);
-				}
+                    {
+                        writer.WriteLine("{0}\t{1}", entry.Key, entry.Value);
+                    }
+                }
 			}
 		}
 	}

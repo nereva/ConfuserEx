@@ -19,8 +19,10 @@ namespace Confuser.Renamer.BAML {
 		public void Rename(string oldName, string newName) {
 			var value = (string)instr.Operand;
 			if (value.IndexOf(oldName, StringComparison.OrdinalIgnoreCase) != -1)
-				value = newName;
-			else if (oldName.EndsWith(".baml")) {
+            {
+                value = newName;
+            }
+            else if (oldName.EndsWith(".baml")) {
 				Debug.Assert(newName.EndsWith(".baml"));
 				/*
                  * Nik's patch for maintaining relative paths. If the xaml file is referenced in this manner
@@ -33,8 +35,11 @@ namespace Confuser.Renamer.BAML {
 				                      StringComparison.InvariantCultureIgnoreCase);
 			}
 			else
-				throw new UnreachableException();
-			instr.Operand = value;
+            {
+                throw new UnreachableException();
+            }
+
+            instr.Operand = value;
 		}
 	}
 }

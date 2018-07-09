@@ -56,7 +56,8 @@ namespace Confuser.Protections.AntiTamper {
 			using (var ms = new MemoryStream()) {
 				var writer = new BinaryWriter(ms);
 				foreach (byte i in fieldLayout)
-					switch (i) {
+                {
+                    switch (i) {
 						case 0:
 							writer.Write((uint)ILCode.Length);
 							break;
@@ -76,8 +77,9 @@ namespace Confuser.Protections.AntiTamper {
 							writer.Write(MulSeed);
 							break;
 					}
+                }
 
-				writer.Write(ILCode);
+                writer.Write(ILCode);
 				writer.Write(LocalVars);
 				foreach (JITEHClause clause in EHs) {
 					writer.Write(clause.Flags);
@@ -127,16 +129,20 @@ namespace Confuser.Protections.AntiTamper {
 
 			jitBody.Options = 0;
 			if (body.InitLocals)
-				jitBody.Options |= 0x10;
+            {
+                jitBody.Options |= 0x10;
+            }
 
-			if (body.Variables.Count > 0) {
+            if (body.Variables.Count > 0) {
 				var local = new LocalSig(body.Variables.Select(var => var.Type).ToList());
 				jitBody.LocalVars = SignatureWriter.Write(metadata, local);
 			}
 			else
-				jitBody.LocalVars = new byte[0];
+            {
+                jitBody.LocalVars = new byte[0];
+            }
 
-			using (var ms = new MemoryStream()) {
+            using (var ms = new MemoryStream()) {
 				uint _codeSize = WriteInstructions(new BinaryWriter(ms));
 				Debug.Assert(codeSize == _codeSize);
 				jitBody.ILCode = ms.ToArray();
@@ -162,9 +168,11 @@ namespace Confuser.Protections.AntiTamper {
 					if (eh.HandlerType == ExceptionHandlerType.Catch) {
 						uint token = metadata.GetToken(eh.CatchType).Raw;
 						if ((token & 0xff000000) == 0x1b000000)
-							jitBody.Options |= 0x80;
+                        {
+                            jitBody.Options |= 0x80;
+                        }
 
-						jitBody.EHs[i].ClassTokenOrFilterOffset = token;
+                        jitBody.EHs[i].ClassTokenOrFilterOffset = token;
 					}
 					else if (eh.HandlerType == ExceptionHandlerType.Filter) {
 						jitBody.EHs[i].ClassTokenOrFilterOffset = GetOffset(eh.FilterStart);

@@ -22,16 +22,26 @@ namespace Confuser.Core.Services {
 		/// <inheritdoc />
 		public void Mark(IDnlibDef member, ConfuserComponent parentComp) {
 			if (member == null)
-				throw new ArgumentNullException("member");
-			if (member is ModuleDef)
-				throw new ArgumentException("New ModuleDef cannot be marked.");
-			if (IsMarked(member)) // avoid double marking
-				return;
+            {
+                throw new ArgumentNullException("member");
+            }
 
-			marker.MarkMember(member, context);
+            if (member is ModuleDef)
+            {
+                throw new ArgumentException("New ModuleDef cannot be marked.");
+            }
+
+            if (IsMarked(member)) // avoid double marking
+            {
+                return;
+            }
+
+            marker.MarkMember(member, context);
 			if (parentComp != null)
-				helperParents[member] = parentComp;
-		}
+            {
+                helperParents[member] = parentComp;
+            }
+        }
 
 		/// <inheritdoc />
 		public bool IsMarked(IDnlibDef def) {
@@ -42,8 +52,11 @@ namespace Confuser.Core.Services {
 		public ConfuserComponent GetHelperParent(IDnlibDef def) {
 			ConfuserComponent parent;
 			if (!helperParents.TryGetValue(def, out parent))
-				return null;
-			return parent;
+            {
+                return null;
+            }
+
+            return parent;
 		}
 	}
 

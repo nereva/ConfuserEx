@@ -26,8 +26,11 @@ namespace Confuser.Protections.Constants {
 		public uint[] Encrypt(uint[] data, int offset, uint[] key) {
 			var ret = new uint[key.Length];
 			for (int i = 0; i < key.Length; i++)
-				ret[i] = data[i + offset] ^ key[i];
-			return ret;
+            {
+                ret[i] = data[i + offset] ^ key[i];
+            }
+
+            return ret;
 		}
 
 		public object CreateDecoder(MethodDef decoder, CEContext ctx) {

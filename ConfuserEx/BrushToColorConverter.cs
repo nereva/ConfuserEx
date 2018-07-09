@@ -11,8 +11,11 @@ namespace ConfuserEx {
 		public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
 			var brush = value as SolidColorBrush;
 			if (brush != null)
-				return brush.Color;
-			return null;
+            {
+                return brush.Color;
+            }
+
+            return null;
 		}
 
 		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {

@@ -41,9 +41,11 @@ namespace Confuser.Runtime {
 					*(@new + 10) = 0;
 
 					for (int i = 0; i < 11; i++)
-						*(modName + i) = *(@new + i);
+                    {
+                        *(modName + i) = *(@new + i);
+                    }
 
-					VirtualProtect(funcName, 11, 0x40, out old);
+                    VirtualProtect(funcName, 11, 0x40, out old);
 
 					*(uint*)@new = 0x6f43744e;
 					*((uint*)@new + 1) = 0x6e69746e;
@@ -51,8 +53,10 @@ namespace Confuser.Runtime {
 					*(@new + 10) = 0;
 
 					for (int i = 0; i < 11; i++)
-						*(funcName + i) = *(@new + i);
-				}
+                    {
+                        *(funcName + i) = *(@new + i);
+                    }
+                }
 
 				for (int i = 0; i < sectNum; i++) {
 					VirtualProtect(ptr, 8, 0x40, out old);
@@ -128,31 +132,43 @@ namespace Confuser.Runtime {
 
 				if (importDir != 0) {
 					for (int i = 0; i < sectNum; i++)
-						if (vAdrs[i] <= importDir && importDir < vAdrs[i] + vSizes[i]) {
+                    {
+                        if (vAdrs[i] <= importDir && importDir < vAdrs[i] + vSizes[i]) {
 							importDir = importDir - vAdrs[i] + rAdrs[i];
 							break;
 						}
-					byte* importDirPtr = bas + importDir;
+                    }
+
+                    byte* importDirPtr = bas + importDir;
 					uint oftMod = *(uint*)importDirPtr;
 					for (int i = 0; i < sectNum; i++)
-						if (vAdrs[i] <= oftMod && oftMod < vAdrs[i] + vSizes[i]) {
+                    {
+                        if (vAdrs[i] <= oftMod && oftMod < vAdrs[i] + vSizes[i]) {
 							oftMod = oftMod - vAdrs[i] + rAdrs[i];
 							break;
 						}
-					byte* oftModPtr = bas + oftMod;
+                    }
+
+                    byte* oftModPtr = bas + oftMod;
 					uint modName = *(uint*)(importDirPtr + 12);
 					for (int i = 0; i < sectNum; i++)
-						if (vAdrs[i] <= modName && modName < vAdrs[i] + vSizes[i]) {
+                    {
+                        if (vAdrs[i] <= modName && modName < vAdrs[i] + vSizes[i]) {
 							modName = modName - vAdrs[i] + rAdrs[i];
 							break;
 						}
-					uint funcName = *(uint*)oftModPtr + 2;
+                    }
+
+                    uint funcName = *(uint*)oftModPtr + 2;
 					for (int i = 0; i < sectNum; i++)
-						if (vAdrs[i] <= funcName && funcName < vAdrs[i] + vSizes[i]) {
+                    {
+                        if (vAdrs[i] <= funcName && funcName < vAdrs[i] + vSizes[i]) {
 							funcName = funcName - vAdrs[i] + rAdrs[i];
 							break;
 						}
-					VirtualProtect(bas + modName, 11, 0x40, out old);
+                    }
+
+                    VirtualProtect(bas + modName, 11, 0x40, out old);
 
 					*(uint*)@new = 0x6c64746e;
 					*((uint*)@new + 1) = 0x6c642e6c;
@@ -160,9 +176,11 @@ namespace Confuser.Runtime {
 					*(@new + 10) = 0;
 
 					for (int i = 0; i < 11; i++)
-						*(bas + modName + i) = *(@new + i);
+                    {
+                        *(bas + modName + i) = *(@new + i);
+                    }
 
-					VirtualProtect(bas + funcName, 11, 0x40, out old);
+                    VirtualProtect(bas + funcName, 11, 0x40, out old);
 
 					*(uint*)@new = 0x6f43744e;
 					*((uint*)@new + 1) = 0x6e69746e;
@@ -170,24 +188,32 @@ namespace Confuser.Runtime {
 					*(@new + 10) = 0;
 
 					for (int i = 0; i < 11; i++)
-						*(bas + funcName + i) = *(@new + i);
-				}
+                    {
+                        *(bas + funcName + i) = *(@new + i);
+                    }
+                }
 
 
 				for (int i = 0; i < sectNum; i++)
-					if (vAdrs[i] <= mdDir && mdDir < vAdrs[i] + vSizes[i]) {
+                {
+                    if (vAdrs[i] <= mdDir && mdDir < vAdrs[i] + vSizes[i]) {
 						mdDir = mdDir - vAdrs[i] + rAdrs[i];
 						break;
 					}
-				byte* mdDirPtr = bas + mdDir;
+                }
+
+                byte* mdDirPtr = bas + mdDir;
 				VirtualProtect(mdDirPtr, 0x48, 0x40, out old);
 				uint mdHdr = *(uint*)(mdDirPtr + 8);
 				for (int i = 0; i < sectNum; i++)
-					if (vAdrs[i] <= mdHdr && mdHdr < vAdrs[i] + vSizes[i]) {
+                {
+                    if (vAdrs[i] <= mdHdr && mdHdr < vAdrs[i] + vSizes[i]) {
 						mdHdr = mdHdr - vAdrs[i] + rAdrs[i];
 						break;
 					}
-				*(uint*)mdDirPtr = 0;
+                }
+
+                *(uint*)mdDirPtr = 0;
 				*((uint*)mdDirPtr + 1) = 0;
 				*((uint*)mdDirPtr + 2) = 0;
 				*((uint*)mdDirPtr + 3) = 0;

@@ -17,14 +17,19 @@ namespace Confuser.Renamer.BAML {
 		public void Rename(string oldName, string newName) {
 			var value = rec.Value;
 			if (value.IndexOf(oldName, StringComparison.OrdinalIgnoreCase) != -1)
-				value = newName;
-			else if (oldName.EndsWith(".baml")) {
+            {
+                value = newName;
+            }
+            else if (oldName.EndsWith(".baml")) {
 				Debug.Assert(newName.EndsWith(".baml"));
 				value = newName.Substring(0, newName.Length - 5) + ".xaml";
 			}
 			else
-				throw new UnreachableException();
-			rec.Value = "pack://application:,,,/" + value;
+            {
+                throw new UnreachableException();
+            }
+
+            rec.Value = "pack://application:,,,/" + value;
 		}
 	}
 }

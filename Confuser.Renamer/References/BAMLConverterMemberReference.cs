@@ -21,8 +21,11 @@ namespace Confuser.Renamer.References {
 			string typeName = sig.ReflectionName;
 			string prefix = xmlnsCtx.GetPrefix(sig.ReflectionNamespace, sig.ToBasicTypeDefOrRef().ResolveTypeDefThrow().Module.Assembly);
 			if (!string.IsNullOrEmpty(prefix))
-				typeName = prefix + ":" + typeName;
-			rec.Value = typeName + "." + member.Name;
+            {
+                typeName = prefix + ":" + typeName;
+            }
+
+            rec.Value = typeName + "." + member.Name;
 			return true;
 		}
 

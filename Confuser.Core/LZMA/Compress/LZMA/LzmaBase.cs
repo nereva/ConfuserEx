@@ -55,8 +55,11 @@ namespace SevenZip.Compression.LZMA {
 		public static uint GetLenToPosState(uint len) {
 			len -= kMatchMinLen;
 			if (len < kNumLenToPosStates)
-				return len;
-			return kNumLenToPosStates - 1;
+            {
+                return len;
+            }
+
+            return kNumLenToPosStates - 1;
 		}
 
 		public struct State {
@@ -68,10 +71,19 @@ namespace SevenZip.Compression.LZMA {
 			}
 
 			public void UpdateChar() {
-				if (Index < 4) Index = 0;
-				else if (Index < 10) Index -= 3;
-				else Index -= 6;
-			}
+				if (Index < 4)
+                {
+                    Index = 0;
+                }
+                else if (Index < 10)
+                {
+                    Index -= 3;
+                }
+                else
+                {
+                    Index -= 6;
+                }
+            }
 
 			public void UpdateMatch() {
 				Index = (uint)(Index < 7 ? 7 : 10);

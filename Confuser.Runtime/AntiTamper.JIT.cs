@@ -80,9 +80,11 @@ namespace Confuser.Runtime {
 				ver5 = Environment.Version.Revision > 17020;
 			}
 			else
-				moduleHnd = *(IntPtr*)(&hnd);
+            {
+                moduleHnd = *(IntPtr*)(&hnd);
+            }
 
-			Hook();
+            Hook();
 		}
 
 		[DllImport("kernel32.dll")]
@@ -145,22 +147,35 @@ namespace Confuser.Runtime {
 			void* sigInfo;
 			if (ver4) {
 				if (IntPtr.Size == 8)
-					sigInfo = (CORINFO_SIG_INFO_x64*)((uint*)(info + 1) + (ver5 ? 7 : 5)) + 1;
-				else
-					sigInfo = (CORINFO_SIG_INFO_x86*)((uint*)(info + 1) + (ver5 ? 5 : 4)) + 1;
-			}
+                {
+                    sigInfo = (CORINFO_SIG_INFO_x64*)((uint*)(info + 1) + (ver5 ? 7 : 5)) + 1;
+                }
+                else
+                {
+                    sigInfo = (CORINFO_SIG_INFO_x86*)((uint*)(info + 1) + (ver5 ? 5 : 4)) + 1;
+                }
+            }
 			else {
 				if (IntPtr.Size == 8)
-					sigInfo = (CORINFO_SIG_INFO_x64*)((uint*)(info + 1) + 3) + 1;
-				else
-					sigInfo = (CORINFO_SIG_INFO_x86*)((uint*)(info + 1) + 3) + 1;
-			}
+                {
+                    sigInfo = (CORINFO_SIG_INFO_x64*)((uint*)(info + 1) + 3) + 1;
+                }
+                else
+                {
+                    sigInfo = (CORINFO_SIG_INFO_x86*)((uint*)(info + 1) + 3) + 1;
+                }
+            }
 
 			if (IntPtr.Size == 8)
-				((CORINFO_SIG_INFO_x64*)sigInfo)->sig = (IntPtr)localVar;
-			else
-				((CORINFO_SIG_INFO_x86*)sigInfo)->sig = (IntPtr)localVar;
-			localVar++;
+            {
+                ((CORINFO_SIG_INFO_x64*)sigInfo)->sig = (IntPtr)localVar;
+            }
+            else
+            {
+                ((CORINFO_SIG_INFO_x86*)sigInfo)->sig = (IntPtr)localVar;
+            }
+
+            localVar++;
 			byte b = *localVar;
 			ushort numArgs;
 			IntPtr args;
@@ -215,14 +230,20 @@ namespace Confuser.Runtime {
 						break;
 					}
 					if (midTok < token)
-						lo = mid + 1;
-					else
-						hi = mid - 1;
-				}
+                    {
+                        lo = mid + 1;
+                    }
+                    else
+                    {
+                        hi = mid - 1;
+                    }
+                }
 				if (offset == null)
-					return originalDelegate(self, comp, info, flags, nativeEntry, nativeSizeOfCode);
+                {
+                    return originalDelegate(self, comp, info, flags, nativeEntry, nativeSizeOfCode);
+                }
 
-				uint* dataPtr = ptr + (uint)offset;
+                uint* dataPtr = ptr + (uint)offset;
 				uint dataLen = *dataPtr++;
 				var newPtr = (uint*)Marshal.AllocHGlobal((int)dataLen << 2);
 				try {
@@ -423,24 +444,32 @@ namespace Confuser.Runtime {
 				const int SLOT_NUM = 0x1B;
 				var newVfTbl = (IntPtr*)Marshal.AllocHGlobal(SLOT_NUM * IntPtr.Size);
 				for (int i = 0; i < SLOT_NUM; i++)
-					newVfTbl[i] = vfTbl[i];
-				if (ehNum == -1)
-					for (int i = 0; i < SLOT_NUM; i++) {
+                {
+                    newVfTbl[i] = vfTbl[i];
+                }
+
+                if (ehNum == -1)
+                {
+                    for (int i = 0; i < SLOT_NUM; i++) {
 						bool isEh = true;
 						for (var func = (byte*)vfTbl[i]; *func != 0xe9; func++)
-							if (IntPtr.Size == 8 ?
+                        {
+                            if (IntPtr.Size == 8 ?
 								    (*func == 0x48 && *(func + 1) == 0x81 && *(func + 2) == 0xe9) :
 								    (*func == 0x83 && *(func + 1) == 0xe9)) {
 								isEh = false;
 								break;
 							}
-						if (isEh) {
+                        }
+
+                        if (isEh) {
 							ehNum = i;
 							break;
 						}
 					}
+                }
 
-				var ret = new CorMethodInfoHook {
+                var ret = new CorMethodInfoHook {
 					ftn = ftn,
 					info = mtdInfo,
 					clauses = clauses,
@@ -488,9 +517,11 @@ namespace Confuser.Runtime {
 				const int SLOT_NUM = 0x9E;
 				var newVfTbl = (IntPtr*)Marshal.AllocHGlobal(SLOT_NUM * IntPtr.Size);
 				for (int i = 0; i < SLOT_NUM; i++)
-					newVfTbl[i] = vfTbl[i];
+                {
+                    newVfTbl[i] = vfTbl[i];
+                }
 
-				var ret = new CorJitInfoHook {
+                var ret = new CorJitInfoHook {
 					ftn = ftn,
 					info = comp,
 					clauses = clauses,

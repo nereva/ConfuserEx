@@ -14,8 +14,11 @@ namespace Confuser.DynCipher.AST {
 			var sb = new StringBuilder();
 			sb.AppendLine("{");
 			foreach (Statement i in Statements)
-				sb.AppendLine(i.ToString());
-			sb.AppendLine("}");
+            {
+                sb.AppendLine(i.ToString());
+            }
+
+            sb.AppendLine("}");
 			return sb.ToString();
 		}
 	}

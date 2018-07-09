@@ -24,8 +24,10 @@ namespace Confuser.Renamer.References {
 				foreach (var typeRef in typeRefs) {
 					var def = typeRef.ResolveTypeDefThrow();
 					if (def.Module != module && context.Modules.Contains((ModuleDefMD)def.Module))
-						service.AddReference(def, new TypeRefReference((TypeRef)typeRef, def));
-				}
+                    {
+                        service.AddReference(def, new TypeRefReference((TypeRef)typeRef, def));
+                    }
+                }
 			}
 		}
 
@@ -47,20 +49,26 @@ namespace Confuser.Renamer.References {
 				if (target.Module != method.Module) {
 					target = (IMethod)new Importer(method.Module, ImporterOptions.TryToUseTypeDefs).Import(baseSlot.MethodDef);
 					if (target is MemberRef)
-						service.AddReference(baseSlot.MethodDef, new MemberRefReference((MemberRef)target, baseSlot.MethodDef));
-				}
+                    {
+                        service.AddReference(baseSlot.MethodDef, new MemberRefReference((MemberRef)target, baseSlot.MethodDef));
+                    }
+                }
 			}
 
 			target.MethodSig = new Importer(method.Module, ImporterOptions.TryToUseTypeDefs).Import(method.MethodSig);
 			if (target is MemberRef)
-				AddImportReference(context, service, method.Module, baseSlot.MethodDef, (MemberRef)target);
+            {
+                AddImportReference(context, service, method.Module, baseSlot.MethodDef, (MemberRef)target);
+            }
 
-			if (method.Overrides.Any(impl =>
+            if (method.Overrides.Any(impl =>
 			                         new SigComparer().Equals(impl.MethodDeclaration.MethodSig, target.MethodSig) &&
 			                         new SigComparer().Equals(impl.MethodDeclaration.DeclaringType.ResolveTypeDef(), target.DeclaringType.ResolveTypeDef())))
-				return true;
+            {
+                return true;
+            }
 
-			method.Overrides.Add(new MethodOverride(method, (IMethodDefOrRef)target));
+            method.Overrides.Add(new MethodOverride(method, (IMethodDefOrRef)target));
 
 			return true;
 		}

@@ -44,8 +44,10 @@ namespace Confuser.Protections.ControlFlow {
 
 			if (ret.Predicate == PredicateType.x86) {
 				if ((context.CurrentModule.Cor20HeaderFlags & ComImageFlags.ILOnly) != 0)
-					context.CurrentModuleWriterOptions.Cor20HeaderOptions.Flags &= ~ComImageFlags.ILOnly;
-			}
+                {
+                    context.CurrentModuleWriterOptions.Cor20HeaderOptions.Flags &= ~ComImageFlags.ILOnly;
+                }
+            }
 
 			return ret;
 		}
@@ -55,17 +57,25 @@ namespace Confuser.Protections.ControlFlow {
 			CustomAttribute debugAttr = module.Assembly.CustomAttributes.Find("System.Diagnostics.DebuggableAttribute");
 			if (debugAttr != null) {
 				if (debugAttr.ConstructorArguments.Count == 1)
-					disableOpti |= ((DebuggableAttribute.DebuggingModes)(int)debugAttr.ConstructorArguments[0].Value & DebuggableAttribute.DebuggingModes.DisableOptimizations) != 0;
-				else
-					disableOpti |= (bool)debugAttr.ConstructorArguments[1].Value;
-			}
+                {
+                    disableOpti |= ((DebuggableAttribute.DebuggingModes)(int)debugAttr.ConstructorArguments[0].Value & DebuggableAttribute.DebuggingModes.DisableOptimizations) != 0;
+                }
+                else
+                {
+                    disableOpti |= (bool)debugAttr.ConstructorArguments[1].Value;
+                }
+            }
 			debugAttr = module.CustomAttributes.Find("System.Diagnostics.DebuggableAttribute");
 			if (debugAttr != null) {
 				if (debugAttr.ConstructorArguments.Count == 1)
-					disableOpti |= ((DebuggableAttribute.DebuggingModes)(int)debugAttr.ConstructorArguments[0].Value & DebuggableAttribute.DebuggingModes.DisableOptimizations) != 0;
-				else
-					disableOpti |= (bool)debugAttr.ConstructorArguments[1].Value;
-			}
+                {
+                    disableOpti |= ((DebuggableAttribute.DebuggingModes)(int)debugAttr.ConstructorArguments[0].Value & DebuggableAttribute.DebuggingModes.DisableOptimizations) != 0;
+                }
+                else
+                {
+                    disableOpti |= (bool)debugAttr.ConstructorArguments[1].Value;
+                }
+            }
 			return disableOpti;
 		}
 
@@ -74,16 +84,21 @@ namespace Confuser.Protections.ControlFlow {
 			RandomGenerator random = context.Registry.GetService<IRandomService>().GetRandomGenerator(ControlFlowProtection._FullId);
 
 			foreach (MethodDef method in parameters.Targets.OfType<MethodDef>().WithProgress(context.Logger))
-				if (method.HasBody && method.Body.Instructions.Count > 0) {
+            {
+                if (method.HasBody && method.Body.Instructions.Count > 0) {
 					ProcessMethod(method.Body, ParseParameters(method, context, parameters, random, disabledOpti));
 					context.CheckCancellation();
 				}
-		}
+            }
+        }
 
 		static ManglerBase GetMangler(CFType type) {
 			if (type == CFType.Switch)
-				return Switch;
-			return Jump;
+            {
+                return Switch;
+            }
+
+            return Jump;
 		}
 
 		void ProcessMethod(CilBody body, CFContext ctx) {

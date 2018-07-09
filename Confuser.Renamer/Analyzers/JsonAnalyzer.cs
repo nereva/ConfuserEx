@@ -22,8 +22,10 @@ namespace Confuser.Renamer.Analyzers {
 		static CustomAttribute GetJsonContainerAttribute(IHasCustomAttribute attrs) {
 			foreach (var attr in attrs.CustomAttributes) {
 				if (JsonContainers.Contains(attr.TypeFullName))
-					return attr;
-			}
+                {
+                    return attr;
+                }
+            }
 			return null;
 		}
 
@@ -33,24 +35,34 @@ namespace Confuser.Renamer.Analyzers {
 			if (def.CustomAttributes.IsDefined(JsonProperty)) {
 				attr = def.CustomAttributes.Find(JsonProperty);
 				if (attr.HasConstructorArguments || attr.GetProperty("PropertyName") != null)
-					return false;
-			}
+                {
+                    return false;
+                }
+            }
 
 			attr = GetJsonContainerAttribute(type);
 			if (attr == null || attr.TypeFullName != JsonObject)
-				return false;
+            {
+                return false;
+            }
 
-			if (def.CustomAttributes.IsDefined(JsonIgnore))
-				return false;
+            if (def.CustomAttributes.IsDefined(JsonIgnore))
+            {
+                return false;
+            }
 
-			int serialization = 0;
+            int serialization = 0;
 			if (attr.HasConstructorArguments && attr.ConstructorArguments[0].Type.FullName == "Newtonsoft.Json.MemberSerialization")
-				serialization = (int)attr.ConstructorArguments[0].Value;
-			else {
+            {
+                serialization = (int)attr.ConstructorArguments[0].Value;
+            }
+            else {
 				foreach (var property in attr.Properties) {
 					if (property.Name == "MemberSerialization")
-						serialization = (int)property.Value;
-				}
+                    {
+                        serialization = (int)property.Value;
+                    }
+                }
 			}
 
 			if (serialization == 0) { // OptOut
@@ -58,41 +70,63 @@ namespace Confuser.Renamer.Analyzers {
 					(def is FieldDef && ((FieldDef)def).IsPublic);
 			}
 			else if (serialization == 1) // OptIn
-				return false;
-			else if (serialization == 2) // Fields
-				return def is FieldDef;
-			else  // Unknown
-				return false;
-		}
+            {
+                return false;
+            }
+            else if (serialization == 2) // Fields
+            {
+                return def is FieldDef;
+            }
+            else  // Unknown
+            {
+                return false;
+            }
+        }
 
 		public void Analyze(ConfuserContext context, INameService service, ProtectionParameters parameters, IDnlibDef def) {
 			if (def is TypeDef)
-				Analyze(context, service, (TypeDef)def, parameters);
-			else if (def is MethodDef)
-				Analyze(context, service, (MethodDef)def, parameters);
-			else if (def is PropertyDef)
-				Analyze(context, service, (PropertyDef)def, parameters);
-			else if (def is FieldDef)
-				Analyze(context, service, (FieldDef)def, parameters);
-		}
+            {
+                Analyze(context, service, (TypeDef)def, parameters);
+            }
+            else if (def is MethodDef)
+            {
+                Analyze(context, service, (MethodDef)def, parameters);
+            }
+            else if (def is PropertyDef)
+            {
+                Analyze(context, service, (PropertyDef)def, parameters);
+            }
+            else if (def is FieldDef)
+            {
+                Analyze(context, service, (FieldDef)def, parameters);
+            }
+        }
 
 		void Analyze(ConfuserContext context, INameService service, TypeDef type, ProtectionParameters parameters) {
 			var attr = GetJsonContainerAttribute(type);
 			if (attr == null)
-				return;
+            {
+                return;
+            }
 
-			bool hasId = false;
+            bool hasId = false;
 			if (attr.HasConstructorArguments && attr.ConstructorArguments[0].Type.FullName == "System.String")
-				hasId = true;
-			else {
+            {
+                hasId = true;
+            }
+            else {
 				foreach (var property in attr.Properties) {
 					if (property.Name == "Id")
-						hasId = true;
-				}
+                    {
+                        hasId = true;
+                    }
+                }
 			}
 			if (!hasId)
-				service.SetCanRename(type, false);
-		}
+            {
+                service.SetCanRename(type, false);
+            }
+        }
 
 		void Analyze(ConfuserContext context, INameService service, MethodDef method, ProtectionParameters parameters) {
 			if (GetJsonContainerAttribute(method.DeclaringType) != null && method.IsConstructor) {

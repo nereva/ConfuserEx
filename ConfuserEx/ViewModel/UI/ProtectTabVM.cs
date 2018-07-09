@@ -47,8 +47,11 @@ namespace ConfuserEx.ViewModel {
 			var parameters = new ConfuserParameters();
 			parameters.Project = ((IViewModel<ConfuserProject>)App.Project).Model;
 			if (File.Exists(App.FileName))
-				Environment.CurrentDirectory = Path.GetDirectoryName(App.FileName);
-			parameters.Logger = this;
+            {
+                Environment.CurrentDirectory = Path.GetDirectoryName(App.FileName);
+            }
+
+            parameters.Logger = this;
 
 			documentContent.Inlines.Clear();
 			cancelSrc = new CancellationTokenSource();
@@ -139,10 +142,15 @@ namespace ConfuserEx.ViewModel {
 				(int)now.Subtract(begin).TotalMinutes,
 				now.Subtract(begin).Seconds);
 			if (successful)
-				AppendLine("Finished {0}", Brushes.Lime, timeString);
-			else
-				AppendLine("Failed {0}", Brushes.Red, timeString);
-			Result = successful;
+            {
+                AppendLine("Finished {0}", Brushes.Lime, timeString);
+            }
+            else
+            {
+                AppendLine("Failed {0}", Brushes.Red, timeString);
+            }
+
+            Result = successful;
 		}
 
 		#endregion

@@ -19,12 +19,16 @@ namespace Confuser.Core.Helpers {
 			ret.Attributes = origin.Attributes;
 
 			if (origin.ClassLayout != null)
-				ret.ClassLayout = new ClassLayoutUser(origin.ClassLayout.PackingSize, origin.ClassSize);
+            {
+                ret.ClassLayout = new ClassLayoutUser(origin.ClassLayout.PackingSize, origin.ClassSize);
+            }
 
-			foreach (GenericParam genericParam in origin.GenericParameters)
-				ret.GenericParameters.Add(new GenericParamUser(genericParam.Number, genericParam.Flags, "-"));
+            foreach (GenericParam genericParam in origin.GenericParameters)
+            {
+                ret.GenericParameters.Add(new GenericParamUser(genericParam.Number, genericParam.Flags, "-"));
+            }
 
-			return ret;
+            return ret;
 		}
 
 		/// <summary>
@@ -36,9 +40,11 @@ namespace Confuser.Core.Helpers {
 			var ret = new MethodDefUser(origin.Name, null, origin.ImplAttributes, origin.Attributes);
 
 			foreach (GenericParam genericParam in origin.GenericParameters)
-				ret.GenericParameters.Add(new GenericParamUser(genericParam.Number, genericParam.Flags, "-"));
+            {
+                ret.GenericParameters.Add(new GenericParamUser(genericParam.Number, genericParam.Flags, "-"));
+            }
 
-			return ret;
+            return ret;
 		}
 
 		/// <summary>
@@ -65,18 +71,26 @@ namespace Confuser.Core.Helpers {
 				ctx.Map[typeDef] = ret;
 			}
 			else
-				ret = (TypeDef)existing;
+            {
+                ret = (TypeDef)existing;
+            }
 
-			foreach (TypeDef nestedType in typeDef.NestedTypes)
-				ret.NestedTypes.Add(PopulateContext(nestedType, ctx));
+            foreach (TypeDef nestedType in typeDef.NestedTypes)
+            {
+                ret.NestedTypes.Add(PopulateContext(nestedType, ctx));
+            }
 
-			foreach (MethodDef method in typeDef.Methods)
-				ret.Methods.Add((MethodDef)(ctx.Map[method] = Clone(method)));
+            foreach (MethodDef method in typeDef.Methods)
+            {
+                ret.Methods.Add((MethodDef)(ctx.Map[method] = Clone(method)));
+            }
 
-			foreach (FieldDef field in typeDef.Fields)
-				ret.Fields.Add((FieldDef)(ctx.Map[field] = Clone(field)));
+            foreach (FieldDef field in typeDef.Fields)
+            {
+                ret.Fields.Add((FieldDef)(ctx.Map[field] = Clone(field)));
+            }
 
-			return ret;
+            return ret;
 		}
 
 		/// <summary>
@@ -90,8 +104,10 @@ namespace Confuser.Core.Helpers {
 			newTypeDef.BaseType = (ITypeDefOrRef)ctx.Importer.Import(typeDef.BaseType);
 
 			foreach (InterfaceImpl iface in typeDef.Interfaces)
-				newTypeDef.Interfaces.Add(new InterfaceImplUser((ITypeDefOrRef)ctx.Importer.Import(iface.Interface)));
-		}
+            {
+                newTypeDef.Interfaces.Add(new InterfaceImplUser((ITypeDefOrRef)ctx.Importer.Import(iface.Interface)));
+            }
+        }
 
 		/// <summary>
 		///     Copies the information from the origin method to injected method.
@@ -105,12 +121,16 @@ namespace Confuser.Core.Helpers {
 			newMethodDef.Parameters.UpdateParameterTypes();
 
 			if (methodDef.ImplMap != null)
-				newMethodDef.ImplMap = new ImplMapUser(new ModuleRefUser(ctx.TargetModule, methodDef.ImplMap.Module.Name), methodDef.ImplMap.Name, methodDef.ImplMap.Attributes);
+            {
+                newMethodDef.ImplMap = new ImplMapUser(new ModuleRefUser(ctx.TargetModule, methodDef.ImplMap.Module.Name), methodDef.ImplMap.Name, methodDef.ImplMap.Attributes);
+            }
 
-			foreach (CustomAttribute ca in methodDef.CustomAttributes)
-				newMethodDef.CustomAttributes.Add(new CustomAttribute((ICustomAttributeType)ctx.Importer.Import(ca.Constructor)));
+            foreach (CustomAttribute ca in methodDef.CustomAttributes)
+            {
+                newMethodDef.CustomAttributes.Add(new CustomAttribute((ICustomAttributeType)ctx.Importer.Import(ca.Constructor)));
+            }
 
-			if (methodDef.HasBody) {
+            if (methodDef.HasBody) {
 				newMethodDef.Body = new CilBody(methodDef.Body.InitLocals, new List<Instruction>(), new List<ExceptionHandler>(), new List<Local>());
 				newMethodDef.Body.MaxStack = methodDef.Body.MaxStack;
 
@@ -130,28 +150,36 @@ namespace Confuser.Core.Helpers {
 					newInstr.SequencePoint = instr.SequencePoint;
 
 					if (newInstr.Operand is IType)
-						newInstr.Operand = ctx.Importer.Import((IType)newInstr.Operand);
+                    {
+                        newInstr.Operand = ctx.Importer.Import((IType)newInstr.Operand);
+                    }
+                    else if (newInstr.Operand is IMethod)
+                    {
+                        newInstr.Operand = ctx.Importer.Import((IMethod)newInstr.Operand);
+                    }
+                    else if (newInstr.Operand is IField)
+                    {
+                        newInstr.Operand = ctx.Importer.Import((IField)newInstr.Operand);
+                    }
 
-					else if (newInstr.Operand is IMethod)
-						newInstr.Operand = ctx.Importer.Import((IMethod)newInstr.Operand);
-
-					else if (newInstr.Operand is IField)
-						newInstr.Operand = ctx.Importer.Import((IField)newInstr.Operand);
-
-					newMethodDef.Body.Instructions.Add(newInstr);
+                    newMethodDef.Body.Instructions.Add(newInstr);
 					bodyMap[instr] = newInstr;
 				}
 
 				foreach (Instruction instr in newMethodDef.Body.Instructions) {
 					if (instr.Operand != null && bodyMap.ContainsKey(instr.Operand))
-						instr.Operand = bodyMap[instr.Operand];
-
-					else if (instr.Operand is Instruction[])
-						instr.Operand = ((Instruction[])instr.Operand).Select(target => (Instruction)bodyMap[target]).ToArray();
-				}
+                    {
+                        instr.Operand = bodyMap[instr.Operand];
+                    }
+                    else if (instr.Operand is Instruction[])
+                    {
+                        instr.Operand = ((Instruction[])instr.Operand).Select(target => (Instruction)bodyMap[target]).ToArray();
+                    }
+                }
 
 				foreach (ExceptionHandler eh in methodDef.Body.ExceptionHandlers)
-					newMethodDef.Body.ExceptionHandlers.Add(new ExceptionHandler(eh.HandlerType) {
+                {
+                    newMethodDef.Body.ExceptionHandlers.Add(new ExceptionHandler(eh.HandlerType) {
 						CatchType = eh.CatchType == null ? null : (ITypeDefOrRef)ctx.Importer.Import(eh.CatchType),
 						TryStart = (Instruction)bodyMap[eh.TryStart],
 						TryEnd = (Instruction)bodyMap[eh.TryEnd],
@@ -159,8 +187,9 @@ namespace Confuser.Core.Helpers {
 						HandlerEnd = (Instruction)bodyMap[eh.HandlerEnd],
 						FilterStart = eh.FilterStart == null ? null : (Instruction)bodyMap[eh.FilterStart]
 					});
+                }
 
-				newMethodDef.Body.SimplifyMacros(newMethodDef.Parameters);
+                newMethodDef.Body.SimplifyMacros(newMethodDef.Parameters);
 			}
 		}
 
@@ -183,17 +212,25 @@ namespace Confuser.Core.Helpers {
 		/// <param name="copySelf">if set to <c>true</c>, copy information of <paramref name="typeDef" />.</param>
 		static void Copy(TypeDef typeDef, InjectContext ctx, bool copySelf) {
 			if (copySelf)
-				CopyTypeDef(typeDef, ctx);
+            {
+                CopyTypeDef(typeDef, ctx);
+            }
 
-			foreach (TypeDef nestedType in typeDef.NestedTypes)
-				Copy(nestedType, ctx, true);
+            foreach (TypeDef nestedType in typeDef.NestedTypes)
+            {
+                Copy(nestedType, ctx, true);
+            }
 
-			foreach (MethodDef method in typeDef.Methods)
-				CopyMethodDef(method, ctx);
+            foreach (MethodDef method in typeDef.Methods)
+            {
+                CopyMethodDef(method, ctx);
+            }
 
-			foreach (FieldDef field in typeDef.Fields)
-				CopyFieldDef(field, ctx);
-		}
+            foreach (FieldDef field in typeDef.Fields)
+            {
+                CopyFieldDef(field, ctx);
+            }
+        }
 
 		/// <summary>
 		///     Injects the specified TypeDef to another module.
@@ -283,22 +320,31 @@ namespace Confuser.Core.Helpers {
 			/// <inheritdoc />
 			public override TypeDef Resolve(TypeDef typeDef) {
 				if (Map.ContainsKey(typeDef))
-					return (TypeDef)Map[typeDef];
-				return null;
+                {
+                    return (TypeDef)Map[typeDef];
+                }
+
+                return null;
 			}
 
 			/// <inheritdoc />
 			public override MethodDef Resolve(MethodDef methodDef) {
 				if (Map.ContainsKey(methodDef))
-					return (MethodDef)Map[methodDef];
-				return null;
+                {
+                    return (MethodDef)Map[methodDef];
+                }
+
+                return null;
 			}
 
 			/// <inheritdoc />
 			public override FieldDef Resolve(FieldDef fieldDef) {
 				if (Map.ContainsKey(fieldDef))
-					return (FieldDef)Map[fieldDef];
-				return null;
+                {
+                    return (FieldDef)Map[fieldDef];
+                }
+
+                return null;
 			}
 		}
 	}

@@ -50,8 +50,10 @@ namespace ConfuserEx.Views {
 
 		void OnPropertyChanged(object sender, PropertyChangedEventArgs e) {
 			if (e.PropertyName == "Expression")
-				CheckValidity();
-		}
+            {
+                CheckValidity();
+            }
+        }
 
 		void CheckValidity() {
 			if (rule.Expression == null) {

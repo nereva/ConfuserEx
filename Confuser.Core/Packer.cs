@@ -36,23 +36,32 @@ namespace Confuser.Core {
 				string path = Path.GetFullPath(Path.Combine(tmpDir, context.OutputPaths[i]));
 				var dir = Path.GetDirectoryName(path);
 				if (!Directory.Exists(dir))
-					Directory.CreateDirectory(dir);
-				File.WriteAllBytes(path, context.OutputModules[i]);
+                {
+                    Directory.CreateDirectory(dir);
+                }
+
+                File.WriteAllBytes(path, context.OutputModules[i]);
 			}
 			File.WriteAllBytes(Path.Combine(tmpDir, fileName), module);
 
 			var proj = new ConfuserProject();
 			proj.Seed = context.Project.Seed;
 			foreach (Rule rule in context.Project.Rules)
-				proj.Rules.Add(rule);
-			proj.Add(new ProjectModule {
+            {
+                proj.Rules.Add(rule);
+            }
+
+            proj.Add(new ProjectModule {
 				Path = fileName
 			});
 			proj.BaseDirectory = tmpDir;
 			proj.OutputDirectory = outDir;
 			foreach (var path in context.Project.ProbePaths)
-				proj.ProbePaths.Add(path);
-			proj.ProbePaths.Add(context.Project.BaseDirectory);
+            {
+                proj.ProbePaths.Add(path);
+            }
+
+            proj.ProbePaths.Add(context.Project.BaseDirectory);
 
 			PluginDiscovery discovery = null;
 			if (prot != null) {
@@ -145,8 +154,11 @@ namespace Confuser.Core {
 
 		public void Finish(bool successful) {
 			if (!successful)
-				throw new ConfuserException(null);
-			baseLogger.Info("Finish protecting packer stub.");
+            {
+                throw new ConfuserException(null);
+            }
+
+            baseLogger.Info("Finish protecting packer stub.");
 		}
 	}
 
@@ -160,8 +172,11 @@ namespace Confuser.Core {
 		protected internal override MarkerResult MarkProject(ConfuserProject proj, ConfuserContext context) {
 			MarkerResult result = base.MarkProject(proj, context);
 			foreach (ModuleDefMD module in result.Modules)
-				context.Annotations.Set(module, SNKey, snKey);
-			return result;
+            {
+                context.Annotations.Set(module, SNKey, snKey);
+            }
+
+            return result;
 		}
 	}
 

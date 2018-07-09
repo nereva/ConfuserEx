@@ -10,8 +10,10 @@ namespace ConfuserEx.ViewModel {
 
 		protected virtual void OnPropertyChanged(string property) {
 			if (PropertyChanged != null)
-				PropertyChanged(this, new PropertyChangedEventArgs(property));
-		}
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(property));
+            }
+        }
 
 		protected bool SetProperty<T>(ref T field, T value, string property) {
 			if (!EqualityComparer<T>.Default.Equals(field, value)) {

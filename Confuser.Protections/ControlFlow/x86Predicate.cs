@@ -25,9 +25,11 @@ namespace Confuser.Protections.ControlFlow {
 
 		public void Init(CilBody body) {
 			if (inited)
-				return;
+            {
+                return;
+            }
 
-			encoding = ctx.Context.Annotations.Get<x86Encoding>(ctx.Method.DeclaringType, Encoding, null);
+            encoding = ctx.Context.Annotations.Get<x86Encoding>(ctx.Method.DeclaringType, Encoding, null);
 			if (encoding == null) {
 				encoding = new x86Encoding();
 				encoding.Compile(ctx);

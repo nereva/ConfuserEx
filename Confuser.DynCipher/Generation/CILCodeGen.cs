@@ -124,8 +124,10 @@ namespace Confuser.DynCipher.Generation {
 				LoadVar(var.Variable);
 			}
 			else
-				throw new NotSupportedException();
-		}
+            {
+                throw new NotSupportedException();
+            }
+        }
 
 		void EmitStore(Expression exp, Expression value) {
 			if (exp is ArrayIndexExpression) {
@@ -141,8 +143,10 @@ namespace Confuser.DynCipher.Generation {
 				StoreVar(var.Variable);
 			}
 			else
-				throw new NotSupportedException();
-		}
+            {
+                throw new NotSupportedException();
+            }
+        }
 
 		void EmitStatement(Statement statement) {
 			if (statement is AssignmentStatement) {
@@ -173,9 +177,11 @@ namespace Confuser.DynCipher.Generation {
 				Emit(lbl);
 
 				foreach (Statement child in loop.Statements)
-					EmitStatement(child);
+                {
+                    EmitStatement(child);
+                }
 
-				Emit(Instruction.CreateLdcI4(1));
+                Emit(Instruction.CreateLdcI4(1));
 				Emit(Instruction.Create(OpCodes.Add));
 				Emit(dup);
 				Emit(Instruction.CreateLdcI4(loop.Limit));
@@ -184,10 +190,14 @@ namespace Confuser.DynCipher.Generation {
 			}
 			else if (statement is StatementBlock) {
 				foreach (Statement child in ((StatementBlock)statement).Statements)
-					EmitStatement(child);
-			}
+                {
+                    EmitStatement(child);
+                }
+            }
 			else
-				throw new NotSupportedException();
-		}
+            {
+                throw new NotSupportedException();
+            }
+        }
 	}
 }

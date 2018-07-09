@@ -41,13 +41,18 @@ namespace SevenZip.Buffer {
 		public void WriteByte(byte b) {
 			m_Buffer[m_Pos++] = b;
 			if (m_Pos >= m_BufferSize)
-				FlushData();
-		}
+            {
+                FlushData();
+            }
+        }
 
 		public void FlushData() {
 			if (m_Pos == 0)
-				return;
-			m_Stream.Write(m_Buffer, 0, (int)m_Pos);
+            {
+                return;
+            }
+
+            m_Stream.Write(m_Buffer, 0, (int)m_Pos);
 			m_Pos = 0;
 		}
 

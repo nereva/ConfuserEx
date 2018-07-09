@@ -105,16 +105,26 @@ namespace Confuser.Core {
 		/// <returns>The phase with specified type in the pipeline.</returns>
 		public T FindPhase<T>() where T : ProtectionPhase {
 			foreach (var phases in preStage.Values)
-				foreach (ProtectionPhase phase in phases) {
+            {
+                foreach (ProtectionPhase phase in phases) {
 					if (phase is T)
-						return (T)phase;
-				}
-			foreach (var phases in postStage.Values)
-				foreach (ProtectionPhase phase in phases) {
+                    {
+                        return (T)phase;
+                    }
+                }
+            }
+
+            foreach (var phases in postStage.Values)
+            {
+                foreach (ProtectionPhase phase in phases) {
 					if (phase is T)
-						return (T)phase;
-				}
-			return null;
+                    {
+                        return (T)phase;
+                    }
+                }
+            }
+
+            return null;
 		}
 
 		/// <summary>
@@ -152,21 +162,41 @@ namespace Confuser.Core {
 
 			IEnumerable<IDnlibDef> filter = targets;
 			if ((targetType & ProtectionTargets.Modules) == 0)
-				filter = filter.Where(def => !(def is ModuleDef));
-			if ((targetType & ProtectionTargets.Types) == 0)
-				filter = filter.Where(def => !(def is TypeDef));
-			if ((targetType & ProtectionTargets.Methods) == 0)
-				filter = filter.Where(def => !(def is MethodDef));
-			if ((targetType & ProtectionTargets.Fields) == 0)
-				filter = filter.Where(def => !(def is FieldDef));
-			if ((targetType & ProtectionTargets.Properties) == 0)
-				filter = filter.Where(def => !(def is PropertyDef));
-			if ((targetType & ProtectionTargets.Events) == 0)
-				filter = filter.Where(def => !(def is EventDef));
+            {
+                filter = filter.Where(def => !(def is ModuleDef));
+            }
 
-			if (phase.ProcessAll)
-				return filter.ToList();
-			return filter.Where(def => {
+            if ((targetType & ProtectionTargets.Types) == 0)
+            {
+                filter = filter.Where(def => !(def is TypeDef));
+            }
+
+            if ((targetType & ProtectionTargets.Methods) == 0)
+            {
+                filter = filter.Where(def => !(def is MethodDef));
+            }
+
+            if ((targetType & ProtectionTargets.Fields) == 0)
+            {
+                filter = filter.Where(def => !(def is FieldDef));
+            }
+
+            if ((targetType & ProtectionTargets.Properties) == 0)
+            {
+                filter = filter.Where(def => !(def is PropertyDef));
+            }
+
+            if ((targetType & ProtectionTargets.Events) == 0)
+            {
+                filter = filter.Where(def => !(def is EventDef));
+            }
+
+            if (phase.ProcessAll)
+            {
+                return filter.ToList();
+            }
+
+            return filter.Where(def => {
 				ProtectionSettings parameters = ProtectionParameters.GetParameters(context, def);
 				Debug.Assert(parameters != null);
 				if (parameters == null) {

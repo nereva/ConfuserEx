@@ -12,16 +12,23 @@ namespace Confuser.Renamer.Analyzers {
 		public void Analyze(ConfuserContext context, INameService service, ProtectionParameters parameters, IDnlibDef def) {
 			if (def is ModuleDef) {
 				foreach (var type in ((ModuleDef)def).GetTypes())
-					foreach (var prop in type.Properties)
-						properties.AddListEntry(prop.Name, prop);
-				return;
+                {
+                    foreach (var prop in type.Properties)
+                    {
+                        properties.AddListEntry(prop.Name, prop);
+                    }
+                }
+
+                return;
 			}
 
 			var method = def as MethodDef;
 			if (method == null || !method.HasBody)
-				return;
+            {
+                return;
+            }
 
-			AnalyzeMethod(context, service, method);
+            AnalyzeMethod(context, service, method);
 		}
 
 		void AnalyzeMethod(ConfuserContext context, INameService service, MethodDef method) {
@@ -43,9 +50,11 @@ namespace Confuser.Renamer.Analyzers {
 			}
 
 			if (binding.Count == 0)
-				return;
+            {
+                return;
+            }
 
-			var traceSrv = context.Registry.GetService<ITraceService>();
+            var traceSrv = context.Registry.GetService<ITraceService>();
 			MethodTrace trace = traceSrv.Trace(method);
 
 			bool erred = false;
@@ -53,47 +62,66 @@ namespace Confuser.Renamer.Analyzers {
 				int[] args = trace.TraceArguments(instrInfo.Item2);
 				if (args == null) {
 					if (!erred)
-						context.Logger.WarnFormat("Failed to extract binding property name in '{0}'.", method.FullName);
-					erred = true;
+                    {
+                        context.Logger.WarnFormat("Failed to extract binding property name in '{0}'.", method.FullName);
+                    }
+
+                    erred = true;
 					continue;
 				}
 
 				Instruction propertyName = method.Body.Instructions[args[0 + (instrInfo.Item1 ? 1 : 0)]];
 				if (propertyName.OpCode.Code != Code.Ldstr) {
 					if (!erred)
-						context.Logger.WarnFormat("Failed to extract binding property name in '{0}'.", method.FullName);
-					erred = true;
+                    {
+                        context.Logger.WarnFormat("Failed to extract binding property name in '{0}'.", method.FullName);
+                    }
+
+                    erred = true;
 				}
 				else {
 					List<PropertyDef> props;
 					if (!properties.TryGetValue((string)propertyName.Operand, out props)) {
 						if (!erred)
-							context.Logger.WarnFormat("Failed to extract target property in '{0}'.", method.FullName);
-						erred = true;
+                        {
+                            context.Logger.WarnFormat("Failed to extract target property in '{0}'.", method.FullName);
+                        }
+
+                        erred = true;
 					}
 					else {
 						foreach (var property in props)
-							service.SetCanRename(property, false);
-					}
+                        {
+                            service.SetCanRename(property, false);
+                        }
+                    }
 				}
 
 				Instruction dataMember = method.Body.Instructions[args[2 + (instrInfo.Item1 ? 1 : 0)]];
 				if (dataMember.OpCode.Code != Code.Ldstr) {
 					if (!erred)
-						context.Logger.WarnFormat("Failed to extract binding property name in '{0}'.", method.FullName);
-					erred = true;
+                    {
+                        context.Logger.WarnFormat("Failed to extract binding property name in '{0}'.", method.FullName);
+                    }
+
+                    erred = true;
 				}
 				else {
 					List<PropertyDef> props;
 					if (!properties.TryGetValue((string)dataMember.Operand, out props)) {
 						if (!erred)
-							context.Logger.WarnFormat("Failed to extract target property in '{0}'.", method.FullName);
-						erred = true;
+                        {
+                            context.Logger.WarnFormat("Failed to extract target property in '{0}'.", method.FullName);
+                        }
+
+                        erred = true;
 					}
 					else {
 						foreach (var property in props)
-							service.SetCanRename(property, false);
-					}
+                        {
+                            service.SetCanRename(property, false);
+                        }
+                    }
 				}
 			}
 		}

@@ -40,8 +40,10 @@ namespace Confuser.Runtime {
 			for (int i = 0; i < j.Length; i++) {
 				j[i] ^= (byte)s;
 				if ((i & 0xff) == 0)
-					s = (s * s) % 0x8a5cb7;
-			}
+                {
+                    s = (s * s) % 0x8a5cb7;
+                }
+            }
 			return g;
 		}
 
@@ -64,11 +66,17 @@ namespace Confuser.Runtime {
 			MethodBase e = a.ManifestModule.ResolveMethod(key[0] | (key[1] << 8) | (key[2] << 16) | (key[3] << 24));
 			var g = new object[e.GetParameters().Length];
 			if (g.Length != 0)
-				g[0] = args;
-			object r = e.Invoke(null, g);
+            {
+                g[0] = args;
+            }
+
+            object r = e.Invoke(null, g);
 			if (r is int)
-				return (int)r;
-			return 0;
+            {
+                return (int)r;
+            }
+
+            return 0;
 		}
 
 		static Assembly Resolve(object sender, ResolveEventArgs e) {
@@ -77,8 +85,11 @@ namespace Confuser.Runtime {
 			Stream m = null;
 			if (b.Length + 4 <= key.Length) {
 				for (int i = 0; i < b.Length; i++)
-					b[i] *= key[i + 4];
-				string n = Convert.ToBase64String(b);
+                {
+                    b[i] *= key[i + 4];
+                }
+
+                string n = Convert.ToBase64String(b);
 				m = Assembly.GetEntryAssembly().GetManifestResourceStream(n);
 			}
 			if (m != null) {
@@ -92,8 +103,11 @@ namespace Confuser.Runtime {
 				}
 				uint s = 0x6fff61;
 				foreach (byte c in b)
-					s = s * 0x5e3f1f + c;
-				GCHandle h = Decrypt(d, s);
+                {
+                    s = s * 0x5e3f1f + c;
+                }
+
+                GCHandle h = Decrypt(d, s);
 
 				var f = (byte[])h.Target;
 				Assembly a = Assembly.Load(f);

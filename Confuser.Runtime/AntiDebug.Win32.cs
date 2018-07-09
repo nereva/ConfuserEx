@@ -9,9 +9,11 @@ namespace Confuser.Runtime {
 			string x = "COR";
 			if (Environment.GetEnvironmentVariable(x + "_PROFILER") != null ||
 			    Environment.GetEnvironmentVariable(x + "_ENABLE_PROFILING") != null)
-				Environment.FailFast(null);
+            {
+                Environment.FailFast(null);
+            }
 
-			var thread = new Thread(Worker);
+            var thread = new Thread(Worker);
 			thread.IsBackground = true;
 			thread.Start(null);
 		}
@@ -36,24 +38,33 @@ namespace Confuser.Runtime {
 			while (true) {
 				// Managed
 				if (Debugger.IsAttached || Debugger.IsLogging())
-					Environment.FailFast("");
+                {
+                    Environment.FailFast("");
+                }
 
-				// IsDebuggerPresent
-				if (IsDebuggerPresent())
-					Environment.FailFast("");
+                // IsDebuggerPresent
+                if (IsDebuggerPresent())
+                {
+                    Environment.FailFast("");
+                }
 
-				// OpenProcess
-				Process ps = Process.GetCurrentProcess();
+                // OpenProcess
+                Process ps = Process.GetCurrentProcess();
 				if (ps.Handle == IntPtr.Zero)
-					Environment.FailFast("");
-				ps.Close();
+                {
+                    Environment.FailFast("");
+                }
+
+                ps.Close();
 
 				// OutputDebugString
 				if (OutputDebugString("") > IntPtr.Size)
-					Environment.FailFast("");
+                {
+                    Environment.FailFast("");
+                }
 
-				// CloseHandle
-				try {
+                // CloseHandle
+                try {
 					CloseHandle(IntPtr.Zero);
 				}
 				catch {
@@ -61,9 +72,11 @@ namespace Confuser.Runtime {
 				}
 
 				if (!th.IsAlive)
-					Environment.FailFast("");
+                {
+                    Environment.FailFast("");
+                }
 
-				Thread.Sleep(1000);
+                Thread.Sleep(1000);
 			}
 		}
 	}

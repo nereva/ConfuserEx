@@ -10,39 +10,53 @@ namespace Confuser.DynCipher.Transforms {
 
 		static IEnumerable<Variable> GetVariableUsage(Expression exp) {
 			if (exp is VariableExpression)
-				yield return ((VariableExpression)exp).Variable;
-			else if (exp is ArrayIndexExpression) {
+            {
+                yield return ((VariableExpression)exp).Variable;
+            }
+            else if (exp is ArrayIndexExpression) {
 				foreach (Variable i in GetVariableUsage(((ArrayIndexExpression)exp).Array))
-					yield return i;
-			}
+                {
+                    yield return i;
+                }
+            }
 			else if (exp is BinOpExpression) {
 				foreach (Variable i in GetVariableUsage(((BinOpExpression)exp).Left)
 					.Concat(GetVariableUsage(((BinOpExpression)exp).Right)))
-					yield return i;
-			}
+                {
+                    yield return i;
+                }
+            }
 			else if (exp is UnaryOpExpression) {
 				foreach (Variable i in GetVariableUsage(((UnaryOpExpression)exp).Value))
-					yield return i;
-			}
+                {
+                    yield return i;
+                }
+            }
 		}
 
 		static IEnumerable<Variable> GetVariableUsage(Statement st) {
 			if (st is AssignmentStatement) {
 				foreach (Variable i in GetVariableUsage(((AssignmentStatement)st).Value))
-					yield return i;
-			}
+                {
+                    yield return i;
+                }
+            }
 		}
 
 		static IEnumerable<Variable> GetVariableDefinition(Expression exp) {
 			if (exp is VariableExpression)
-				yield return ((VariableExpression)exp).Variable;
-		}
+            {
+                yield return ((VariableExpression)exp).Variable;
+            }
+        }
 
 		static IEnumerable<Variable> GetVariableDefinition(Statement st) {
 			if (st is AssignmentStatement) {
 				foreach (Variable i in GetVariableDefinition(((AssignmentStatement)st).Target))
-					yield return i;
-			}
+                {
+                    yield return i;
+                }
+            }
 		}
 
 
@@ -54,8 +68,10 @@ namespace Confuser.DynCipher.Transforms {
 			for (int i = startIndex - 1; i >= 0; i--) {
 				if (context.Usages[block.Statements[i]].Intersect(definition).Count() > 0 ||
 				    context.Definitions[block.Statements[i]].Intersect(usage).Count() > 0)
-					return i;
-			}
+                {
+                    return i;
+                }
+            }
 			return 0;
 		}
 
@@ -65,8 +81,10 @@ namespace Confuser.DynCipher.Transforms {
 			for (int i = startIndex + 1; i < block.Statements.Count; i++) {
 				if (context.Usages[block.Statements[i]].Intersect(definition).Count() > 0 ||
 				    context.Definitions[block.Statements[i]].Intersect(usage).Count() > 0)
-					return i;
-			}
+                {
+                    return i;
+                }
+            }
 			return block.Statements.Count - 1;
 		}
 
@@ -88,8 +106,12 @@ namespace Confuser.DynCipher.Transforms {
 
 					// Move to a random spot in the interval
 					int newIndex = defIndex + random.NextInt32(1, useIndex - defIndex);
-					if (newIndex > index) newIndex--;
-					block.Statements.RemoveAt(index);
+					if (newIndex > index)
+                    {
+                        newIndex--;
+                    }
+
+                    block.Statements.RemoveAt(index);
 					block.Statements.Insert(newIndex, st);
 				}
 			}

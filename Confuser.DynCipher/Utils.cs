@@ -10,14 +10,25 @@ namespace Confuser.DynCipher {
 			ulong a = mod, b = num % mod;
 			ulong p0 = 0, p1 = 1;
 			while (b != 0) {
-				if (b == 1) return p1;
-				p0 += (a / b) * p1;
+				if (b == 1)
+                {
+                    return p1;
+                }
+
+                p0 += (a / b) * p1;
 				a = a % b;
 
-				if (a == 0) break;
-				if (a == 1) return mod - p0;
+				if (a == 0)
+                {
+                    break;
+                }
 
-				p1 += (b / a) * p0;
+                if (a == 1)
+                {
+                    return mod - p0;
+                }
+
+                p1 += (b / a) * p0;
 				b = b % a;
 			}
 			return 0;
@@ -68,12 +79,16 @@ namespace Confuser.DynCipher {
 				writer.Write(new byte[] { 0x51 });
 
 				foreach (x86Instruction i in codeGen.Instructions)
-					writer.Write(i.Assemble());
+                {
+                    writer.Write(i.Assemble());
+                }
 
-				if (reg != x86Register.EAX)
-					writer.Write(x86Instruction.Create(x86OpCode.MOV, new x86RegisterOperand(x86Register.EAX), new x86RegisterOperand(reg)).Assemble());
+                if (reg != x86Register.EAX)
+                {
+                    writer.Write(x86Instruction.Create(x86OpCode.MOV, new x86RegisterOperand(x86Register.EAX), new x86RegisterOperand(reg)).Assemble());
+                }
 
-				writer.Write(new byte[] { 0x5e });
+                writer.Write(new byte[] { 0x5e });
 				writer.Write(new byte[] { 0x5f });
 				writer.Write(new byte[] { 0x5b });
 				writer.Write(new byte[] { 0xc3 });

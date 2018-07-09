@@ -132,8 +132,11 @@ namespace Confuser.Renamer.BAML {
 							// Note: it may be a WPF bug that if the value is "^  " (2 spaces after caret), all spaces will be trimmed.
 							// According to http://msdn.microsoft.com/en-us/library/ms742451.aspx, the result should have one space.
 							if (trim)
-								value.TrimEnd();
-							args.Add(new PropertyPathIndexer {
+                            {
+                                value.TrimEnd();
+                            }
+
+                            args.Add(new PropertyPathIndexer {
 								Type = typeString.ToString(),
 								Value = value
 							});
@@ -144,17 +147,25 @@ namespace Confuser.Renamer.BAML {
 
 							index++;
 							if (c == ',')
-								state = STATE_WAIT;
-							else
-								state = STATE_DONE;
-						}
+                            {
+                                state = STATE_WAIT;
+                            }
+                            else
+                            {
+                                state = STATE_DONE;
+                            }
+                        }
 						else {
 							valueString.Append(path[index++]);
 							if (c == ' ' && level == 0)
-								trim = true;
-							else
-								trim = false;
-						}
+                            {
+                                trim = true;
+                            }
+                            else
+                            {
+                                trim = false;
+                            }
+                        }
 						break;
 				}
 			}
@@ -167,17 +178,23 @@ namespace Confuser.Renamer.BAML {
 		static PropertyPathPart ReadProperty(string path, ref int index, bool? isHiera) {
 			int begin = index;
 			while (index < path.Length && path[index] == '.')
-				index++;
+            {
+                index++;
+            }
 
-			int level = 0;
+            int level = 0;
 			// If in brackets, read until not in bracket, ignoring special chars.
 			while (index < path.Length && (level > 0 || Array.IndexOf(SpecialChars, path[index]) == -1)) {
 				if (path[index] == '(')
-					level++;
-				else if (path[index] == ')')
-					level--;
+                {
+                    level++;
+                }
+                else if (path[index] == ')')
+                {
+                    level--;
+                }
 
-				index++;
+                index++;
 			}
 
 			string name = path.Substring(begin, index - begin).Trim();
@@ -187,9 +204,11 @@ namespace Confuser.Renamer.BAML {
 
 		static PropertyPathPart[] Parse(string path) {
 			if (string.IsNullOrEmpty(path))
-				return new[] { new PropertyPathPart(true, null, "") };
+            {
+                return new[] { new PropertyPathPart(true, null, "") };
+            }
 
-			var ret = new List<PropertyPathPart>();
+            var ret = new List<PropertyPathPart>();
 			bool? isHiera = null;
 			int index = 0;
 			while (index < path.Length) {
@@ -226,10 +245,14 @@ namespace Confuser.Renamer.BAML {
 			foreach (PropertyPathPart part in parts) {
 				if (part.IsHierarchical.HasValue) {
 					if (part.IsHierarchical.Value)
-						ret.Append("/");
-					else
-						ret.Append(".");
-				}
+                    {
+                        ret.Append("/");
+                    }
+                    else
+                    {
+                        ret.Append(".");
+                    }
+                }
 
 				ret.Append(part.Name);
 
@@ -237,21 +260,32 @@ namespace Confuser.Renamer.BAML {
 					PropertyPathIndexer[] args = part.IndexerArguments;
 					for (int i = 0; i < args.Length; i++) {
 						if (i == 0)
-							ret.Append("[");
-						else
-							ret.Append(",");
+                        {
+                            ret.Append("[");
+                        }
+                        else
+                        {
+                            ret.Append(",");
+                        }
 
-						if (!string.IsNullOrEmpty(args[i].Type))
-							ret.AppendFormat("({0})", args[i].Type);
+                        if (!string.IsNullOrEmpty(args[i].Type))
+                        {
+                            ret.AppendFormat("({0})", args[i].Type);
+                        }
 
-						if (!string.IsNullOrEmpty(args[i].Value))
-							foreach (char c in args[i].Value) {
+                        if (!string.IsNullOrEmpty(args[i].Value))
+                        {
+                            foreach (char c in args[i].Value) {
 								// Too lazy to write all the level detection, just be safe, and escape all special chars.
 								if (c == '[' || c == ']' || c == ' ')
-									ret.Append("^");
-								ret.Append(c);
+                                {
+                                    ret.Append("^");
+                                }
+
+                                ret.Append(c);
 							}
-					}
+                        }
+                    }
 					ret.Append("]");
 				}
 			}

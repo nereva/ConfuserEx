@@ -69,10 +69,15 @@ namespace ConfuserEx.ViewModel {
 		public ProjectSettingVM<Packer> Packer {
 			get {
 				if (proj.Packer == null)
-					packer = null;
-				else
-					packer = new ProjectSettingVM<Packer>(this, proj.Packer);
-				return packer;
+                {
+                    packer = null;
+                }
+                else
+                {
+                    packer = new ProjectSettingVM<Packer>(this, proj.Packer);
+                }
+
+                return packer;
 			}
 			set {
 				var vm = (IViewModel<SettingItem<Packer>>)value;
@@ -98,7 +103,9 @@ namespace ConfuserEx.ViewModel {
 		protected override void OnPropertyChanged(string property) {
 			base.OnPropertyChanged(property);
 			if (property != "IsModified")
-				IsModified = true;
-		}
+            {
+                IsModified = true;
+            }
+        }
 	}
 }

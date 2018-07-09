@@ -15,18 +15,27 @@ namespace ConfuserEx.ViewModel {
 					case NotifyCollectionChangedAction.Reset:
 						list.Clear();
 						foreach (T item in collection)
-							list.Add(item);
-						break;
+                        {
+                            list.Add(item);
+                        }
+
+                        break;
 
 					case NotifyCollectionChangedAction.Add:
 						for (int i = 0; i < e.NewItems.Count; i++)
-							list.Insert(e.NewStartingIndex + i, (T)e.NewItems[i]);
-						break;
+                        {
+                            list.Insert(e.NewStartingIndex + i, (T)e.NewItems[i]);
+                        }
+
+                        break;
 
 					case NotifyCollectionChangedAction.Remove:
 						for (int i = 0; i < e.OldItems.Count; i++)
-							list.RemoveAt(e.OldStartingIndex);
-						break;
+                        {
+                            list.RemoveAt(e.OldStartingIndex);
+                        }
+
+                        break;
 
 					case NotifyCollectionChangedAction.Move:
 						list.RemoveAt(e.OldStartingIndex);
@@ -50,18 +59,27 @@ namespace ConfuserEx.ViewModel {
 					case NotifyCollectionChangedAction.Reset:
 						list.Clear();
 						foreach (TViewModel item in collection)
-							list.Add(item.Model);
-						break;
+                        {
+                            list.Add(item.Model);
+                        }
+
+                        break;
 
 					case NotifyCollectionChangedAction.Add:
 						for (int i = 0; i < e.NewItems.Count; i++)
-							list.Insert(e.NewStartingIndex + i, ((TViewModel)e.NewItems[i]).Model);
-						break;
+                        {
+                            list.Insert(e.NewStartingIndex + i, ((TViewModel)e.NewItems[i]).Model);
+                        }
+
+                        break;
 
 					case NotifyCollectionChangedAction.Remove:
 						for (int i = 0; i < e.OldItems.Count; i++)
-							list.RemoveAt(e.OldStartingIndex);
-						break;
+                        {
+                            list.RemoveAt(e.OldStartingIndex);
+                        }
+
+                        break;
 
 					case NotifyCollectionChangedAction.Move:
 						list.RemoveAt(e.OldStartingIndex);

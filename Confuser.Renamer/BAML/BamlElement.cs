@@ -105,20 +105,28 @@ namespace Confuser.Renamer.BAML {
 				}
 				else if (IsFooter(document[i])) {
 					if (current == null)
-						throw new Exception("Unexpected footer.");
+                    {
+                        throw new Exception("Unexpected footer.");
+                    }
 
-					while (!IsMatch(current.Header, document[i])) {
+                    while (!IsMatch(current.Header, document[i])) {
 						// End record can be omited (sometimes).
 						if (stack.Count > 0)
-							current = stack.Pop();
-					}
+                        {
+                            current = stack.Pop();
+                        }
+                    }
 					current.Footer = document[i];
 					if (stack.Count > 0)
-						current = stack.Pop();
-				}
+                    {
+                        current = stack.Pop();
+                    }
+                }
 				else
-					current.Body.Add(document[i]);
-			}
+                {
+                    current.Body.Add(document[i]);
+                }
+            }
 			Debug.Assert(stack.Count == 0);
 			return current;
 		}

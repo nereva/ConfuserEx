@@ -99,12 +99,18 @@ namespace Confuser.Core.Project {
 		public override string ToString() {
 			if (Position != null) {
 				if (Value != null)
-					return string.Format("[{0}] {1} @ {2}", Type, Value, Position);
-				return string.Format("[{0}] @ {1}", Type, Position);
+                {
+                    return string.Format("[{0}] {1} @ {2}", Type, Value, Position);
+                }
+
+                return string.Format("[{0}] @ {1}", Type, Position);
 			}
 			if (Value != null)
-				return string.Format("[{0}] {1}", Type, Value);
-			return string.Format("[{0}]", Type);
+            {
+                return string.Format("[{0}] {1}", Type, Value);
+            }
+
+            return string.Format("[{0}]", Type);
 		}
 	}
 }

@@ -21,10 +21,15 @@ namespace Confuser.Renamer.References {
 
 		public bool UpdateNameReference(ConfuserContext context, INameService service) {
 			if (attrRec != null)
-				attrRec.Name = member.Name;
-			else
-				propRec.Value = member.Name;
-			return true;
+            {
+                attrRec.Name = member.Name;
+            }
+            else
+            {
+                propRec.Value = member.Name;
+            }
+
+            return true;
 		}
 
 		public bool ShouldCancelRename() {

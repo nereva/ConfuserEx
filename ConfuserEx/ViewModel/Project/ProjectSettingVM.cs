@@ -15,16 +15,20 @@ namespace ConfuserEx.ViewModel {
 			get { return setting.Id; }
 			set {
 				if (SetProperty(setting.Id != value, val => setting.Id = val, value, "Id"))
-					parent.IsModified = true;
-			}
+                {
+                    parent.IsModified = true;
+                }
+            }
 		}
 
 		public SettingItemAction Action {
 			get { return setting.Action; }
 			set {
 				if (SetProperty(setting.Action != value, val => setting.Action = val, value, "Action"))
-					parent.IsModified = true;
-			}
+                {
+                    parent.IsModified = true;
+                }
+            }
 		}
 
 		SettingItem<T> IViewModel<SettingItem<T>>.Model {

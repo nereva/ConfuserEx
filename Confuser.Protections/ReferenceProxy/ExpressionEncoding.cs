@@ -60,11 +60,15 @@ namespace Confuser.Protections.ReferenceProxy {
 			protected override void LoadVar(Variable var) {
 				if (var.Name == "{RESULT}") {
 					foreach (Instruction instr in arg)
-						Emit(instr);
-				}
+                    {
+                        Emit(instr);
+                    }
+                }
 				else
-					base.LoadVar(var);
-			}
+                {
+                    base.LoadVar(var);
+                }
+            }
 		}
 	}
 }

@@ -38,8 +38,10 @@ namespace Confuser.Core.API {
 				var list = dataStores[i];
 				for (int j = list.Count - 1; j >= 0; i--) {
 					if (list[j].IsUsable(method))
-						return list[j];
-				}
+                    {
+                        return list[j];
+                    }
+                }
 			}
 			return null;
 		}
@@ -52,8 +54,10 @@ namespace Confuser.Core.API {
 				if (predicate.IsUsable(method) &&
 				    (type == null || predicate.Type == type.Value) &&
 				    (argCount == null || Array.IndexOf(argCount, predicate.ArgumentCount) != -1))
-					return predicate;
-			}
+                {
+                    return predicate;
+                }
+            }
 			return null;
 		}
 	}

@@ -22,20 +22,29 @@ namespace Confuser.Core.Project.Patterns {
 		/// <inheritdoc />
 		public override object Evaluate(IDnlibDef definition) {
 			if (!(definition is TypeDef) && !(definition is IMemberDef))
-				return false;
-			var ns = "^" + Arguments[0].Evaluate(definition).ToString() + "$";
+            {
+                return false;
+            }
+
+            var ns = "^" + Arguments[0].Evaluate(definition).ToString() + "$";
 
 			var type = definition as TypeDef;
 			if (type == null)
-				type = ((IMemberDef)definition).DeclaringType;
+            {
+                type = ((IMemberDef)definition).DeclaringType;
+            }
 
-			if (type == null)
-				return false;
+            if (type == null)
+            {
+                return false;
+            }
 
-			while (type.IsNested)
-				type = type.DeclaringType;
+            while (type.IsNested)
+            {
+                type = type.DeclaringType;
+            }
 
-			return type != null && Regex.IsMatch(type.Namespace ?? "", ns);
+            return type != null && Regex.IsMatch(type.Namespace ?? "", ns);
 		}
 	}
 }

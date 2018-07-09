@@ -19,8 +19,10 @@ namespace ConfuserEx.ViewModel {
 			: base(app, "Settings") {
 			app.PropertyChanged += (sender, e) => {
 				if (e.PropertyName == "Project")
-					InitProject();
-			};
+                {
+                    InitProject();
+                }
+            };
 			InitProject();
 		}
 
@@ -35,8 +37,10 @@ namespace ConfuserEx.ViewModel {
 			get { return selectedList; }
 			set {
 				if (SetProperty(ref selectedList, value, "SelectedList"))
-					SelectedRuleIndex = -1;
-			}
+                {
+                    SelectedRuleIndex = -1;
+                }
+            }
 		}
 
 		public int SelectedRuleIndex {
@@ -95,10 +99,14 @@ namespace ConfuserEx.ViewModel {
 		protected override void OnPropertyChanged(string property) {
 			if (property == "HasPacker") {
 				if (hasPacker && App.Project.Packer == null)
-					App.Project.Packer = new ProjectSettingVM<Packer>(App.Project, new SettingItem<Packer> { Id = App.Project.Packers[0].Id });
-				else if (!hasPacker)
-					App.Project.Packer = null;
-			}
+                {
+                    App.Project.Packer = new ProjectSettingVM<Packer>(App.Project, new SettingItem<Packer> { Id = App.Project.Packers[0].Id });
+                }
+                else if (!hasPacker)
+                {
+                    App.Project.Packer = null;
+                }
+            }
 			base.OnPropertyChanged(property);
 		}
 	}

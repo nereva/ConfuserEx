@@ -16,8 +16,11 @@ namespace Confuser.Protections.ControlFlow {
 			static void Increment(Dictionary<uint, int> counts, uint key) {
 				int value;
 				if (!counts.TryGetValue(key, out value))
-					value = 0;
-				counts[key] = value + 1;
+                {
+                    value = 0;
+                }
+
+                counts[key] = value + 1;
 			}
 
 			public Trace(CilBody body, bool hasReturnValue) {
@@ -32,17 +35,21 @@ namespace Confuser.Protections.ControlFlow {
 					BeforeStack[eh.TryStart.Offset] = 0;
 					BeforeStack[eh.HandlerStart.Offset] = (eh.HandlerType != ExceptionHandlerType.Finally ? 1 : 0);
 					if (eh.FilterStart != null)
-						BeforeStack[eh.FilterStart.Offset] = 1;
-				}
+                    {
+                        BeforeStack[eh.FilterStart.Offset] = 1;
+                    }
+                }
 
 				int currentStack = 0;
 				for (int i = 0; i < body.Instructions.Count; i++) {
 					var instr = body.Instructions[i];
 
 					if (BeforeStack.ContainsKey(instr.Offset))
-						currentStack = BeforeStack[instr.Offset];
+                    {
+                        currentStack = BeforeStack[instr.Offset];
+                    }
 
-					BeforeStack[instr.Offset] = currentStack;
+                    BeforeStack[instr.Offset] = currentStack;
 					instr.UpdateStack(ref currentStack, hasReturnValue);
 					AfterStack[instr.Offset] = currentStack;
 
@@ -51,33 +58,42 @@ namespace Confuser.Protections.ControlFlow {
 						case FlowControl.Branch:
 							offset = ((Instruction)instr.Operand).Offset;
 							if (!BeforeStack.ContainsKey(offset))
-								BeforeStack[offset] = currentStack;
+                            {
+                                BeforeStack[offset] = currentStack;
+                            }
 
-							Increment(RefCount, offset);
+                            Increment(RefCount, offset);
 							BrRefs.AddListEntry(offset, instr);
 
 							currentStack = 0;
 							continue;
 						case FlowControl.Call:
 							if (instr.OpCode.Code == Code.Jmp)
-								currentStack = 0;
-							break;
+                            {
+                                currentStack = 0;
+                            }
+
+                            break;
 						case FlowControl.Cond_Branch:
 							if (instr.OpCode.Code == Code.Switch) {
 								foreach (Instruction target in (Instruction[])instr.Operand) {
 									if (!BeforeStack.ContainsKey(target.Offset))
-										BeforeStack[target.Offset] = currentStack;
+                                    {
+                                        BeforeStack[target.Offset] = currentStack;
+                                    }
 
-									Increment(RefCount, target.Offset);
+                                    Increment(RefCount, target.Offset);
 									BrRefs.AddListEntry(target.Offset, instr);
 								}
 							}
 							else {
 								offset = ((Instruction)instr.Operand).Offset;
 								if (!BeforeStack.ContainsKey(offset))
-									BeforeStack[offset] = currentStack;
+                                {
+                                    BeforeStack[offset] = currentStack;
+                                }
 
-								Increment(RefCount, offset);
+                                Increment(RefCount, offset);
 								BrRefs.AddListEntry(offset, instr);
 							}
 							break;
@@ -102,15 +118,21 @@ namespace Confuser.Protections.ControlFlow {
 			public bool IsBranchTarget(uint offset) {
 				List<Instruction> src;
 				if (BrRefs.TryGetValue(offset, out src))
-					return src.Count > 0;
-				return false;
+                {
+                    return src.Count > 0;
+                }
+
+                return false;
 			}
 
 			public bool HasMultipleSources(uint offset) {
 				int src;
 				if (RefCount.TryGetValue(offset, out src))
-					return src > 1;
-				return false;
+                {
+                    return src > 1;
+                }
+
+                return false;
 			}
 		}
 
@@ -135,11 +157,15 @@ namespace Confuser.Protections.ControlFlow {
 						shouldSpilt = true;
 						if (trace.AfterStack[instr.Offset] != 0) {
 							if (instr.Operand is Instruction)
-								requiredInstr.Add((Instruction)instr.Operand);
-							else if (instr.Operand is Instruction[]) {
+                            {
+                                requiredInstr.Add((Instruction)instr.Operand);
+                            }
+                            else if (instr.Operand is Instruction[]) {
 								foreach (var target in (Instruction[])instr.Operand)
-									requiredInstr.Add(target);
-							}
+                                {
+                                    requiredInstr.Add(target);
+                                }
+                            }
 						}
 						break;
 				}
@@ -153,9 +179,11 @@ namespace Confuser.Protections.ControlFlow {
 			}
 
 			if (currentStatement.Count > 0)
-				statements.AddLast(currentStatement.ToArray());
+            {
+                statements.AddLast(currentStatement.ToArray());
+            }
 
-			return statements;
+            return statements;
 		}
 
 		static OpCode InverseBranch(OpCode opCode) {
@@ -217,14 +245,19 @@ namespace Confuser.Protections.ControlFlow {
 						Instruction lastInstr = statements.First.Value.Last();
 						statements.RemoveFirst();
 						if (lastInstr.OpCode == OpCodes.Call && ((IMethod)lastInstr.Operand).Name == ".ctor")
-							break;
-					}
+                        {
+                            break;
+                        }
+                    }
 					statements.AddFirst(newStatement.ToArray());
 				}
 
-				if (statements.Count < 3) continue;
+				if (statements.Count < 3)
+                {
+                    continue;
+                }
 
-				int i;
+                int i;
 
 				var keyId = Enumerable.Range(0, statements.Count).ToArray();
 				ctx.Random.Shuffle(keyId);
@@ -239,8 +272,11 @@ namespace Confuser.Protections.ControlFlow {
 				i = 0;
 				while (current != null) {
 					if (i != 0)
-						statementKeys[current.Value[0]] = key[i];
-					i++;
+                    {
+                        statementKeys[current.Value[0]] = key[i];
+                    }
+
+                    i++;
 					current = current.Next;
 				}
 
@@ -249,22 +285,31 @@ namespace Confuser.Protections.ControlFlow {
 				Func<IList<Instruction>, bool> hasUnknownSource;
 				hasUnknownSource = instrs => instrs.Any(instr => {
 					if (trace.HasMultipleSources(instr.Offset))
-						return true;
-					List<Instruction> srcs;
+                    {
+                        return true;
+                    }
+
+                    List<Instruction> srcs;
 					if (trace.BrRefs.TryGetValue(instr.Offset, out srcs)) {
 						// Target of switch => assume unknown
 						if (srcs.Any(src => src.Operand is Instruction[]))
-							return true;
+                        {
+                            return true;
+                        }
 
-						// Not within current instruction block / targeted in first statement
-						if (srcs.Any(src => src.Offset <= statements.First.Value.Last().Offset ||
+                        // Not within current instruction block / targeted in first statement
+                        if (srcs.Any(src => src.Offset <= statements.First.Value.Last().Offset ||
 						                    src.Offset >= block.Instructions.Last().Offset))
-							return true;
+                        {
+                            return true;
+                        }
 
-						// Not targeted by the last of statements
-						if (srcs.Any(src => statementLast.Contains(src)))
-							return true;
-					}
+                        // Not targeted by the last of statements
+                        if (srcs.Any(src => statementLast.Contains(src)))
+                        {
+                            return true;
+                        }
+                    }
 					return false;
 				});
 
@@ -405,9 +450,11 @@ namespace Confuser.Protections.ControlFlow {
 						}
 					}
 					else
-						operands[keyId[i]] = switchHdr[0];
+                    {
+                        operands[keyId[i]] = switchHdr[0];
+                    }
 
-					current.Value = newStatement.ToArray();
+                    current.Value = newStatement.ToArray();
 					current = current.Next;
 					i++;
 				}
@@ -426,8 +473,11 @@ namespace Confuser.Protections.ControlFlow {
 				block.Instructions.AddRange(first);
 				block.Instructions.AddRange(switchHdr);
 				foreach (var statement in newStatements)
-					block.Instructions.AddRange(statement);
-				block.Instructions.AddRange(last);
+                {
+                    block.Instructions.AddRange(statement);
+                }
+
+                block.Instructions.AddRange(last);
 			}
 		}
 	}

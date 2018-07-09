@@ -26,8 +26,11 @@ namespace Confuser.Core {
 			TValue defValue = default(TValue)) {
 			TValue ret;
 			if (dictionary.TryGetValue(key, out ret))
-				return ret;
-			return defValue;
+            {
+                return ret;
+            }
+
+            return defValue;
 		}
 
 		/// <summary>
@@ -45,8 +48,11 @@ namespace Confuser.Core {
 			Func<TKey, TValue> defValueFactory) {
 			TValue ret;
 			if (dictionary.TryGetValue(key, out ret))
-				return ret;
-			return defValueFactory(key);
+            {
+                return ret;
+            }
+
+            return defValueFactory(key);
 		}
 
 		/// <summary>
@@ -60,11 +66,17 @@ namespace Confuser.Core {
 		/// <exception cref="System.ArgumentNullException">key is <c>null</c>.</exception>
 		public static void AddListEntry<TKey, TValue>(this IDictionary<TKey, List<TValue>> self, TKey key, TValue value) {
 			if (key == null)
-				throw new ArgumentNullException("key");
-			List<TValue> list;
+            {
+                throw new ArgumentNullException("key");
+            }
+
+            List<TValue> list;
 			if (!self.TryGetValue(key, out list))
-				list = self[key] = new List<TValue>();
-			list.Add(value);
+            {
+                list = self[key] = new List<TValue>();
+            }
+
+            list.Add(value);
 		}
 
 		/// <summary>
@@ -92,8 +104,11 @@ namespace Confuser.Core {
 		/// <returns><c>null</c> if the input string is empty; otherwise, the original input string.</returns>
 		public static string NullIfEmpty(this string val) {
 			if (string.IsNullOrEmpty(val))
-				return null;
-			return val;
+            {
+                return null;
+            }
+
+            return val;
 		}
 
 		/// <summary>
@@ -115,11 +130,17 @@ namespace Confuser.Core {
 		/// <exception cref="System.ArgumentException">Length of the two buffers are not equal.</exception>
 		public static byte[] Xor(byte[] buffer1, byte[] buffer2) {
 			if (buffer1.Length != buffer2.Length)
-				throw new ArgumentException("Length mismatched.");
-			var ret = new byte[buffer1.Length];
+            {
+                throw new ArgumentException("Length mismatched.");
+            }
+
+            var ret = new byte[buffer1.Length];
 			for (int i = 0; i < ret.Length; i++)
-				ret[i] = (byte)(buffer1[i] ^ buffer2[i]);
-			return ret;
+            {
+                ret[i] = (byte)(buffer1[i] ^ buffer2[i]);
+            }
+
+            return ret;
 		}
 
 		/// <summary>
@@ -149,8 +170,11 @@ namespace Confuser.Core {
 				}
 			}
 			if (current != 0)
-				ret.Append(charset[current % charset.Length]);
-			return ret.ToString();
+            {
+                ret.Append(charset[current % charset.Length]);
+            }
+
+            return ret.ToString();
 		}
 
 		/// <summary>
@@ -210,8 +234,10 @@ namespace Confuser.Core {
 		public static IList<T> RemoveWhere<T>(this IList<T> self, Predicate<T> match) {
 			for (int i = self.Count - 1; i >= 0; i--) {
 				if (match(self[i]))
-					self.RemoveAt(i);
-			}
+                {
+                    self.RemoveAt(i);
+                }
+            }
 			return self;
 		}
 

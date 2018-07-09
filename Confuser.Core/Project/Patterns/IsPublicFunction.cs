@@ -22,27 +22,46 @@ namespace Confuser.Core.Project.Patterns {
 		public override object Evaluate(IDnlibDef definition) {
 			var member = definition as IMemberDef;
 			if (member == null)
-				return false;
+            {
+                return false;
+            }
 
-			var declType = ((IMemberDef)definition).DeclaringType;
+            var declType = ((IMemberDef)definition).DeclaringType;
 			while (declType != null) {
 				if (!declType.IsPublic)
-					return false;
-				declType = declType.DeclaringType;
+                {
+                    return false;
+                }
+
+                declType = declType.DeclaringType;
 			}
 
 			if (member is MethodDef)
-				return ((MethodDef)member).IsPublic;
-			if (member is FieldDef)
-				return ((FieldDef)member).IsPublic;
-			if (member is PropertyDef)
-				return ((PropertyDef)member).IsPublic();
-			if (member is EventDef)
-				return ((EventDef)member).IsPublic();
-			if (member is TypeDef)
-				return ((TypeDef)member).IsPublic || ((TypeDef)member).IsNestedPublic;
+            {
+                return ((MethodDef)member).IsPublic;
+            }
 
-			throw new NotSupportedException();
+            if (member is FieldDef)
+            {
+                return ((FieldDef)member).IsPublic;
+            }
+
+            if (member is PropertyDef)
+            {
+                return ((PropertyDef)member).IsPublic();
+            }
+
+            if (member is EventDef)
+            {
+                return ((EventDef)member).IsPublic();
+            }
+
+            if (member is TypeDef)
+            {
+                return ((TypeDef)member).IsPublic || ((TypeDef)member).IsNestedPublic;
+            }
+
+            throw new NotSupportedException();
 		}
 	}
 }

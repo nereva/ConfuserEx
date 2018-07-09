@@ -11,8 +11,10 @@ namespace Confuser.Renamer {
 		public ReversibleRenamer(string password) {
 			cipher = new RijndaelManaged();
 			using (var sha = SHA256.Create())
-				cipher.Key = key = sha.ComputeHash(Encoding.UTF8.GetBytes(password));
-		}
+            {
+                cipher.Key = key = sha.ComputeHash(Encoding.UTF8.GetBytes(password));
+            }
+        }
 
 		static string Base64Encode(byte[] buf) {
 			return Convert.ToBase64String(buf).Trim('=').Replace('+', '$').Replace('/', '_');
@@ -26,15 +28,21 @@ namespace Confuser.Renamer {
 		byte[] GetIV(byte ivId) {
 			byte[] iv = new byte[cipher.BlockSize / 8];
 			for (int i = 0; i < iv.Length; i++)
-				iv[i] = (byte)(ivId ^ key[i]);
-			return iv;
+            {
+                iv[i] = (byte)(ivId ^ key[i]);
+            }
+
+            return iv;
 		}
 
 		byte GetIVId(string str) {
 			byte x = (byte)str[0];
 			for (int i = 1; i < str.Length; i++)
-				x = (byte)(x * 3 + (byte)str[i]);
-			return x;
+            {
+                x = (byte)(x * 3 + (byte)str[i]);
+            }
+
+            return x;
 		}
 
 		public string Encrypt(string name) {
@@ -45,9 +53,11 @@ namespace Confuser.Renamer {
 			using (var ms = new MemoryStream()) {
 				ms.WriteByte(ivId);
 				using (var stream = new CryptoStream(ms, cipher.CreateEncryptor(), CryptoStreamMode.Write))
-					stream.Write(buf, 0, buf.Length);
+                {
+                    stream.Write(buf, 0, buf.Length);
+                }
 
-				buf = ms.ToArray();
+                buf = ms.ToArray();
 				return Base64Encode(buf);
 			}
 		}
@@ -59,9 +69,11 @@ namespace Confuser.Renamer {
 
 				var result = new MemoryStream();
 				using (var stream = new CryptoStream(ms, cipher.CreateDecryptor(), CryptoStreamMode.Read))
-					stream.CopyTo(result);
+                {
+                    stream.CopyTo(result);
+                }
 
-				return Encoding.UTF8.GetString(result.ToArray());
+                return Encoding.UTF8.GetString(result.ToArray());
 			}
 		}
 	}
