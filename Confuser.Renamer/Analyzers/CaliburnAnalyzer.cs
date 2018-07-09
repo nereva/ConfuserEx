@@ -19,14 +19,14 @@ namespace Confuser.Renamer.Analyzers {
             if (type.Name.Contains("ViewModel")) {
 				string viewNs = type.Namespace.Replace("ViewModels", "Views");
 				string viewName = type.Name.Replace("PageViewModel", "Page").Replace("ViewModel", "View");
-				TypeDef view = type.Module.Find(viewNs + "." + viewName, true);
+				var view = type.Module.Find(viewNs + "." + viewName, true);
 				if (view != null) {
 					service.SetCanRename(type, false);
 					service.SetCanRename(view, false);
 				}
 
 				// Test for Multi-view
-				string multiViewNs = type.Namespace + "." + type.Name.Replace("ViewModel", "");
+				var multiViewNs = type.Namespace + "." + type.Name.Replace("ViewModel", "");
 				foreach (var t in type.Module.Types)
                 {
                     if (t.Namespace == multiViewNs) {
@@ -98,13 +98,13 @@ namespace Confuser.Renamer.Analyzers {
                     msgStr = msgStr.Substring(6);
                 }
 
-                int parenIndex = msgStr.IndexOf('(');
+                var parenIndex = msgStr.IndexOf('(');
 				if (parenIndex != -1)
                 {
                     msgStr = msgStr.Substring(0, parenIndex);
                 }
 
-                string actName = msgStr.Trim();
+                var actName = msgStr.Trim();
 				foreach (var method in analyzer.LookupMethod(actName))
                 {
                     analyzer.NameService.SetCanRename(method, false);

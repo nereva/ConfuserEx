@@ -18,9 +18,9 @@ namespace Confuser.DynCipher.Generation {
 
 
 		static void Shuffle<T>(RandomGenerator random, IList<T> arr) {
-			for (int i = 1; i < arr.Count; i++) {
-				int j = random.NextInt32(i + 1);
-				T tmp = arr[i];
+			for (var i = 1; i < arr.Count; i++) {
+				var j = random.NextInt32(i + 1);
+				var tmp = arr[i];
 				arr[i] = arr[j];
 				arr[j] = tmp;
 			}
@@ -35,36 +35,36 @@ namespace Confuser.DynCipher.Generation {
 		}
 
 		public static void GeneratePair(RandomGenerator random, out StatementBlock encrypt, out StatementBlock decrypt) {
-			double varPrecentage = 1 + ((random.NextDouble() * 2) - 1) * VARIANCE;
+			var varPrecentage = 1 + ((random.NextDouble() * 2) - 1) * VARIANCE;
 			var totalElements = (int)(((random.NextDouble() + 1) * RATIO_SUM) * varPrecentage);
 
 			var elems = new List<CryptoElement>();
-			for (int i = 0; i < totalElements * MAT_RATIO / RATIO_SUM; i++)
+			for (var i = 0; i < totalElements * MAT_RATIO / RATIO_SUM; i++)
             {
                 elems.Add(new Matrix());
             }
 
-            for (int i = 0; i < totalElements * NUMOP_RATIO / RATIO_SUM; i++)
+            for (var i = 0; i < totalElements * NUMOP_RATIO / RATIO_SUM; i++)
             {
                 elems.Add(new NumOp());
             }
 
-            for (int i = 0; i < totalElements * SWAP_RATIO / RATIO_SUM; i++)
+            for (var i = 0; i < totalElements * SWAP_RATIO / RATIO_SUM; i++)
             {
                 elems.Add(new Swap());
             }
 
-            for (int i = 0; i < totalElements * BINOP_RATIO / RATIO_SUM; i++)
+            for (var i = 0; i < totalElements * BINOP_RATIO / RATIO_SUM; i++)
             {
                 elems.Add(new BinOp());
             }
 
-            for (int i = 0; i < totalElements * ROTATE_RATIO / RATIO_SUM; i++)
+            for (var i = 0; i < totalElements * ROTATE_RATIO / RATIO_SUM; i++)
             {
                 elems.Add(new RotateBit());
             }
 
-            for (int i = 0; i < 16; i++)
+            for (var i = 0; i < 16; i++)
             {
                 elems.Add(new AddKey(i));
             }
@@ -72,12 +72,12 @@ namespace Confuser.DynCipher.Generation {
             Shuffle(random, elems);
 
 
-			int[] x = Enumerable.Range(0, 16).ToArray();
-			int index = 16;
-			bool overdue = false;
-			foreach (CryptoElement elem in elems) {
+			var x = Enumerable.Range(0, 16).ToArray();
+			var index = 16;
+			var overdue = false;
+			foreach (var elem in elems) {
 				elem.Initialize(random);
-				for (int i = 0; i < elem.DataCount; i++) {
+				for (var i = 0; i < elem.DataCount; i++) {
 					if (index == 16) {
 						overdue = true; // Can't shuffle now to prevent duplication
 						index = 0;
@@ -92,7 +92,7 @@ namespace Confuser.DynCipher.Generation {
 			}
 
 			var encryptContext = new CipherGenContext(random, 16);
-			foreach (CryptoElement elem in elems)
+			foreach (var elem in elems)
             {
                 elem.Emit(encryptContext);
             }
@@ -102,7 +102,7 @@ namespace Confuser.DynCipher.Generation {
 
 
 			var decryptContext = new CipherGenContext(random, 16);
-			foreach (CryptoElement elem in Enumerable.Reverse(elems))
+			foreach (var elem in Enumerable.Reverse(elems))
             {
                 elem.EmitInverse(decryptContext);
             }

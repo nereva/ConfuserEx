@@ -22,7 +22,7 @@ namespace Confuser.Core.Project.Patterns {
 
 		/// <inheritdoc />
 		public override object Evaluate(IDnlibDef definition) {
-			TypeDef type = definition as TypeDef;
+			var type = definition as TypeDef;
 			if (type == null && definition is IMemberDef)
             {
                 type = ((IMemberDef)definition).DeclaringType;
@@ -33,7 +33,7 @@ namespace Confuser.Core.Project.Patterns {
                 return false;
             }
 
-            string typeRegex = Arguments[0].Evaluate(definition).ToString();
+            var typeRegex = Arguments[0].Evaluate(definition).ToString();
 
 			var typeType = new StringBuilder();
 

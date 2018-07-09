@@ -10,7 +10,7 @@ namespace ConfuserEx {
 			// Initialize the version resolver callback
 			ConfuserEngine.Version.ToString();
 
-			Assembly assembly = Assembly.LoadFile(ctx.PluginPath);
+			var assembly = Assembly.LoadFile(ctx.PluginPath);
 			foreach (var module in assembly.GetLoadedModules())
             {
                 foreach (var i in module.GetTypes()) {
@@ -33,7 +33,7 @@ namespace ConfuserEx {
 
 		public static void LoadComponents(IList<ConfuserComponent> protections, IList<ConfuserComponent> packers, string pluginPath) {
 			var ctx = new CrossDomainContext(protections, packers, pluginPath);
-			AppDomain appDomain = AppDomain.CreateDomain("");
+			var appDomain = AppDomain.CreateDomain("");
 			appDomain.SetData("ctx", ctx);
 			appDomain.DoCallBack(CrossDomainLoadComponents);
 			AppDomain.Unload(appDomain);

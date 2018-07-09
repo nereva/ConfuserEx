@@ -47,14 +47,14 @@ namespace Confuser.Protections.AntiTamper {
 			deriver.Init(context, random);
 
 			var rt = context.Registry.GetService<IRuntimeService>();
-			TypeDef initType = rt.GetRuntimeType("Confuser.Runtime.AntiTamperNormal");
-			IEnumerable<IDnlibDef> members = InjectHelper.Inject(initType, context.CurrentModule.GlobalType, context.CurrentModule);
+			var initType = rt.GetRuntimeType("Confuser.Runtime.AntiTamperNormal");
+			var members = InjectHelper.Inject(initType, context.CurrentModule.GlobalType, context.CurrentModule);
 			var initMethod = (MethodDef)members.Single(m => m.Name == "Initialize");
 
 			initMethod.Body.SimplifyMacros(initMethod.Parameters);
-			List<Instruction> instrs = initMethod.Body.Instructions.ToList();
-			for (int i = 0; i < instrs.Count; i++) {
-				Instruction instr = instrs[i];
+			var instrs = initMethod.Body.Instructions.ToList();
+			for (var i = 0; i < instrs.Count; i++) {
+				var instr = instrs[i];
 				if (instr.OpCode == OpCodes.Ldtoken) {
 					instr.Operand = context.CurrentModule.GlobalType;
 				}
@@ -62,8 +62,8 @@ namespace Confuser.Protections.AntiTamper {
 					var method = (IMethod)instr.Operand;
 					if (method.DeclaringType.Name == "Mutation" &&
 					    method.Name == "Crypt") {
-						Instruction ldDst = instrs[i - 2];
-						Instruction ldSrc = instrs[i - 1];
+						var ldDst = instrs[i - 2];
+						var ldSrc = instrs[i - 1];
 						Debug.Assert(ldDst.OpCode == OpCodes.Ldloc && ldSrc.OpCode == OpCodes.Ldloc);
 						instrs.RemoveAt(i);
 						instrs.RemoveAt(i - 1);
@@ -73,7 +73,7 @@ namespace Confuser.Protections.AntiTamper {
 				}
 			}
 			initMethod.Body.Instructions.Clear();
-			foreach (Instruction instr in instrs)
+			foreach (var instr in instrs)
             {
                 initMethod.Body.Instructions.Add(instr);
             }
@@ -84,7 +84,7 @@ namespace Confuser.Protections.AntiTamper {
 
 			var name = context.Registry.GetService<INameService>();
 			var marker = context.Registry.GetService<IMarkerService>();
-			foreach (IDnlibDef def in members) {
+			foreach (var def in members) {
 				name.MarkHelper(def, marker, parent);
 				if (def is MethodDef)
                 {
@@ -92,7 +92,7 @@ namespace Confuser.Protections.AntiTamper {
                 }
             }
 
-			MethodDef cctor = context.CurrentModule.GlobalType.FindStaticConstructor();
+			var cctor = context.CurrentModule.GlobalType.FindStaticConstructor();
 			cctor.Body.Instructions.Insert(0, Instruction.Create(OpCodes.Call, initMethod));
 
 			parent.ExcludeMethod(context, cctor);
@@ -139,7 +139,7 @@ namespace Confuser.Protections.AntiTamper {
 
 			// move some PE parts to separate section to prevent it from being hashed
 			var peSection = new PESection("", 0x60000020);
-			bool moved = false;
+			var moved = false;
 			if (writer.StrongNameSignature != null) {
 				alignment = writer.TextSection.Remove(writer.StrongNameSignature).Value;
 				peSection.Add(writer.StrongNameSignature, alignment);
@@ -166,14 +166,14 @@ namespace Confuser.Protections.AntiTamper {
             // move encrypted methods
             var encryptedChunk = new MethodBodyChunks(writer.TheOptions.ShareMethodBodies);
 			newSection.Add(encryptedChunk, 4);
-			foreach (MethodDef method in methods) {
+			foreach (var method in methods) {
 				if (!method.HasBody)
                 {
                     continue;
                 }
 
-                MethodBody body = writer.MetaData.GetMethodBody(method);
-				bool ok = writer.MethodBodies.Remove(body);
+                var body = writer.MetaData.GetMethodBody(method);
+				var ok = writer.MethodBodies.Remove(body);
 				encryptedChunk.Add(body);
 			}
 
@@ -182,25 +182,25 @@ namespace Confuser.Protections.AntiTamper {
 		}
 
 		void EncryptSection(ModuleWriterBase writer) {
-			Stream stream = writer.DestinationStream;
+			var stream = writer.DestinationStream;
 			var reader = new BinaryReader(writer.DestinationStream);
 			stream.Position = 0x3C;
 			stream.Position = reader.ReadUInt32();
 
 			stream.Position += 6;
-			ushort sections = reader.ReadUInt16();
+			var sections = reader.ReadUInt16();
 			stream.Position += 0xc;
-			ushort optSize = reader.ReadUInt16();
+			var optSize = reader.ReadUInt16();
 			stream.Position += 2 + optSize;
 
 			uint encLoc = 0, encSize = 0;
-			int origSects = -1;
+			var origSects = -1;
 			if (writer is NativeModuleWriter && writer.Module is ModuleDefMD)
             {
                 origSects = ((ModuleDefMD)writer.Module).MetaData.PEImage.ImageSectionHeaders.Count;
             }
 
-            for (int i = 0; i < sections; i++) {
+            for (var i = 0; i < sections; i++) {
 				uint nameHash;
 				if (origSects > 0) {
 					origSects--;
@@ -218,8 +218,8 @@ namespace Confuser.Protections.AntiTamper {
 					encLoc = reader.ReadUInt32();
 				}
 				else if (nameHash != 0) {
-					uint sectSize = reader.ReadUInt32();
-					uint sectLoc = reader.ReadUInt32();
+					var sectSize = reader.ReadUInt32();
+					var sectLoc = reader.ReadUInt32();
 					Hash(stream, reader, sectLoc, sectSize);
 				}
 				else
@@ -230,12 +230,12 @@ namespace Confuser.Protections.AntiTamper {
                 stream.Position += 16;
 			}
 
-			uint[] key = DeriveKey();
+			var key = DeriveKey();
 			encSize >>= 2;
 			stream.Position = encLoc;
 			var result = new uint[encSize];
 			for (uint i = 0; i < encSize; i++) {
-				uint data = reader.ReadUInt32();
+				var data = reader.ReadUInt32();
 				result[i] = data ^ key[i & 0xf];
 				key[i & 0xf] = (key[i & 0xf] ^ data) + 0x3dbb2819;
 			}
@@ -246,12 +246,12 @@ namespace Confuser.Protections.AntiTamper {
 		}
 
 		void Hash(Stream stream, BinaryReader reader, uint offset, uint size) {
-			long original = stream.Position;
+			var original = stream.Position;
 			stream.Position = offset;
 			size >>= 2;
 			for (uint i = 0; i < size; i++) {
-				uint data = reader.ReadUInt32();
-				uint tmp = (z ^ data) + x + c * v;
+				var data = reader.ReadUInt32();
+				var tmp = (z ^ data) + x + c * v;
 				z = x;
 				x = c;
 				x = v;
@@ -262,7 +262,7 @@ namespace Confuser.Protections.AntiTamper {
 
 		uint[] DeriveKey() {
 			uint[] dst = new uint[0x10], src = new uint[0x10];
-			for (int i = 0; i < 0x10; i++) {
+			for (var i = 0; i < 0x10; i++) {
 				dst[i] = v;
 				src[i] = x;
 				z = (x >> 5) | (x << 27);

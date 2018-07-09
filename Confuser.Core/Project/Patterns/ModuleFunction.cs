@@ -25,7 +25,7 @@ namespace Confuser.Core.Project.Patterns {
                 return false;
             }
 
-            object name = Arguments[0].Evaluate(definition);
+            var name = Arguments[0].Evaluate(definition);
 			if (definition is IModule)
             {
                 return ((IModule)definition).Name == name.ToString();

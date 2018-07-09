@@ -38,7 +38,7 @@ namespace Confuser.DynCipher.Elements {
 		}
 
 		public override void Emit(CipherGenContext context) {
-			Expression val = context.GetDataExpression(DataIndexes[0]);
+			var val = context.GetDataExpression(DataIndexes[0]);
 			switch (Operation) {
 				case CryptoNumOps.Add:
 					context.Emit(new AssignmentStatement {
@@ -68,7 +68,7 @@ namespace Confuser.DynCipher.Elements {
 		}
 
 		public override void EmitInverse(CipherGenContext context) {
-			Expression val = context.GetDataExpression(DataIndexes[0]);
+			var val = context.GetDataExpression(DataIndexes[0]);
 			switch (Operation) {
 				case CryptoNumOps.Add:
 					context.Emit(new AssignmentStatement {

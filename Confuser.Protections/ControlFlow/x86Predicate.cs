@@ -60,7 +60,7 @@ namespace Confuser.Protections.ControlFlow {
 				var var = new Variable("{VAR}");
 				var result = new Variable("{RESULT}");
 
-				CorLibTypeSig int32 = ctx.Method.Module.CorLibTypes.Int32;
+				var int32 = ctx.Method.Module.CorLibTypes.Int32;
 				native = new MethodDefUser(ctx.Context.Registry.GetService<INameService>().RandomName(), MethodSig.CreateStatic(int32, int32), MethodAttributes.PinvokeImpl | MethodAttributes.PrivateScope | MethodAttributes.Static);
 				native.ImplAttributes = MethodImplAttributes.Native | MethodImplAttributes.Unmanaged | MethodImplAttributes.PreserveSig;
 				// Attempt to improve performance --- failed with StackOverflowException... :/
@@ -99,7 +99,7 @@ namespace Confuser.Protections.ControlFlow {
 					codeChunk = writer.MethodBodies.Add(new MethodBody(code));
 				}
 				else if (e.WriterEvent == ModuleWriterEvent.EndCalculateRvasAndFileOffsets) {
-					uint rid = writer.MetaData.GetRid(native);
+					var rid = writer.MetaData.GetRid(native);
 					writer.MetaData.TablesHeap.MethodTable[rid].RVA = (uint)codeChunk.RVA;
 				}
 			}

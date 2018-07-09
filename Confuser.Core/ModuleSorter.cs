@@ -21,9 +21,9 @@ namespace Confuser.Core {
 			var asmMap = modules.GroupBy(module => module.Assembly.ToAssemblyRef(), AssemblyNameComparer.CompareAll)
 			                    .ToDictionary(gp => gp.Key, gp => gp.ToList(), AssemblyNameComparer.CompareAll);
 
-			foreach (ModuleDefMD m in modules)
+			foreach (var m in modules)
             {
-                foreach (AssemblyRef nameRef in m.GetAssemblyRefs()) {
+                foreach (var nameRef in m.GetAssemblyRefs()) {
 					if (!asmMap.ContainsKey(nameRef))
                     {
                         continue;
@@ -54,7 +54,7 @@ namespace Confuser.Core {
 					Debug.Assert(!edges.Where(edge => edge.To == node).Any());
 					yield return node;
 
-					foreach (DependencyGraphEdge edge in edges.Where(edge => edge.From == node).ToList()) {
+					foreach (var edge in edges.Where(edge => edge.From == node).ToList()) {
 						edges.Remove(edge);
 						if (!edges.Any(e => e.To == edge.To))
                         {

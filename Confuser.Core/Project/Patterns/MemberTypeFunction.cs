@@ -22,7 +22,7 @@ namespace Confuser.Core.Project.Patterns {
 
 		/// <inheritdoc />
 		public override object Evaluate(IDnlibDef definition) {
-			string typeRegex = Arguments[0].Evaluate(definition).ToString();
+			var typeRegex = Arguments[0].Evaluate(definition).ToString();
 
 			var memberType = new StringBuilder();
 

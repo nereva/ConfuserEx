@@ -71,8 +71,8 @@ namespace Confuser.Core {
 
             string ret;
 			if (parameters.TryGetValue(name, out ret)) {
-				Type paramType = typeof(T);
-				Type nullable = Nullable.GetUnderlyingType(paramType);
+				var paramType = typeof(T);
+				var nullable = Nullable.GetUnderlyingType(paramType);
 				if (nullable != null)
                 {
                     paramType = nullable;

@@ -29,7 +29,7 @@ namespace ConfuserEx {
 
 		void OpenMenu(object sender, RoutedEventArgs e) {
 			var btn = (Button)sender;
-			ContextMenu menu = btn.ContextMenu;
+			var menu = btn.ContextMenu;
 			menu.PlacementTarget = btn;
 			menu.Placement = PlacementMode.MousePoint;
 			menu.IsOpen = true;
@@ -42,7 +42,7 @@ namespace ConfuserEx {
                 return;
             }
 
-            string fileName = Path.GetFullPath(args[1]);
+            var fileName = Path.GetFullPath(args[1]);
 			try {
 				var xmlDoc = new XmlDocument();
 				xmlDoc.Load(fileName);

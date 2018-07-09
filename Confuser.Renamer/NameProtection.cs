@@ -63,8 +63,8 @@ namespace Confuser.Renamer {
                     return;
                 }
 
-                string path = Path.GetFullPath(Path.Combine(context.OutputDirectory, "symbols.map"));
-				string dir = Path.GetDirectoryName(path);
+                var path = Path.GetFullPath(Path.Combine(context.OutputDirectory, "symbols.map"));
+				var dir = Path.GetDirectoryName(path);
 				if (!Directory.Exists(dir))
                 {
                     Directory.CreateDirectory(dir);

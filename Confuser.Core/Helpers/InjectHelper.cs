@@ -23,7 +23,7 @@ namespace Confuser.Core.Helpers {
                 ret.ClassLayout = new ClassLayoutUser(origin.ClassLayout.PackingSize, origin.ClassSize);
             }
 
-            foreach (GenericParam genericParam in origin.GenericParameters)
+            foreach (var genericParam in origin.GenericParameters)
             {
                 ret.GenericParameters.Add(new GenericParamUser(genericParam.Number, genericParam.Flags, "-"));
             }
@@ -39,7 +39,7 @@ namespace Confuser.Core.Helpers {
 		static MethodDefUser Clone(MethodDef origin) {
 			var ret = new MethodDefUser(origin.Name, null, origin.ImplAttributes, origin.Attributes);
 
-			foreach (GenericParam genericParam in origin.GenericParameters)
+			foreach (var genericParam in origin.GenericParameters)
             {
                 ret.GenericParameters.Add(new GenericParamUser(genericParam.Number, genericParam.Flags, "-"));
             }
@@ -75,17 +75,17 @@ namespace Confuser.Core.Helpers {
                 ret = (TypeDef)existing;
             }
 
-            foreach (TypeDef nestedType in typeDef.NestedTypes)
+            foreach (var nestedType in typeDef.NestedTypes)
             {
                 ret.NestedTypes.Add(PopulateContext(nestedType, ctx));
             }
 
-            foreach (MethodDef method in typeDef.Methods)
+            foreach (var method in typeDef.Methods)
             {
                 ret.Methods.Add((MethodDef)(ctx.Map[method] = Clone(method)));
             }
 
-            foreach (FieldDef field in typeDef.Fields)
+            foreach (var field in typeDef.Fields)
             {
                 ret.Fields.Add((FieldDef)(ctx.Map[field] = Clone(field)));
             }
@@ -103,7 +103,7 @@ namespace Confuser.Core.Helpers {
 
 			newTypeDef.BaseType = (ITypeDefOrRef)ctx.Importer.Import(typeDef.BaseType);
 
-			foreach (InterfaceImpl iface in typeDef.Interfaces)
+			foreach (var iface in typeDef.Interfaces)
             {
                 newTypeDef.Interfaces.Add(new InterfaceImplUser((ITypeDefOrRef)ctx.Importer.Import(iface.Interface)));
             }
@@ -125,7 +125,7 @@ namespace Confuser.Core.Helpers {
                 newMethodDef.ImplMap = new ImplMapUser(new ModuleRefUser(ctx.TargetModule, methodDef.ImplMap.Module.Name), methodDef.ImplMap.Name, methodDef.ImplMap.Attributes);
             }
 
-            foreach (CustomAttribute ca in methodDef.CustomAttributes)
+            foreach (var ca in methodDef.CustomAttributes)
             {
                 newMethodDef.CustomAttributes.Add(new CustomAttribute((ICustomAttributeType)ctx.Importer.Import(ca.Constructor)));
             }
@@ -136,7 +136,7 @@ namespace Confuser.Core.Helpers {
 
 				var bodyMap = new Dictionary<object, object>();
 
-				foreach (Local local in methodDef.Body.Variables) {
+				foreach (var local in methodDef.Body.Variables) {
 					var newLocal = new Local(ctx.Importer.Import(local.Type));
 					newMethodDef.Body.Variables.Add(newLocal);
 					newLocal.Name = local.Name;
@@ -145,7 +145,7 @@ namespace Confuser.Core.Helpers {
 					bodyMap[local] = newLocal;
 				}
 
-				foreach (Instruction instr in methodDef.Body.Instructions) {
+				foreach (var instr in methodDef.Body.Instructions) {
 					var newInstr = new Instruction(instr.OpCode, instr.Operand);
 					newInstr.SequencePoint = instr.SequencePoint;
 
@@ -166,7 +166,7 @@ namespace Confuser.Core.Helpers {
 					bodyMap[instr] = newInstr;
 				}
 
-				foreach (Instruction instr in newMethodDef.Body.Instructions) {
+				foreach (var instr in newMethodDef.Body.Instructions) {
 					if (instr.Operand != null && bodyMap.ContainsKey(instr.Operand))
                     {
                         instr.Operand = bodyMap[instr.Operand];
@@ -177,7 +177,7 @@ namespace Confuser.Core.Helpers {
                     }
                 }
 
-				foreach (ExceptionHandler eh in methodDef.Body.ExceptionHandlers)
+				foreach (var eh in methodDef.Body.ExceptionHandlers)
                 {
                     newMethodDef.Body.ExceptionHandlers.Add(new ExceptionHandler(eh.HandlerType) {
 						CatchType = eh.CatchType == null ? null : (ITypeDefOrRef)ctx.Importer.Import(eh.CatchType),
@@ -216,17 +216,17 @@ namespace Confuser.Core.Helpers {
                 CopyTypeDef(typeDef, ctx);
             }
 
-            foreach (TypeDef nestedType in typeDef.NestedTypes)
+            foreach (var nestedType in typeDef.NestedTypes)
             {
                 Copy(nestedType, ctx, true);
             }
 
-            foreach (MethodDef method in typeDef.Methods)
+            foreach (var method in typeDef.Methods)
             {
                 CopyMethodDef(method, ctx);
             }
 
-            foreach (FieldDef field in typeDef.Fields)
+            foreach (var field in typeDef.Fields)
             {
                 CopyFieldDef(field, ctx);
             }

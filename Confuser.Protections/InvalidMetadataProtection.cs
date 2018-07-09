@@ -62,10 +62,10 @@ namespace Confuser.Protections {
 			}
 
 			void Randomize<T>(MDTable<T> table) where T : IRawRow {
-				List<T> rows = table.ToList();
+				var rows = table.ToList();
 				random.Shuffle(rows);
 				table.Reset();
-				foreach (T row in rows)
+				foreach (var row in rows)
                 {
                     table.Add(row);
                 }
@@ -103,14 +103,14 @@ namespace Confuser.Protections {
 					writer.MetaData.TablesHeap.ModuleTable.Add(new RawModuleRow(0, 0x7fff7fff, 0, 0, 0));
 					writer.MetaData.TablesHeap.AssemblyTable.Add(new RawAssemblyRow(0, 0, 0, 0, 0, 0, 0, 0x7fff7fff, 0));
 
-					int r = random.NextInt32(8, 16);
-					for (int i = 0; i < r; i++)
+					var r = random.NextInt32(8, 16);
+					for (var i = 0; i < r; i++)
                     {
                         writer.MetaData.TablesHeap.ENCLogTable.Add(new RawENCLogRow(random.NextUInt32(), random.NextUInt32()));
                     }
 
                     r = random.NextInt32(8, 16);
-					for (int i = 0; i < r; i++)
+					for (var i = 0; i < r; i++)
                     {
                         writer.MetaData.TablesHeap.ENCMapTable.Add(new RawENCMapRow(random.NextUInt32()));
                     }

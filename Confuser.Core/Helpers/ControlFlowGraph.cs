@@ -20,7 +20,7 @@ namespace Confuser.Core.Helpers {
 			blocks = new List<ControlFlowBlock>();
 
 			indexMap = new Dictionary<Instruction, int>();
-			for (int i = 0; i < body.Instructions.Count; i++)
+			for (var i = 0; i < body.Instructions.Count; i++)
             {
                 indexMap.Add(body.Instructions[i], i);
             }
@@ -78,8 +78,8 @@ namespace Confuser.Core.Helpers {
 		}
 
 		void PopulateBlockHeaders(HashSet<Instruction> blockHeaders, HashSet<Instruction> entryHeaders) {
-			for (int i = 0; i < body.Instructions.Count; i++) {
-				Instruction instr = body.Instructions[i];
+			for (var i = 0; i < body.Instructions.Count; i++) {
+				var instr = body.Instructions[i];
 
 				if (instr.Operand is Instruction) {
 					blockHeaders.Add((Instruction)instr.Operand);
@@ -89,7 +89,7 @@ namespace Confuser.Core.Helpers {
                     }
                 }
 				else if (instr.Operand is Instruction[]) {
-					foreach (Instruction target in (Instruction[])instr.Operand)
+					foreach (var target in (Instruction[])instr.Operand)
                     {
                         blockHeaders.Add(target);
                     }
@@ -105,7 +105,7 @@ namespace Confuser.Core.Helpers {
 				}
 			}
 			blockHeaders.Add(body.Instructions[0]);
-			foreach (ExceptionHandler eh in body.ExceptionHandlers) {
+			foreach (var eh in body.ExceptionHandlers) {
 				blockHeaders.Add(eh.TryStart);
 				blockHeaders.Add(eh.HandlerStart);
 				blockHeaders.Add(eh.FilterStart);
@@ -115,15 +115,15 @@ namespace Confuser.Core.Helpers {
 		}
 
 		void SplitBlocks(HashSet<Instruction> blockHeaders, HashSet<Instruction> entryHeaders) {
-			int nextBlockId = 0;
-			int currentBlockId = -1;
+			var nextBlockId = 0;
+			var currentBlockId = -1;
 			Instruction currentBlockHdr = null;
 
-			for (int i = 0; i < body.Instructions.Count; i++) {
-				Instruction instr = body.Instructions[i];
+			for (var i = 0; i < body.Instructions.Count; i++) {
+				var instr = body.Instructions[i];
 				if (blockHeaders.Contains(instr)) {
 					if (currentBlockHdr != null) {
-						Instruction footer = body.Instructions[i - 1];
+						var footer = body.Instructions[i - 1];
 
 						var type = ControlFlowBlockType.Normal;
 						if (entryHeaders.Contains(currentBlockHdr) || currentBlockHdr == body.Instructions[0])
@@ -146,7 +146,7 @@ namespace Confuser.Core.Helpers {
 				instrBlocks[i] = currentBlockId;
 			}
 			if (blocks.Count == 0 || blocks[blocks.Count - 1].Id != currentBlockId) {
-				Instruction footer = body.Instructions[body.Instructions.Count - 1];
+				var footer = body.Instructions[body.Instructions.Count - 1];
 
 				var type = ControlFlowBlockType.Normal;
 				if (entryHeaders.Contains(currentBlockHdr) || currentBlockHdr == body.Instructions[0])
@@ -164,24 +164,24 @@ namespace Confuser.Core.Helpers {
 		}
 
 		void LinkBlocks() {
-			for (int i = 0; i < body.Instructions.Count; i++) {
-				Instruction instr = body.Instructions[i];
+			for (var i = 0; i < body.Instructions.Count; i++) {
+				var instr = body.Instructions[i];
 				if (instr.Operand is Instruction) {
-					ControlFlowBlock srcBlock = blocks[instrBlocks[i]];
-					ControlFlowBlock dstBlock = blocks[instrBlocks[indexMap[(Instruction)instr.Operand]]];
+					var srcBlock = blocks[instrBlocks[i]];
+					var dstBlock = blocks[instrBlocks[indexMap[(Instruction)instr.Operand]]];
 					dstBlock.Sources.Add(srcBlock);
 					srcBlock.Targets.Add(dstBlock);
 				}
 				else if (instr.Operand is Instruction[]) {
-					foreach (Instruction target in (Instruction[])instr.Operand) {
-						ControlFlowBlock srcBlock = blocks[instrBlocks[i]];
-						ControlFlowBlock dstBlock = blocks[instrBlocks[indexMap[target]]];
+					foreach (var target in (Instruction[])instr.Operand) {
+						var srcBlock = blocks[instrBlocks[i]];
+						var dstBlock = blocks[instrBlocks[indexMap[target]]];
 						dstBlock.Sources.Add(srcBlock);
 						srcBlock.Targets.Add(dstBlock);
 					}
 				}
 			}
-			for (int i = 0; i < blocks.Count; i++) {
+			for (var i = 0; i < blocks.Count; i++) {
 				if (blocks[i].Footer.OpCode.FlowControl != FlowControl.Branch &&
 				    blocks[i].Footer.OpCode.FlowControl != FlowControl.Return &&
 				    blocks[i].Footer.OpCode.FlowControl != FlowControl.Throw) {

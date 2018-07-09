@@ -14,7 +14,7 @@ namespace ConfuserEx.ViewModel {
 				switch (e.Action) {
 					case NotifyCollectionChangedAction.Reset:
 						list.Clear();
-						foreach (T item in collection)
+						foreach (var item in collection)
                         {
                             list.Add(item);
                         }
@@ -22,7 +22,7 @@ namespace ConfuserEx.ViewModel {
                         break;
 
 					case NotifyCollectionChangedAction.Add:
-						for (int i = 0; i < e.NewItems.Count; i++)
+						for (var i = 0; i < e.NewItems.Count; i++)
                         {
                             list.Insert(e.NewStartingIndex + i, (T)e.NewItems[i]);
                         }
@@ -30,7 +30,7 @@ namespace ConfuserEx.ViewModel {
                         break;
 
 					case NotifyCollectionChangedAction.Remove:
-						for (int i = 0; i < e.OldItems.Count; i++)
+						for (var i = 0; i < e.OldItems.Count; i++)
                         {
                             list.RemoveAt(e.OldStartingIndex);
                         }
@@ -58,7 +58,7 @@ namespace ConfuserEx.ViewModel {
 				switch (e.Action) {
 					case NotifyCollectionChangedAction.Reset:
 						list.Clear();
-						foreach (TViewModel item in collection)
+						foreach (var item in collection)
                         {
                             list.Add(item.Model);
                         }
@@ -66,7 +66,7 @@ namespace ConfuserEx.ViewModel {
                         break;
 
 					case NotifyCollectionChangedAction.Add:
-						for (int i = 0; i < e.NewItems.Count; i++)
+						for (var i = 0; i < e.NewItems.Count; i++)
                         {
                             list.Insert(e.NewStartingIndex + i, ((TViewModel)e.NewItems[i]).Model);
                         }
@@ -74,7 +74,7 @@ namespace ConfuserEx.ViewModel {
                         break;
 
 					case NotifyCollectionChangedAction.Remove:
-						for (int i = 0; i < e.OldItems.Count; i++)
+						for (var i = 0; i < e.OldItems.Count; i++)
                         {
                             list.RemoveAt(e.OldStartingIndex);
                         }

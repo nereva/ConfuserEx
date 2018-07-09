@@ -48,7 +48,7 @@ namespace Confuser.Core {
 						case 3:
 							f |= (uint)((sect.Item3[methodOffset - sect.Item1 + 1]) << 8);
 							size = (f >> 12) * 4;
-							uint codeSize = BitConverter.ToUInt32(sect.Item3, (int)(methodOffset - sect.Item1 + 4));
+							var codeSize = BitConverter.ToUInt32(sect.Item3, (int)(methodOffset - sect.Item1 + 4));
 							size += codeSize;
 							break;
 						default:

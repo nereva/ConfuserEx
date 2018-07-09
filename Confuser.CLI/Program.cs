@@ -10,16 +10,16 @@ using NDesk.Options;
 namespace Confuser.CLI {
 	internal class Program {
 		static int Main(string[] args) {
-			ConsoleColor original = Console.ForegroundColor;
+			var original = Console.ForegroundColor;
 			Console.ForegroundColor = ConsoleColor.White;
-			string originalTitle = Console.Title;
+			var originalTitle = Console.Title;
 			Console.Title = "ConfuserEx";
 			try {
-				bool noPause = false;
-				bool debug = false;
+				var noPause = false;
+				var debug = false;
 				string outDir = null;
-				List<string> probePaths = new List<string>();
-				List<string> plugins = new List<string>();
+				var probePaths = new List<string>();
+				var plugins = new List<string>();
 				var p = new OptionSet {
 					{
 						"n|nopause", "no pause after finishing protection.",
@@ -117,7 +117,7 @@ namespace Confuser.CLI {
 					parameters.Project = proj;
 				}
 
-				int retVal = RunProject(parameters);
+				var retVal = RunProject(parameters);
 
 				if (NeedPause() && !noPause) {
 					Console.WriteLine("Press any key to continue...");
@@ -158,7 +158,7 @@ namespace Confuser.CLI {
 		}
 
 		static void WriteLineWithColor(ConsoleColor color, string txt) {
-			ConsoleColor original = Console.ForegroundColor;
+			var original = Console.ForegroundColor;
 			Console.ForegroundColor = color;
 			Console.WriteLine(txt);
 			Console.ForegroundColor = original;
@@ -228,8 +228,8 @@ namespace Confuser.CLI {
 			public void EndProgress() { }
 
 			public void Finish(bool successful) {
-				DateTime now = DateTime.Now;
-				string timeString = string.Format(
+				var now = DateTime.Now;
+				var timeString = string.Format(
 					"at {0}, {1}:{2:d2} elapsed.",
 					now.ToShortTimeString(),
 					(int)now.Subtract(begin).TotalMinutes,

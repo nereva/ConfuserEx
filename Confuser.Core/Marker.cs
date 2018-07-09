@@ -51,7 +51,7 @@ namespace Confuser.Core {
 		/// <param name="preset">The preset.</param>
 		/// <param name="settings">The settings.</param>
 		void FillPreset(ProtectionPreset preset, ProtectionSettings settings) {
-			foreach (Protection prot in protections.Values)
+			foreach (var prot in protections.Values)
             {
                 if (prot.Preset != ProtectionPreset.None && prot.Preset <= preset && !settings.ContainsKey(prot))
                 {
@@ -125,13 +125,13 @@ namespace Confuser.Core {
 
 			var modules = new List<Tuple<ProjectModule, ModuleDefMD>>();
 			var extModules = new List<byte[]>();
-			foreach (ProjectModule module in proj) {
+			foreach (var module in proj) {
 				if (module.IsExternal) {
 					extModules.Add(module.LoadRaw(proj.BaseDirectory));
 					continue;
 				}
 
-				ModuleDefMD modDef = module.Resolve(proj.BaseDirectory, context.Resolver.DefaultModuleContext);
+				var modDef = module.Resolve(proj.BaseDirectory, context.Resolver.DefaultModuleContext);
 				context.CheckCancellation();
 
 				if (proj.Debug)
@@ -145,12 +145,12 @@ namespace Confuser.Core {
 
 			foreach (var module in modules) {
 				context.Logger.InfoFormat("Loading '{0}'...", module.Item1.Path);
-				Rules rules = ParseRules(proj, module.Item1, context);
+				var rules = ParseRules(proj, module.Item1, context);
 
 				context.Annotations.Set(module.Item2, SNKey, LoadSNKey(context, module.Item1.SNKeyPath == null ? null : Path.Combine(proj.BaseDirectory, module.Item1.SNKeyPath), module.Item1.SNKeyPassword));
 				context.Annotations.Set(module.Item2, RulesKey, rules);
 
-				foreach (IDnlibDef def in module.Item2.FindDefinitions()) {
+				foreach (var def in module.Item2.FindDefinitions()) {
 					ApplyRules(context, def, rules);
 					context.CheckCancellation();
 				}
@@ -170,7 +170,7 @@ namespace Confuser.Core {
 		/// <param name="member">The member definition.</param>
 		/// <param name="context">The working context.</param>
 		protected internal virtual void MarkMember(IDnlibDef member, ConfuserContext context) {
-			ModuleDef module = ((IMemberRef)member).Module;
+			var module = ((IMemberRef)member).Module;
 			var rules = context.Annotations.Get<Rules>(module, RulesKey);
 			ApplyRules(context, member, rules);
 		}
@@ -188,7 +188,7 @@ namespace Confuser.Core {
 		protected Rules ParseRules(ConfuserProject proj, ProjectModule module, ConfuserContext context) {
 			var ret = new Rules();
 			var parser = new PatternParser();
-			foreach (Rule rule in proj.Rules.Concat(module.Rules)) {
+			foreach (var rule in proj.Rules.Concat(module.Rules)) {
 				try {
 					ret.Add(rule, parser.Parse(rule.Pattern));
 				}

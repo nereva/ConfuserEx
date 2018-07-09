@@ -72,8 +72,8 @@ namespace Confuser.Renamer.BAML {
 
 	internal abstract class SizedBamlRecord : BamlRecord {
 		public override void Read(BamlBinaryReader reader) {
-			long pos = reader.BaseStream.Position;
-			int size = reader.ReadEncodedInt();
+			var pos = reader.BaseStream.Position;
+			var size = reader.ReadEncodedInt();
 
 			ReadData(reader, size - (int)(reader.BaseStream.Position - pos));
 			Debug.Assert(reader.BaseStream.Position - pos == size);
@@ -96,7 +96,7 @@ namespace Confuser.Renamer.BAML {
 		}
 
 		public override void Write(BamlBinaryWriter writer) {
-			long pos = writer.BaseStream.Position;
+			var pos = writer.BaseStream.Position;
 			WriteData(writer);
 			var size = (int)(writer.BaseStream.Position - pos);
 			size = SizeofEncodedInt(SizeofEncodedInt(size) + size) + size;
@@ -128,7 +128,7 @@ namespace Confuser.Renamer.BAML {
 			Prefix = reader.ReadString();
 			XmlNamespace = reader.ReadString();
 			AssemblyIds = new ushort[reader.ReadUInt16()];
-			for (int i = 0; i < AssemblyIds.Length; i++)
+			for (var i = 0; i < AssemblyIds.Length; i++)
             {
                 AssemblyIds[i] = reader.ReadUInt16();
             }
@@ -138,7 +138,7 @@ namespace Confuser.Renamer.BAML {
 			writer.Write(Prefix);
 			writer.Write(XmlNamespace);
 			writer.Write((ushort)AssemblyIds.Length);
-			foreach (ushort i in AssemblyIds)
+			foreach (var i in AssemblyIds)
             {
                 writer.Write(i);
             }
@@ -252,7 +252,7 @@ namespace Confuser.Renamer.BAML {
 		public byte[] Data { get; set; }
 
 		protected override void ReadData(BamlBinaryReader reader, int size) {
-			long pos = reader.BaseStream.Position;
+			var pos = reader.BaseStream.Position;
 			AttributeId = reader.ReadUInt16();
 			SerializerTypeId = reader.ReadUInt16();
 			Data = reader.ReadBytes(size - (int)(reader.BaseStream.Position - pos));
@@ -298,7 +298,7 @@ namespace Confuser.Renamer.BAML {
 		public BamlRecord Record { get; set; }
 
 		public void ReadDefer(BamlDocument doc, int index, Func<long, BamlRecord> resolve) {
-			bool keys = true;
+			var keys = true;
 			do {
 				switch (doc[index].Type) {
 					case BamlRecordType.DefAttributeKeyString:
@@ -325,7 +325,7 @@ namespace Confuser.Renamer.BAML {
 		}
 
 		public void WriteDefer(BamlDocument doc, int index, BinaryWriter wtr) {
-			bool keys = true;
+			var keys = true;
 			do {
 				switch (doc[index].Type) {
 					case BamlRecordType.DefAttributeKeyString:
@@ -756,7 +756,7 @@ namespace Confuser.Renamer.BAML {
 		public BamlRecord Record { get; set; }
 
 		public void ReadDefer(BamlDocument doc, int index, Func<long, BamlRecord> resolve) {
-			bool keys = true;
+			var keys = true;
 			do {
 				switch (doc[index].Type) {
 					case BamlRecordType.DefAttributeKeyString:
@@ -783,7 +783,7 @@ namespace Confuser.Renamer.BAML {
 		}
 
 		public void WriteDefer(BamlDocument doc, int index, BinaryWriter wtr) {
-			bool keys = true;
+			var keys = true;
 			do {
 				switch (doc[index].Type) {
 					case BamlRecordType.DefAttributeKeyString:

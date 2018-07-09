@@ -17,10 +17,10 @@ namespace Confuser.Runtime {
 
 	internal static class RefProxyStrong {
 		internal static void Initialize(RuntimeFieldHandle field, byte opKey) {
-			FieldInfo fieldInfo = FieldInfo.GetFieldFromHandle(field);
-			byte[] sig = fieldInfo.Module.ResolveSignature(fieldInfo.MetadataToken);
-			int len = sig.Length;
-			int key = fieldInfo.GetOptionalCustomModifiers()[0].MetadataToken;
+			var fieldInfo = FieldInfo.GetFieldFromHandle(field);
+			var sig = fieldInfo.Module.ResolveSignature(fieldInfo.MetadataToken);
+			var len = sig.Length;
+			var key = fieldInfo.GetOptionalCustomModifiers()[0].MetadataToken;
 
 			key += (fieldInfo.Name[Mutation.KeyI0] ^ sig[--len]) << Mutation.KeyI4;
 			key += (fieldInfo.Name[Mutation.KeyI1] ^ sig[--len]) << Mutation.KeyI5;
@@ -28,11 +28,11 @@ namespace Confuser.Runtime {
 			len--;
 			key += (fieldInfo.Name[Mutation.KeyI3] ^ sig[--len]) << Mutation.KeyI7;
 
-			int token = Mutation.Placeholder(key);
+			var token = Mutation.Placeholder(key);
 			token *= fieldInfo.GetCustomAttributes(false)[0].GetHashCode();
 
-			MethodBase method = fieldInfo.Module.ResolveMethod(token);
-			Type delegateType = fieldInfo.FieldType;
+			var method = fieldInfo.Module.ResolveMethod(token);
+			var delegateType = fieldInfo.FieldType;
 			if (method.IsStatic)
             {
                 fieldInfo.SetValue(null, Delegate.CreateDelegate(delegateType, (MethodInfo)method));
@@ -41,29 +41,29 @@ namespace Confuser.Runtime {
 				DynamicMethod dm = null;
 				Type[] argTypes = null;
 
-				foreach (MethodInfo invoke in fieldInfo.FieldType.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance))
+				foreach (var invoke in fieldInfo.FieldType.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance))
                 {
                     if (invoke.DeclaringType == delegateType) {
-						ParameterInfo[] paramTypes = invoke.GetParameters();
+						var paramTypes = invoke.GetParameters();
 						argTypes = new Type[paramTypes.Length];
-						for (int i = 0; i < argTypes.Length; i++)
+						for (var i = 0; i < argTypes.Length; i++)
                         {
                             argTypes[i] = paramTypes[i].ParameterType;
                         }
 
-                        Type declType = method.DeclaringType;
+                        var declType = method.DeclaringType;
 						dm = new DynamicMethod("", invoke.ReturnType, argTypes, (declType.IsInterface || declType.IsArray) ? delegateType : declType, true);
 						break;
 					}
                 }
 
-                DynamicILInfo info = dm.GetDynamicILInfo();
+                var info = dm.GetDynamicILInfo();
 				info.SetLocalSignature(new byte[] { 0x7, 0x0 });
 				var code = new byte[(2 + 5) * argTypes.Length + 6];
-				int index = 0;
+				var index = 0;
 				var mParams = method.GetParameters();
-				int mIndex = method.IsConstructor ? 0 : -1;
-				for (int i = 0; i < argTypes.Length; i++) {
+				var mIndex = method.IsConstructor ? 0 : -1;
+				for (var i = 0; i < argTypes.Length; i++) {
 					code[index++] = 0x0e;
 					code[index++] = (byte)i;
 
@@ -84,7 +84,7 @@ namespace Confuser.Runtime {
                     mIndex++;
 				}
 				code[index++] = (byte)((byte)fieldInfo.Name[Mutation.KeyI8] ^ opKey);
-				int dmToken = info.GetTokenFor(method.MethodHandle);
+				var dmToken = info.GetTokenFor(method.MethodHandle);
 				code[index++] = (byte)dmToken;
 				code[index++] = (byte)(dmToken >> 8);
 				code[index++] = (byte)(dmToken >> 16);

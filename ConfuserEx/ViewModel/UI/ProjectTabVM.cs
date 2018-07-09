@@ -17,7 +17,7 @@ namespace ConfuserEx.ViewModel {
 		public ICommand DragDrop {
 			get {
 				return new RelayCommand<IDataObject>(data => {
-					foreach (string file in (string[])data.GetData(DataFormats.FileDrop))
+					foreach (var file in (string[])data.GetData(DataFormats.FileDrop))
                     {
                         AddModule(file);
                     }
@@ -28,7 +28,7 @@ namespace ConfuserEx.ViewModel {
     }
 
     var files = (string[])data.GetData(DataFormats.FileDrop);
-					bool ret = files.All(file => File.Exists(file));
+					var ret = files.All(file => File.Exists(file));
 					return ret;
 				});
 			}
@@ -79,7 +79,7 @@ namespace ConfuserEx.ViewModel {
 			get {
 				return new RelayCommand(() => {
 					Debug.Assert(App.Project.Modules.Any(m => m.IsSelected));
-					string msg = "Are you sure to remove selected modules?\r\nAll settings specific to it would be lost!";
+					var msg = "Are you sure to remove selected modules?\r\nAll settings specific to it would be lost!";
 					if (MessageBox.Show(msg, "ConfuserEx", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes) {
 						foreach (var item in App.Project.Modules.Where(m => m.IsSelected).ToList())
                         {
@@ -117,7 +117,7 @@ namespace ConfuserEx.ViewModel {
 				return;
 			}
 			if (string.IsNullOrEmpty(App.Project.BaseDirectory)) {
-				string directory = Path.GetDirectoryName(file);
+				var directory = Path.GetDirectoryName(file);
 				App.Project.BaseDirectory = directory;
 				App.Project.OutputDirectory = Path.Combine(directory, "Confused");
 			}

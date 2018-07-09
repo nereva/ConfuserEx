@@ -49,8 +49,8 @@ namespace Confuser.Protections {
 			}
 
 			protected override void Execute(ConfuserContext context, ProtectionParameters parameters) {
-				foreach (ModuleDef module in parameters.Targets.OfType<ModuleDef>()) {
-					TypeRef attrRef = module.CorLibTypes.GetTypeRef("System.Runtime.CompilerServices", "SuppressIldasmAttribute");
+				foreach (var module in parameters.Targets.OfType<ModuleDef>()) {
+					var attrRef = module.CorLibTypes.GetTypeRef("System.Runtime.CompilerServices", "SuppressIldasmAttribute");
 					var ctorRef = new MemberRefUser(module, ".ctor", MethodSig.CreateInstance(module.CorLibTypes.Void), attrRef);
 
 					var attr = new CustomAttribute(ctorRef);

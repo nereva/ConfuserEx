@@ -34,19 +34,19 @@ namespace SevenZip.Compression.LZ {
 		}
 
 		public bool Train(Stream stream) {
-			long len = stream.Length;
-			uint size = (len < _windowSize) ? (uint)len : _windowSize;
+			var len = stream.Length;
+			var size = (len < _windowSize) ? (uint)len : _windowSize;
 			TrainSize = size;
 			stream.Position = len - size;
 			_streamPos = _pos = 0;
 			while (size > 0) {
-				uint curSize = _windowSize - _pos;
+				var curSize = _windowSize - _pos;
 				if (size < curSize)
                 {
                     curSize = size;
                 }
 
-                int numReadBytes = stream.Read(_buffer, (int)_pos, (int)curSize);
+                var numReadBytes = stream.Read(_buffer, (int)_pos, (int)curSize);
 				if (numReadBytes == 0)
                 {
                     return false;
@@ -69,7 +69,7 @@ namespace SevenZip.Compression.LZ {
 		}
 
 		public void Flush() {
-			uint size = _pos - _streamPos;
+			var size = _pos - _streamPos;
 			if (size == 0)
             {
                 return;
@@ -85,7 +85,7 @@ namespace SevenZip.Compression.LZ {
 		}
 
 		public void CopyBlock(uint distance, uint len) {
-			uint pos = _pos - distance - 1;
+			var pos = _pos - distance - 1;
 			if (pos >= _windowSize)
             {
                 pos += _windowSize;
@@ -114,7 +114,7 @@ namespace SevenZip.Compression.LZ {
         }
 
 		public byte GetByte(uint distance) {
-			uint pos = _pos - distance - 1;
+			var pos = _pos - distance - 1;
 			if (pos >= _windowSize)
             {
                 pos += _windowSize;

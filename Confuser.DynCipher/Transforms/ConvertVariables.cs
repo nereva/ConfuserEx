@@ -38,7 +38,7 @@ namespace Confuser.DynCipher.Transforms {
 
 		public static void Run(StatementBlock block) {
 			var mainBuff = new Variable("{BUFFER}");
-			for (int i = 0; i < block.Statements.Count; i++)
+			for (var i = 0; i < block.Statements.Count; i++)
             {
                 block.Statements[i] = ReplaceVar(block.Statements[i], mainBuff);
             }

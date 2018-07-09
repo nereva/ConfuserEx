@@ -17,8 +17,8 @@ namespace Confuser.Renamer {
 		public string Name { get; private set; }
 
 		public static VTableSignature FromMethod(IMethod method) {
-			MethodSig sig = method.MethodSig;
-			TypeSig declType = method.DeclaringType.ToTypeSig();
+			var sig = method.MethodSig;
+			var declType = method.DeclaringType.ToTypeSig();
 			if (declType is GenericInstSig) {
 				sig = GenericArgumentResolver.Resolve(sig, ((GenericInstSig)declType).GenericArguments);
 			}
@@ -37,7 +37,7 @@ namespace Confuser.Renamer {
 		}
 
 		public override int GetHashCode() {
-			int hash = 17;
+			var hash = 17;
 			hash = hash * 7 + new SigComparer().GetHashCode(MethodSig);
 			return hash * 7 + Name.GetHashCode();
 		}
@@ -151,17 +151,17 @@ namespace Confuser.Renamer {
 				);
 
 			// See Partition II 12.2 for implementation algorithm
-			VTableConstruction vTbl = new VTableConstruction();
+			var vTbl = new VTableConstruction();
 
 			// Inherits base type's slots
-			VTable baseVTbl = storage.GetVTable(typeDef.GetBaseTypeThrow());
+			var baseVTbl = storage.GetVTable(typeDef.GetBaseTypeThrow());
 			if (baseVTbl != null) {
 				Inherits(vTbl, baseVTbl);
 			}
 
 			// Explicit interface implementation
-			foreach (InterfaceImpl iface in typeDef.Interfaces) {
-				VTable ifaceVTbl = storage.GetVTable(iface.Interface);
+			foreach (var iface in typeDef.Interfaces) {
+				var ifaceVTbl = storage.GetVTable(iface.Interface);
 				if (ifaceVTbl != null) {
 					Implements(vTbl, virtualMethods, ifaceVTbl, iface.Interface.ToTypeSig());
 				}
@@ -217,7 +217,7 @@ namespace Confuser.Renamer {
 				foreach (var impl in method.Value.Overrides) {
 					Debug.Assert(impl.MethodBody == method.Value);
 
-					MethodDef targetMethod = impl.MethodDeclaration.ResolveThrow();
+					var targetMethod = impl.MethodDeclaration.ResolveThrow();
 					if (targetMethod.DeclaringType.IsInterface) {
 						var iface = impl.MethodDeclaration.DeclaringType.ToTypeSig();
 						CheckKeyExist(storage, vTbl.InterfaceSlots, iface, "MethodImpl Iface");
@@ -305,7 +305,7 @@ namespace Confuser.Renamer {
 		}
 
 		static void Inherits(VTableConstruction vTbl, VTable baseVTbl) {
-			foreach (VTableSlot slot in baseVTbl.Slots) {
+			foreach (var slot in baseVTbl.Slots) {
 				vTbl.AllSlots.Add(slot);
 				// It's possible to have same signature in multiple slots,
 				// when a derived type shadow the base type using newslot.
@@ -380,15 +380,15 @@ namespace Confuser.Renamer {
             }
 
             if (type is TypeSpec) {
-				TypeSig sig = ((TypeSpec)type).TypeSig;
+				var sig = ((TypeSpec)type).TypeSig;
 				if (sig is TypeDefOrRefSig) {
-					TypeDef typeDef = ((TypeDefOrRefSig)sig).TypeDefOrRef.ResolveTypeDefThrow();
+					var typeDef = ((TypeDefOrRefSig)sig).TypeDefOrRef.ResolveTypeDefThrow();
 					return GetOrConstruct(typeDef);
 				}
 				if (sig is GenericInstSig) {
 					var genInst = (GenericInstSig)sig;
-					TypeDef openType = genInst.GenericType.TypeDefOrRef.ResolveTypeDefThrow();
-					VTable vTable = GetOrConstruct(openType);
+					var openType = genInst.GenericType.TypeDefOrRef.ResolveTypeDefThrow();
+					var vTable = GetOrConstruct(openType);
 
 					return ResolveGenericArgument(openType, genInst, vTable);
 				}
@@ -399,7 +399,7 @@ namespace Confuser.Renamer {
 
 		static VTableSlot ResolveSlot(TypeDef openType, VTableSlot slot, IList<TypeSig> genArgs) {
 			var newSig = GenericArgumentResolver.Resolve(slot.Signature.MethodSig, genArgs);
-			TypeSig newDecl = slot.MethodDefDeclType;
+			var newDecl = slot.MethodDefDeclType;
 			if (new SigComparer().Equals(newDecl, openType))
             {
                 newDecl = new GenericInstSig((ClassOrValueTypeSig)openType.ToTypeSig(), genArgs.ToArray());
@@ -415,7 +415,7 @@ namespace Confuser.Renamer {
 		static VTable ResolveGenericArgument(TypeDef openType, GenericInstSig genInst, VTable vTable) {
 			Debug.Assert(new SigComparer().Equals(openType, vTable.Type));
 			var ret = new VTable(genInst);
-			foreach (VTableSlot slot in vTable.Slots) {
+			foreach (var slot in vTable.Slots) {
 				ret.Slots.Add(ResolveSlot(openType, slot, genInst.GenericArguments));
 			}
 			foreach (var iface in vTable.InterfaceSlots) {

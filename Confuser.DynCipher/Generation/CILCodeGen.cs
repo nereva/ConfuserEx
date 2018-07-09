@@ -39,7 +39,7 @@ namespace Confuser.DynCipher.Generation {
 		}
 
 		public void Commit(CilBody body) {
-			foreach (Local i in localMap.Values) {
+			foreach (var i in localMap.Values) {
 				body.InitLocals = true;
 				body.Variables.Add(i);
 			}
@@ -169,14 +169,14 @@ namespace Confuser.DynCipher.Generation {
                  *      blt     lop
                  *      pop
                  */
-				Instruction lbl = Instruction.Create(OpCodes.Nop);
-				Instruction dup = Instruction.Create(OpCodes.Dup);
+				var lbl = Instruction.Create(OpCodes.Nop);
+				var dup = Instruction.Create(OpCodes.Dup);
 				Emit(Instruction.CreateLdcI4(loop.Begin));
 				Emit(Instruction.Create(OpCodes.Br, dup));
 				Emit(Instruction.CreateLdcI4(loop.Begin));
 				Emit(lbl);
 
-				foreach (Statement child in loop.Statements)
+				foreach (var child in loop.Statements)
                 {
                     EmitStatement(child);
                 }
@@ -189,7 +189,7 @@ namespace Confuser.DynCipher.Generation {
 				Emit(Instruction.Create(OpCodes.Pop));
 			}
 			else if (statement is StatementBlock) {
-				foreach (Statement child in ((StatementBlock)statement).Statements)
+				foreach (var child in ((StatementBlock)statement).Statements)
                 {
                     EmitStatement(child);
                 }

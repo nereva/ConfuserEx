@@ -8,7 +8,7 @@ namespace Confuser.Protections.ControlFlow {
 	internal static class BlockParser {
 		public static ScopeBlock ParseBody(CilBody body) {
 			var ehScopes = new Dictionary<ExceptionHandler, Tuple<ScopeBlock, ScopeBlock, ScopeBlock>>();
-			foreach (ExceptionHandler eh in body.ExceptionHandlers) {
+			foreach (var eh in body.ExceptionHandlers) {
 				var tryBlock = new ScopeBlock(BlockType.Try, eh);
 
 				var handlerType = BlockType.Handler;
@@ -38,9 +38,9 @@ namespace Confuser.Protections.ControlFlow {
 			var scopeStack = new Stack<ScopeBlock>();
 
 			scopeStack.Push(root);
-			foreach (Instruction instr in body.Instructions) {
-				foreach (ExceptionHandler eh in body.ExceptionHandlers) {
-					Tuple<ScopeBlock, ScopeBlock, ScopeBlock> ehScope = ehScopes[eh];
+			foreach (var instr in body.Instructions) {
+				foreach (var eh in body.ExceptionHandlers) {
+					var ehScope = ehScopes[eh];
 
 					if (instr == eh.TryEnd)
                     {
@@ -58,9 +58,9 @@ namespace Confuser.Protections.ControlFlow {
 						scopeStack.Pop();
 					}
 				}
-				foreach (ExceptionHandler eh in body.ExceptionHandlers.Reverse()) {
-					Tuple<ScopeBlock, ScopeBlock, ScopeBlock> ehScope = ehScopes[eh];
-					ScopeBlock parent = scopeStack.Count > 0 ? scopeStack.Peek() : null;
+				foreach (var eh in body.ExceptionHandlers.Reverse()) {
+					var ehScope = ehScopes[eh];
+					var parent = scopeStack.Count > 0 ? scopeStack.Peek() : null;
 
 					if (instr == eh.TryStart) {
 						if (parent != null)
@@ -90,7 +90,7 @@ namespace Confuser.Protections.ControlFlow {
 					}
 				}
 
-				ScopeBlock scope = scopeStack.Peek();
+				var scope = scopeStack.Peek();
 				var block = scope.Children.LastOrDefault() as InstrBlock;
 				if (block == null)
                 {
@@ -99,7 +99,7 @@ namespace Confuser.Protections.ControlFlow {
 
                 block.Instructions.Add(instr);
 			}
-			foreach (ExceptionHandler eh in body.ExceptionHandlers) {
+			foreach (var eh in body.ExceptionHandlers) {
 				if (eh.TryEnd == null)
                 {
                     scopeStack.Pop();

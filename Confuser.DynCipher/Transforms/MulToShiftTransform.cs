@@ -16,7 +16,7 @@ namespace Confuser.DynCipher.Transforms {
 				var binOp = (BinOpExpression)exp;
 				if (binOp.Operation == BinOps.Mul && binOp.Right is LiteralExpression) {
 					// Decompose multiplication into shifts, e.g. x * 3 => x << 1 + x
-					uint literal = ((LiteralExpression)binOp.Right).Value;
+					var literal = ((LiteralExpression)binOp.Right).Value;
 					if (literal == 0)
                     {
                         return (LiteralExpression)0;
@@ -27,10 +27,10 @@ namespace Confuser.DynCipher.Transforms {
                         return binOp.Left;
                     }
 
-                    uint bits = NumberOfSetBits(literal);
+                    var bits = NumberOfSetBits(literal);
 					if (bits <= 2) {
 						var sum = new List<Expression>();
-						int n = 0;
+						var n = 0;
 						while (literal != 0) {
 							if ((literal & 1) != 0) {
 								if (n == 0)
@@ -45,8 +45,8 @@ namespace Confuser.DynCipher.Transforms {
 							literal >>= 1;
 							n++;
 						}
-						BinOpExpression x = sum.OfType<BinOpExpression>().First();
-						foreach (Expression i in sum.Except(new[] { x }))
+						var x = sum.OfType<BinOpExpression>().First();
+						foreach (var i in sum.Except(new[] { x }))
                         {
                             x += i;
                         }
@@ -77,7 +77,7 @@ namespace Confuser.DynCipher.Transforms {
 		}
 
 		public static void Run(StatementBlock block) {
-			foreach (Statement st in block.Statements)
+			foreach (var st in block.Statements)
             {
                 ProcessStatement(st);
             }

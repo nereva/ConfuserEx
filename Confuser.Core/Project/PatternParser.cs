@@ -51,7 +51,7 @@ namespace Confuser.Core.Project {
             try {
 				tokenizer.Initialize(pattern);
 				lookAhead = tokenizer.NextToken();
-				PatternExpression ret = ParseExpression(true);
+				var ret = ParseExpression(true);
 				if (PeekToken() != null)
                 {
                     throw new InvalidPatternException("Extra tokens beyond the end of pattern.");
@@ -117,7 +117,7 @@ namespace Confuser.Core.Project {
                 throw UnexpectedEnd();
             }
 
-            PatternToken ret = lookAhead.Value;
+            var ret = lookAhead.Value;
 			lookAhead = tokenizer.NextToken();
 			return ret;
 		}
@@ -128,14 +128,14 @@ namespace Confuser.Core.Project {
 
 		PatternExpression ParseExpression(bool readBinOp = false) {
 			PatternExpression ret;
-			PatternToken token = ReadToken();
+			var token = ReadToken();
 			switch (token.Type) {
 				case TokenType.Literal:
 					ret = new LiteralExpression(token.Value);
 					break;
 				case TokenType.LParens: {
 					ret = ParseExpression(true);
-					PatternToken parens = ReadToken();
+					var parens = ReadToken();
 					if (parens.Type != TokenType.RParens)
                         {
                             throw MismatchParens(token.Position.Value);
@@ -145,7 +145,7 @@ namespace Confuser.Core.Project {
 				case TokenType.Identifier:
 					if (IsOperator(token)) {
 						// unary operator
-						PatternOperator op = ops[token.Value]();
+						var op = ops[token.Value]();
 						if (!op.IsUnary)
                         {
                             throw UnexpectedToken(token);
@@ -156,16 +156,16 @@ namespace Confuser.Core.Project {
 					}
 					else if (IsFunction(token)) {
 						// function
-						PatternFunction fn = fns[token.Value]();
+						var fn = fns[token.Value]();
 
-						PatternToken parens = ReadToken();
+						var parens = ReadToken();
 						if (parens.Type != TokenType.LParens)
                         {
                             throw UnexpectedToken(parens, '(');
                         }
 
                         fn.Arguments = new List<PatternExpression>(fn.ArgumentCount);
-						for (int i = 0; i < fn.ArgumentCount; i++) {
+						for (var i = 0; i < fn.ArgumentCount; i++) {
 							if (PeekToken() == null)
                             {
                                 throw UnexpectedEnd();
@@ -177,7 +177,7 @@ namespace Confuser.Core.Project {
                             }
 
                             if (i != 0) {
-								PatternToken comma = ReadToken();
+								var comma = ReadToken();
 								if (comma.Type != TokenType.Comma)
                                 {
                                     throw UnexpectedToken(comma, ',');
@@ -222,7 +222,7 @@ namespace Confuser.Core.Project {
             }
 
             // binary operator
-            PatternToken? peek = PeekToken();
+            var peek = PeekToken();
 			while (peek != null) {
 				if (peek.Value.Type != TokenType.Identifier)
                 {
@@ -234,8 +234,8 @@ namespace Confuser.Core.Project {
                     break;
                 }
 
-                PatternToken binOpToken = ReadToken();
-				PatternOperator binOp = ops[binOpToken.Value]();
+                var binOpToken = ReadToken();
+				var binOp = ops[binOpToken.Value]();
 				if (binOp.IsUnary)
                 {
                     throw UnexpectedToken(binOpToken);

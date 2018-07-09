@@ -34,9 +34,9 @@ namespace Confuser.Core.API {
 
 		/// <inheritdoc />
 		public IDataStore GetStore(MethodDef method) {
-			for (int i = dataStores.Count - 1; i >= 0; i--) {
+			for (var i = dataStores.Count - 1; i >= 0; i--) {
 				var list = dataStores[i];
-				for (int j = list.Count - 1; j >= 0; i--) {
+				for (var j = list.Count - 1; j >= 0; i--) {
 					if (list[j].IsUsable(method))
                     {
                         return list[j];

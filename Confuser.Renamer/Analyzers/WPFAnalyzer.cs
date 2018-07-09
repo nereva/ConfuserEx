@@ -77,9 +77,9 @@ namespace Confuser.Renamer.Analyzers {
                          * then we want to keep the relative path and namespace intact. We should be obfuscating it like this - /some.namespace;component/somefolder/asjdjh2398498dswk.xaml
                         * */
 
-						string[] completePath = newName.Split(new string[] { "/" }, StringSplitOptions.RemoveEmptyEntries);
-						string newShinyName = string.Empty;
-						for (int i = 0; i <= completePath.Length - 2; i++) {
+						var completePath = newName.Split(new string[] { "/" }, StringSplitOptions.RemoveEmptyEntries);
+						var newShinyName = string.Empty;
+						for (var i = 0; i <= completePath.Length - 2; i++) {
 							newShinyName += completePath[i].ToLowerInvariant() + "/";
 						}
 						if (newName.EndsWith(".BAML"))
@@ -95,7 +95,7 @@ namespace Confuser.Renamer.Analyzers {
 
 						#endregion
 
-						bool renameOk = true;
+						var renameOk = true;
 						foreach (var bamlRef in references)
                         {
                             if (!bamlRef.CanRename(doc.DocumentName, newName)) {
@@ -130,7 +130,7 @@ namespace Confuser.Renamer.Analyzers {
                 return;
             }
 
-            foreach (EmbeddedResource res in module.Resources.OfType<EmbeddedResource>()) {
+            foreach (var res in module.Resources.OfType<EmbeddedResource>()) {
 				Dictionary<string, BamlDocument> resInfo;
 
 				if (!wpfResInfo.TryGetValue(res.Name, out resInfo))
@@ -143,7 +143,7 @@ namespace Confuser.Renamer.Analyzers {
 
 				res.Data.Position = 0;
 				var reader = new ResourceReader(new ImageStream(res.Data));
-				IDictionaryEnumerator enumerator = reader.GetEnumerator();
+				var enumerator = reader.GetEnumerator();
 				while (enumerator.MoveNext()) {
 					var name = (string)enumerator.Key;
 					string typeName;
@@ -171,8 +171,8 @@ namespace Confuser.Renamer.Analyzers {
 		void AnalyzeMethod(ConfuserContext context, INameService service, MethodDef method) {
 			var dpRegInstrs = new List<Tuple<bool, Instruction>>();
 			var routedEvtRegInstrs = new List<Instruction>();
-			for (int i = 0; i < method.Body.Instructions.Count; i++) {
-				Instruction instr = method.Body.Instructions[i];
+			for (var i = 0; i < method.Body.Instructions.Count; i++) {
+				var instr = method.Body.Instructions[i];
 				if ((instr.OpCode.Code == Code.Call || instr.OpCode.Code == Code.Callvirt)) {
 					var regMethod = (IMethod)instr.Operand;
 
@@ -225,11 +225,11 @@ namespace Confuser.Renamer.Analyzers {
             }
 
             var traceSrv = context.Registry.GetService<ITraceService>();
-			MethodTrace trace = traceSrv.Trace(method);
+			var trace = traceSrv.Trace(method);
 
-			bool erred = false;
+			var erred = false;
 			foreach (var instrInfo in dpRegInstrs) {
-				int[] args = trace.TraceArguments(instrInfo.Item2);
+				var args = trace.TraceArguments(instrInfo.Item2);
 				if (args == null) {
 					if (!erred)
                     {
@@ -239,7 +239,7 @@ namespace Confuser.Renamer.Analyzers {
                     erred = true;
 					continue;
 				}
-				Instruction ldstr = method.Body.Instructions[args[0]];
+				var ldstr = method.Body.Instructions[args[0]];
 				if (ldstr.OpCode.Code != Code.Ldstr) {
 					if (!erred)
                     {
@@ -251,8 +251,8 @@ namespace Confuser.Renamer.Analyzers {
 				}
 
 				var name = (string)ldstr.Operand;
-				TypeDef declType = method.DeclaringType;
-				bool found = false;
+				var declType = method.DeclaringType;
+				var found = false;
 				if (instrInfo.Item1) // Attached DP
 				{
 					MethodDef accessor;
@@ -284,7 +284,7 @@ namespace Confuser.Renamer.Analyzers {
                     }
 
                     if (property.HasOtherMethods) {
-						foreach (MethodDef accessor in property.OtherMethods)
+						foreach (var accessor in property.OtherMethods)
                         {
                             service.SetCanRename(accessor, false);
                         }
@@ -305,8 +305,8 @@ namespace Confuser.Renamer.Analyzers {
 			}
 
 			erred = false;
-			foreach (Instruction instr in routedEvtRegInstrs) {
-				int[] args = trace.TraceArguments(instr);
+			foreach (var instr in routedEvtRegInstrs) {
+				var args = trace.TraceArguments(instr);
 				if (args == null) {
 					if (!erred)
                     {
@@ -316,7 +316,7 @@ namespace Confuser.Renamer.Analyzers {
                     erred = true;
 					continue;
 				}
-				Instruction ldstr = method.Body.Instructions[args[0]];
+				var ldstr = method.Body.Instructions[args[0]];
 				if (ldstr.OpCode.Code != Code.Ldstr) {
 					if (!erred)
                     {
@@ -328,7 +328,7 @@ namespace Confuser.Renamer.Analyzers {
 				}
 
 				var name = (string)ldstr.Operand;
-				TypeDef declType = method.DeclaringType;
+				var declType = method.DeclaringType;
 
 				EventDef eventDef = null;
 				if ((eventDef = declType.FindEvent(name)) == null) {
@@ -354,7 +354,7 @@ namespace Confuser.Renamer.Analyzers {
                 }
 
                 if (eventDef.HasOtherMethods) {
-					foreach (MethodDef accessor in eventDef.OtherMethods)
+					foreach (var accessor in eventDef.OtherMethods)
                     {
                         service.SetCanRename(accessor, false);
                     }
@@ -370,8 +370,8 @@ namespace Confuser.Renamer.Analyzers {
 
 			var wpfResInfo = new Dictionary<string, Dictionary<string, BamlDocument>>();
 
-			foreach (EmbeddedResource res in module.Resources.OfType<EmbeddedResource>()) {
-				Match match = ResourceNamePattern.Match(res.Name);
+			foreach (var res in module.Resources.OfType<EmbeddedResource>()) {
+				var match = ResourceNamePattern.Match(res.Name);
 				if (!match.Success)
                 {
                     continue;
@@ -381,7 +381,7 @@ namespace Confuser.Renamer.Analyzers {
 
 				res.Data.Position = 0;
 				var reader = new ResourceReader(new ImageStream(res.Data));
-				IDictionaryEnumerator enumerator = reader.GetEnumerator();
+				var enumerator = reader.GetEnumerator();
 				while (enumerator.MoveNext()) {
 					var name = (string)enumerator.Key;
 					if (!name.EndsWith(".baml"))
@@ -392,7 +392,7 @@ namespace Confuser.Renamer.Analyzers {
                     string typeName;
 					byte[] data;
 					reader.GetResourceData(name, out typeName, out data);
-					BamlDocument document = analyzer.Analyze(module, name, data);
+					var document = analyzer.Analyze(module, name, data);
 					document.DocumentName = name;
 					resInfo.Add(name, document);
 				}

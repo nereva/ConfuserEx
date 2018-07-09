@@ -20,9 +20,9 @@ namespace SevenZip.Compression.RangeCoder {
 
 		public void Encode(Encoder rangeEncoder, UInt32 symbol) {
 			UInt32 m = 1;
-			for (int bitIndex = NumBitLevels; bitIndex > 0;) {
+			for (var bitIndex = NumBitLevels; bitIndex > 0;) {
 				bitIndex--;
-				UInt32 bit = (symbol >> bitIndex) & 1;
+				var bit = (symbol >> bitIndex) & 1;
 				Models[m].Encode(rangeEncoder, bit);
 				m = (m << 1) | bit;
 			}
@@ -31,7 +31,7 @@ namespace SevenZip.Compression.RangeCoder {
 		public void ReverseEncode(Encoder rangeEncoder, UInt32 symbol) {
 			UInt32 m = 1;
 			for (UInt32 i = 0; i < NumBitLevels; i++) {
-				UInt32 bit = symbol & 1;
+				var bit = symbol & 1;
 				Models[m].Encode(rangeEncoder, bit);
 				m = (m << 1) | bit;
 				symbol >>= 1;
@@ -41,9 +41,9 @@ namespace SevenZip.Compression.RangeCoder {
 		public UInt32 GetPrice(UInt32 symbol) {
 			UInt32 price = 0;
 			UInt32 m = 1;
-			for (int bitIndex = NumBitLevels; bitIndex > 0;) {
+			for (var bitIndex = NumBitLevels; bitIndex > 0;) {
 				bitIndex--;
-				UInt32 bit = (symbol >> bitIndex) & 1;
+				var bit = (symbol >> bitIndex) & 1;
 				price += Models[m].GetPrice(bit);
 				m = (m << 1) + bit;
 			}
@@ -53,8 +53,8 @@ namespace SevenZip.Compression.RangeCoder {
 		public UInt32 ReverseGetPrice(UInt32 symbol) {
 			UInt32 price = 0;
 			UInt32 m = 1;
-			for (int i = NumBitLevels; i > 0; i--) {
-				UInt32 bit = symbol & 1;
+			for (var i = NumBitLevels; i > 0; i--) {
+				var bit = symbol & 1;
 				symbol >>= 1;
 				price += Models[m].GetPrice(bit);
 				m = (m << 1) | bit;
@@ -66,8 +66,8 @@ namespace SevenZip.Compression.RangeCoder {
 		                                     int NumBitLevels, UInt32 symbol) {
 			UInt32 price = 0;
 			UInt32 m = 1;
-			for (int i = NumBitLevels; i > 0; i--) {
-				UInt32 bit = symbol & 1;
+			for (var i = NumBitLevels; i > 0; i--) {
+				var bit = symbol & 1;
 				symbol >>= 1;
 				price += Models[startIndex + m].GetPrice(bit);
 				m = (m << 1) | bit;
@@ -78,8 +78,8 @@ namespace SevenZip.Compression.RangeCoder {
 		public static void ReverseEncode(BitEncoder[] Models, UInt32 startIndex,
 		                                 Encoder rangeEncoder, int NumBitLevels, UInt32 symbol) {
 			UInt32 m = 1;
-			for (int i = 0; i < NumBitLevels; i++) {
-				UInt32 bit = symbol & 1;
+			for (var i = 0; i < NumBitLevels; i++) {
+				var bit = symbol & 1;
 				Models[startIndex + m].Encode(rangeEncoder, bit);
 				m = (m << 1) | bit;
 				symbol >>= 1;
@@ -107,7 +107,7 @@ namespace SevenZip.Compression.RangeCoder {
 
 		public uint Decode(Decoder rangeDecoder) {
 			uint m = 1;
-			for (int bitIndex = NumBitLevels; bitIndex > 0; bitIndex--)
+			for (var bitIndex = NumBitLevels; bitIndex > 0; bitIndex--)
             {
                 m = (m << 1) + Models[m].Decode(rangeDecoder);
             }
@@ -118,8 +118,8 @@ namespace SevenZip.Compression.RangeCoder {
 		public uint ReverseDecode(Decoder rangeDecoder) {
 			uint m = 1;
 			uint symbol = 0;
-			for (int bitIndex = 0; bitIndex < NumBitLevels; bitIndex++) {
-				uint bit = Models[m].Decode(rangeDecoder);
+			for (var bitIndex = 0; bitIndex < NumBitLevels; bitIndex++) {
+				var bit = Models[m].Decode(rangeDecoder);
 				m <<= 1;
 				m += bit;
 				symbol |= (bit << bitIndex);
@@ -131,8 +131,8 @@ namespace SevenZip.Compression.RangeCoder {
 		                                 Decoder rangeDecoder, int NumBitLevels) {
 			uint m = 1;
 			uint symbol = 0;
-			for (int bitIndex = 0; bitIndex < NumBitLevels; bitIndex++) {
-				uint bit = Models[startIndex + m].Decode(rangeDecoder);
+			for (var bitIndex = 0; bitIndex < NumBitLevels; bitIndex++) {
+				var bit = Models[startIndex + m].Decode(rangeDecoder);
 				m <<= 1;
 				m += bit;
 				symbol |= (bit << bitIndex);

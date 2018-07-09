@@ -143,7 +143,7 @@ namespace Confuser.Core {
 
 		static IEnumerable<ObfuscationAttributeInfo> ReadObfuscationAttributes(IHasCustomAttribute item) {
 			var ret = new List<Tuple<int?, ObfuscationAttributeInfo>>();
-			for (int i = item.CustomAttributes.Count - 1; i >= 0; i--) {
+			for (var i = item.CustomAttributes.Count - 1; i >= 0; i--) {
 				var ca = item.CustomAttributes[i];
 				if (ca.TypeFullName != "System.Reflection.ObfuscationAttribute")
                 {
@@ -154,7 +154,7 @@ namespace Confuser.Core {
 				int? order = null;
 
 				info.Owner = item;
-				bool strip = true;
+				var strip = true;
 				foreach (var prop in ca.Properties) {
 					switch (prop.Name) {
 						case "ApplyToMembers":
@@ -190,7 +190,7 @@ namespace Confuser.Core {
 								feature = f;
 							}
 
-							int sepIndex = feature.IndexOf(':');
+							var sepIndex = feature.IndexOf(':');
 							if (sepIndex == -1) {
 								info.FeatureName = "";
 								info.FeatureValue = feature;
@@ -225,7 +225,7 @@ namespace Confuser.Core {
 			info.ApplyToMember = (attr.ApplyToMembers ?? true);
 			info.Settings = attr.FeatureValue;
 
-			bool ok = true;
+			var ok = true;
 			try {
 				new ObfAttrParser(protections).ParseProtectionString(null, info.Settings);
 			}
@@ -268,7 +268,7 @@ namespace Confuser.Core {
 				settings.Append(item.Id);
 				if (item.Count > 0) {
 					settings.Append('(');
-					int i = 0;
+					var i = 0;
 					foreach (var arg in item) {
 						if (i != 0)
                         {
@@ -311,7 +311,7 @@ namespace Confuser.Core {
 
 		/// <inheritdoc />
 		protected internal override void MarkMember(IDnlibDef member, ConfuserContext context) {
-			ModuleDef module = ((IMemberRef)member).Module;
+			var module = ((IMemberRef)member).Module;
 			var stack = context.Annotations.Get<ProtectionSettingsStack>(module, ModuleSettingsKey);
 			using (stack.Apply(member, Enumerable.Empty<ProtectionSettingsInfo>()))
             {
@@ -336,13 +336,13 @@ namespace Confuser.Core {
 			}
 
 			var modules = new List<Tuple<ProjectModule, ModuleDefMD>>();
-			foreach (ProjectModule module in proj) {
+			foreach (var module in proj) {
 				if (module.IsExternal) {
 					extModules.Add(module.LoadRaw(proj.BaseDirectory));
 					continue;
 				}
 
-				ModuleDefMD modDef = module.Resolve(proj.BaseDirectory, context.Resolver.DefaultModuleContext);
+				var modDef = module.Resolve(proj.BaseDirectory, context.Resolver.DefaultModuleContext);
 				context.CheckCancellation();
 
 				context.Resolver.AddToCache(modDef);
@@ -351,7 +351,7 @@ namespace Confuser.Core {
 			foreach (var module in modules) {
 				context.Logger.InfoFormat("Loading '{0}'...", module.Item1.Path);
 
-				Rules rules = ParseRules(proj, module.Item1, context);
+				var rules = ParseRules(proj, module.Item1, context);
 				MarkModule(module.Item1, module.Item2, rules, module == modules[0]);
 
 				context.Annotations.Set(module.Item2, RulesKey, rules);
@@ -390,7 +390,7 @@ namespace Confuser.Core {
 			info.ApplyToMember = (attr.ApplyToMembers ?? true);
 			info.Settings = attr.FeatureValue;
 
-			bool ok = true;
+			var ok = true;
 			try {
 				new ObfAttrParser(protections).ParseProtectionString(null, info.Settings);
 			}

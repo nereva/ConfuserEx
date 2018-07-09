@@ -54,22 +54,22 @@ namespace Confuser.Renamer.BAML {
 
 		void PreInit() {
 			// WPF will only look for public instance members
-			foreach (TypeDef type in context.Modules.SelectMany(m => m.GetTypes())) {
-				foreach (PropertyDef property in type.Properties) {
+			foreach (var type in context.Modules.SelectMany(m => m.GetTypes())) {
+				foreach (var property in type.Properties) {
 					if (property.IsPublic() && !property.IsStatic())
                     {
                         properties.AddListEntry(property.Name, property);
                     }
                 }
 
-				foreach (EventDef evt in type.Events) {
+				foreach (var evt in type.Events) {
 					if (evt.IsPublic() && !evt.IsStatic())
                     {
                         events.AddListEntry(evt.Name, evt);
                     }
                 }
 
-				foreach (MethodDef method in type.Methods) {
+				foreach (var method in type.Methods) {
 					if (method.IsPublic && !method.IsStatic)
                     {
                         methods.AddListEntry(method.Name, method);
@@ -120,7 +120,7 @@ namespace Confuser.Renamer.BAML {
 
 			Debug.Assert(BitConverter.ToInt32(data, 0) == data.Length - 4);
 
-			BamlDocument document = BamlReader.ReadDocument(new MemoryStream(data, 4, data.Length - 4));
+			var document = BamlReader.ReadDocument(new MemoryStream(data, 4, data.Length - 4));
 
 			// Remove debug infos
 			document.RemoveWhere(rec => rec is LineNumberAndPositionRecord || rec is LinePositionRecord);
@@ -129,14 +129,14 @@ namespace Confuser.Renamer.BAML {
 			PopulateReferences(document);
 
 			// Process elements
-			BamlElement rootElem = BamlElement.Read(document);
-			BamlElement trueRoot = rootElem.Children.Single();
+			var rootElem = BamlElement.Read(document);
+			var trueRoot = rootElem.Children.Single();
 			var stack = new Stack<BamlElement>();
 			stack.Push(rootElem);
 			while (stack.Count > 0) {
-				BamlElement elem = stack.Pop();
+				var elem = stack.Pop();
 				ProcessBAMLElement(trueRoot, elem);
-				foreach (BamlElement child in elem.Children)
+				foreach (var child in elem.Children)
                 {
                     stack.Push(child);
                 }
@@ -149,8 +149,8 @@ namespace Confuser.Renamer.BAML {
 			var clrNs = new Dictionary<string, List<Tuple<AssemblyDef, string>>>();
 
 			assemblyRefs.Clear();
-			foreach (AssemblyInfoRecord rec in document.OfType<AssemblyInfoRecord>()) {
-				AssemblyDef assembly = context.Resolver.ResolveThrow(rec.AssemblyFullName, Module);
+			foreach (var rec in document.OfType<AssemblyInfoRecord>()) {
+				var assembly = context.Resolver.ResolveThrow(rec.AssemblyFullName, Module);
 				assemblyRefs.Add(rec.AssemblyId, assembly);
 
 				if (!context.Modules.Any(m => m.Assembly == assembly))
@@ -158,7 +158,7 @@ namespace Confuser.Renamer.BAML {
                     continue;
                 }
 
-                foreach (CustomAttribute attr in assembly.CustomAttributes.FindAll("System.Windows.Markup.XmlnsDefinitionAttribute")) {
+                foreach (var attr in assembly.CustomAttributes.FindAll("System.Windows.Markup.XmlnsDefinitionAttribute")) {
 					clrNs.AddListEntry(
 						(UTF8String)attr.ConstructorArguments[0].Value,
 						Tuple.Create(assembly, (string)(UTF8String)attr.ConstructorArguments[1].Value));
@@ -168,7 +168,7 @@ namespace Confuser.Renamer.BAML {
 			xmlnsCtx = new XmlNsContext(document, assemblyRefs);
 
 			typeRefs.Clear();
-			foreach (TypeInfoRecord rec in document.OfType<TypeInfoRecord>()) {
+			foreach (var rec in document.OfType<TypeInfoRecord>()) {
 				AssemblyDef assembly;
 				var asmId = (short)(rec.AssemblyId & 0xfff);
 				if (asmId == -1)
@@ -180,34 +180,34 @@ namespace Confuser.Renamer.BAML {
                     assembly = assemblyRefs[(ushort)asmId];
                 }
 
-                AssemblyDef assemblyRef = Module.Assembly == assembly ? null : assembly;
+                var assemblyRef = Module.Assembly == assembly ? null : assembly;
 
-				TypeSig typeSig = TypeNameParser.ParseAsTypeSigReflectionThrow(Module, rec.TypeFullName, new DummyAssemblyRefFinder(assemblyRef));
+				var typeSig = TypeNameParser.ParseAsTypeSigReflectionThrow(Module, rec.TypeFullName, new DummyAssemblyRefFinder(assemblyRef));
 				typeRefs[rec.TypeId] = typeSig;
 
 				AddTypeSigReference(typeSig, new BAMLTypeReference(typeSig, rec));
 			}
 
 			attrRefs.Clear();
-			foreach (AttributeInfoRecord rec in document.OfType<AttributeInfoRecord>()) {
+			foreach (var rec in document.OfType<AttributeInfoRecord>()) {
 				TypeSig declType;
 				if (typeRefs.TryGetValue(rec.OwnerTypeId, out declType)) {
-					TypeDef type = declType.ToBasicTypeDefOrRef().ResolveTypeDefThrow();
+					var type = declType.ToBasicTypeDefOrRef().ResolveTypeDefThrow();
 					attrRefs[rec.AttributeId] = AnalyzeAttributeReference(type, rec);
 				}
 				else {
 					Debug.Assert((short)rec.OwnerTypeId < 0);
-					TypeDef declTypeDef = things.Types((KnownTypes)(-(short)rec.OwnerTypeId));
+					var declTypeDef = things.Types((KnownTypes)(-(short)rec.OwnerTypeId));
 					attrRefs[rec.AttributeId] = AnalyzeAttributeReference(declTypeDef, rec);
 				}
 			}
 
 			strings.Clear();
-			foreach (StringInfoRecord rec in document.OfType<StringInfoRecord>()) {
+			foreach (var rec in document.OfType<StringInfoRecord>()) {
 				strings[rec.StringId] = rec;
 			}
 
-			foreach (PIMappingRecord rec in document.OfType<PIMappingRecord>()) {
+			foreach (var rec in document.OfType<PIMappingRecord>()) {
 				var asmId = (short)(rec.AssemblyId & 0xfff);
 				AssemblyDef assembly;
 				if (asmId == -1)
@@ -219,12 +219,12 @@ namespace Confuser.Renamer.BAML {
                     assembly = assemblyRefs[(ushort)asmId];
                 }
 
-                Tuple<AssemblyDef, string> scope = Tuple.Create(assembly, rec.ClrNamespace);
+                var scope = Tuple.Create(assembly, rec.ClrNamespace);
 				clrNs.AddListEntry(rec.XmlNamespace, scope);
 			}
 
 			xmlns.Clear();
-			foreach (XmlnsPropertyRecord rec in document.OfType<XmlnsPropertyRecord>()) {
+			foreach (var rec in document.OfType<XmlnsPropertyRecord>()) {
 				List<Tuple<AssemblyDef, string>> clrMap;
 				if (clrNs.TryGetValue(rec.XmlNamespace, out clrMap)) {
 					xmlns[rec.Prefix] = clrMap;
@@ -248,7 +248,7 @@ namespace Confuser.Renamer.BAML {
 		TypeSig ResolveType(string typeName, out string prefix) {
 			List<Tuple<AssemblyDef, string>> clrNs;
 
-			int index = typeName.IndexOf(':');
+			var index = typeName.IndexOf(':');
 			if (index == -1) {
 				prefix = "";
 				if (!xmlns.TryGetValue(prefix, out clrNs))
@@ -267,7 +267,7 @@ namespace Confuser.Renamer.BAML {
 			}
 
 			foreach (var ns in clrNs) {
-				TypeSig sig = TypeNameParser.ParseAsTypeSigReflectionThrow(Module, ns.Item2 + "." + typeName, new DummyAssemblyRefFinder(ns.Item1));
+				var sig = TypeNameParser.ParseAsTypeSigReflectionThrow(Module, ns.Item2 + "." + typeName, new DummyAssemblyRefFinder(ns.Item1));
 				if (sig.ToBasicTypeDefOrRef().ResolveTypeDef() != null)
                 {
                     return sig;
@@ -278,15 +278,15 @@ namespace Confuser.Renamer.BAML {
 
 		public Tuple<IDnlibDef, AttributeInfoRecord, TypeDef> ResolveAttribute(ushort attrId) {
 			if ((short)attrId < 0) {
-				Tuple<KnownTypes, PropertyDef, TypeDef> info = things.Properties((KnownProperties)(-(short)attrId));
+				var info = things.Properties((KnownProperties)(-(short)attrId));
 				return Tuple.Create<IDnlibDef, AttributeInfoRecord, TypeDef>(info.Item2, null, info.Item3);
 			}
 			return attrRefs[attrId];
 		}
 
 		void AddTypeSigReference(TypeSig typeSig, INameReference<IDnlibDef> reference) {
-			foreach (ITypeDefOrRef type in typeSig.FindTypeRefs()) {
-				TypeDef typeDef = type.ResolveTypeDefThrow();
+			foreach (var type in typeSig.FindTypeRefs()) {
+				var typeDef = type.ResolveTypeDefThrow();
 				if (context.Modules.Contains((ModuleDefMD)typeDef.Module)) {
 					service.ReduceRenameMode(typeDef, RenameMode.Letters);
 					if (type is TypeRef)
@@ -370,7 +370,7 @@ namespace Confuser.Renamer.BAML {
 		}
 
 		void ProcessElementBody(BamlElement root, BamlElement elem) {
-			foreach (BamlRecord rec in elem.Body) {
+			foreach (var rec in elem.Body) {
 				// Resolve the type & property for simple property record too.
 				TypeDef type = null;
 				IDnlibDef attr = null;
@@ -385,7 +385,7 @@ namespace Confuser.Renamer.BAML {
                     }
 
                     if (attrInfo.Item1 is EventDef) {
-						MethodDef method = root.Type.FindMethod(propRec.Value);
+						var method = root.Type.FindMethod(propRec.Value);
 						if (method == null)
                         {
                             context.Logger.WarnFormat("Cannot resolve method '{0}' in '{1}'.", root.Type.FullName, propRec.Value);
@@ -418,7 +418,7 @@ namespace Confuser.Renamer.BAML {
                         type = GetAttributeType(attr);
                     }
 
-                    foreach (BamlElement child in elem.Children) {
+                    foreach (var child in elem.Children) {
 						child.Type = type;
 						child.Attribute = attr;
 					}
@@ -479,14 +479,14 @@ namespace Confuser.Renamer.BAML {
 				}
 				else if (rec is TextRecord) {
 					var txt = (TextRecord)rec;
-					string value = txt.Value;
+					var value = txt.Value;
 					if (txt is TextWithIdRecord)
                     {
                         value = strings[((TextWithIdRecord)txt).ValueId].Value;
                     }
 
                     string prefix;
-					TypeSig sig = ResolveType(value.Trim(), out prefix);
+					var sig = ResolveType(value.Trim(), out prefix);
 					if (sig != null && context.Modules.Contains((ModuleDefMD)sig.ToBasicTypeDefOrRef().ResolveTypeDefThrow().Module)) {
 						var reference = new BAMLConverterTypeReference(xmlnsCtx, sig, txt);
 						AddTypeSigReference(sig, reference);
@@ -500,11 +500,11 @@ namespace Confuser.Renamer.BAML {
 		}
 
 		void ProcessConverter(PropertyWithConverterRecord rec, TypeDef type) {
-			TypeDef converter = ResolveType(rec.ConverterTypeId);
+			var converter = ResolveType(rec.ConverterTypeId);
 
 			if (converter.FullName == "System.ComponentModel.EnumConverter") {
 				if (type != null && context.Modules.Contains((ModuleDefMD)type.Module)) {
-					FieldDef enumField = type.FindField(rec.Value);
+					var enumField = type.FindField(rec.Value);
 					if (enumField != null)
                     {
                         service.AddReference(enumField, new BAMLEnumReference(enumField, rec));
@@ -512,25 +512,25 @@ namespace Confuser.Renamer.BAML {
                 }
 			}
 			else if (converter.FullName == "System.Windows.Input.CommandConverter") {
-				string cmd = rec.Value.Trim();
-				int index = cmd.IndexOf('.');
+				var cmd = rec.Value.Trim();
+				var index = cmd.IndexOf('.');
 				if (index != -1) {
-					string typeName = cmd.Substring(0, index);
+					var typeName = cmd.Substring(0, index);
 					string prefix;
-					TypeSig sig = ResolveType(typeName, out prefix);
+					var sig = ResolveType(typeName, out prefix);
 					if (sig != null) {
-						string cmdName = cmd.Substring(index + 1);
+						var cmdName = cmd.Substring(index + 1);
 
-						TypeDef typeDef = sig.ToBasicTypeDefOrRef().ResolveTypeDefThrow();
+						var typeDef = sig.ToBasicTypeDefOrRef().ResolveTypeDefThrow();
 						if (context.Modules.Contains((ModuleDefMD)typeDef.Module)) {
-							PropertyDef property = typeDef.FindProperty(cmdName);
+							var property = typeDef.FindProperty(cmdName);
 							if (property != null) {
 								var reference = new BAMLConverterMemberReference(xmlnsCtx, sig, property, rec);
 								AddTypeSigReference(sig, reference);
 								service.ReduceRenameMode(property, RenameMode.Letters);
 								service.AddReference(property, reference);
 							}
-							FieldDef field = typeDef.FindField(cmdName);
+							var field = typeDef.FindField(cmdName);
 							if (field != null) {
 								var reference = new BAMLConverterMemberReference(xmlnsCtx, sig, field, rec);
 								AddTypeSigReference(sig, reference);
@@ -556,7 +556,7 @@ namespace Confuser.Renamer.BAML {
 			}
 			else if (converter.FullName == "System.Windows.Markup.TypeTypeConverter") {
 				string prefix;
-				TypeSig sig = ResolveType(rec.Value.Trim(), out prefix);
+				var sig = ResolveType(rec.Value.Trim(), out prefix);
 				if (sig != null && context.Modules.Contains((ModuleDefMD)sig.ToBasicTypeDefOrRef().ResolveTypeDefThrow().Module)) {
 					var reference = new BAMLConverterTypeReference(xmlnsCtx, sig, rec);
 					AddTypeSigReference(sig, reference);
@@ -623,7 +623,7 @@ namespace Confuser.Renamer.BAML {
 			IDnlibDef retDef = null;
 			ITypeDefOrRef retType = null;
 			while (declType != null) {
-				PropertyDef property = declType.FindProperty(rec.Name);
+				var property = declType.FindProperty(rec.Name);
 				if (property != null) {
 					retDef = property;
 					retType = property.PropertySig.RetType.ToBasicTypeDefOrRef();
@@ -635,7 +635,7 @@ namespace Confuser.Renamer.BAML {
                     break;
 				}
 
-				EventDef evt = declType.FindEvent(rec.Name);
+				var evt = declType.FindEvent(rec.Name);
 				if (evt != null) {
 					retDef = evt;
 					retType = evt.EventType;
@@ -659,13 +659,13 @@ namespace Confuser.Renamer.BAML {
 
 		void AnalyzePropertyPath(string path) {
 			var propertyPath = new PropertyPath(path);
-			foreach (PropertyPathPart part in propertyPath.Parts) {
+			foreach (var part in propertyPath.Parts) {
 				if (part.IsAttachedDP()) {
 					string type, property;
 					part.ExtractAttachedDP(out type, out property);
 					if (type != null) {
 						string prefix;
-						TypeSig sig = ResolveType(type, out prefix);
+						var sig = ResolveType(type, out prefix);
 						if (sig != null && context.Modules.Contains((ModuleDefMD)sig.ToBasicTypeDefOrRef().ResolveTypeDefThrow().Module)) {
 							var reference = new BAMLPathTypeReference(xmlnsCtx, sig, part);
 							AddTypeSigReference(sig, reference);
@@ -676,18 +676,18 @@ namespace Confuser.Renamer.BAML {
 					List<PropertyDef> candidates;
 					if (properties.TryGetValue(part.Name, out candidates))
                     {
-                        foreach (PropertyDef property in candidates) {
+                        foreach (var property in candidates) {
 							service.SetCanRename(property, false);
 						}
                     }
                 }
 
 				if (part.IndexerArguments != null) {
-					foreach (PropertyPathIndexer indexer in part.IndexerArguments)
+					foreach (var indexer in part.IndexerArguments)
                     {
                         if (!string.IsNullOrEmpty(indexer.Type)) {
 							string prefix;
-							TypeSig sig = ResolveType(indexer.Type, out prefix);
+							var sig = ResolveType(indexer.Type, out prefix);
 							if (sig != null && context.Modules.Contains((ModuleDefMD)sig.ToBasicTypeDefOrRef().ResolveTypeDefThrow().Module)) {
 								var reference = new BAMLPathTypeReference(xmlnsCtx, sig, part);
 								AddTypeSigReference(sig, reference);
@@ -726,7 +726,7 @@ namespace Confuser.Renamer.BAML {
                     this.assemblyRefs[entry.Value] = entry.Key;
                 }
 
-                for (int i = 0; i < doc.Count; i++)
+                for (var i = 0; i < doc.Count; i++)
                 {
                     if (doc[i] is ElementStartRecord) {
 						rootIndex = i + 1;
@@ -745,7 +745,7 @@ namespace Confuser.Renamer.BAML {
 				string prefix;
 				if (!xmlNsMap.TryGetValue(Tuple.Create(assembly, clrNs), out prefix)) {
 					prefix = "_" + x++;
-					ushort assemblyId = assemblyRefs[assembly];
+					var assemblyId = assemblyRefs[assembly];
 					doc.Insert(rootIndex, new XmlnsPropertyRecord {
 						AssemblyIds = new[] { assemblyId },
 						Prefix = prefix,

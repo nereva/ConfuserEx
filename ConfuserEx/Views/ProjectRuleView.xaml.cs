@@ -36,7 +36,7 @@ namespace ConfuserEx.Views {
 				rule.Protections.Add(prot);
 			});
 			RemoveBtn.Command = new RelayCommand(() => {
-				int selIndex = prots.SelectedIndex;
+				var selIndex = prots.SelectedIndex;
 				Debug.Assert(selIndex != -1);
 
 				rule.Protections.RemoveAt(prots.SelectedIndex);

@@ -46,7 +46,7 @@ namespace Confuser.Core {
                 return defValue;
             }
 
-            Type valueType = typeof(TValue);
+            var valueType = typeof(TValue);
 			if (valueType.IsValueType)
             {
                 return (TValue)Convert.ChangeType(objAnno[key], typeof(TValue));
@@ -88,7 +88,7 @@ namespace Confuser.Core {
                 return defValueFactory(key);
             }
 
-            Type valueType = typeof(TValue);
+            var valueType = typeof(TValue);
 			if (valueType.IsValueType)
             {
                 return (TValue)Convert.ChangeType(objAnno[key], typeof(TValue));
@@ -127,7 +127,7 @@ namespace Confuser.Core {
 
             TValue ret;
 			if (objAnno.Contains(key)) {
-				Type valueType = typeof(TValue);
+				var valueType = typeof(TValue);
 				if (valueType.IsValueType)
                 {
                     return (TValue)Convert.ChangeType(objAnno[key], typeof(TValue));
@@ -173,7 +173,7 @@ namespace Confuser.Core {
 		///     Trims the annotations of unreachable objects from this instance.
 		/// </summary>
 		public void Trim() {
-			foreach (object key in annotations.Where(kvp => !((WeakReferenceKey)kvp.Key).IsAlive).Select(kvp => kvp.Key))
+			foreach (var key in annotations.Where(kvp => !((WeakReferenceKey)kvp.Key).IsAlive).Select(kvp => kvp.Key))
             {
                 annotations.Remove(key);
             }

@@ -27,7 +27,7 @@ namespace ConfuserEx {
         }
 
 		void LoadSymMap(string path) {
-			string shortPath = path;
+			var shortPath = path;
 			if (path.Length > 35)
             {
                 shortPath = "..." + path.Substring(path.Length - 35, 35);
@@ -38,7 +38,7 @@ namespace ConfuserEx {
 				using (var reader = new StreamReader(File.OpenRead(path))) {
 					var line = reader.ReadLine();
 					while (line != null) {
-						int tabIndex = line.IndexOf('\t');
+						var tabIndex = line.IndexOf('\t');
 						if (tabIndex == -1)
                         {
                             throw new FileFormatException();

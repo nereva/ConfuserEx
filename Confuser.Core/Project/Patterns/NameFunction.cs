@@ -20,7 +20,7 @@ namespace Confuser.Core.Project.Patterns {
 
 		/// <inheritdoc />
 		public override object Evaluate(IDnlibDef definition) {
-			object name = Arguments[0].Evaluate(definition);
+			var name = Arguments[0].Evaluate(definition);
 			return definition.Name == name.ToString();
 		}
 	}

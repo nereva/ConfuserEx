@@ -21,7 +21,7 @@ namespace Confuser.Core.Project.Patterns {
 
 		/// <inheritdoc />
 		public override object Evaluate(IDnlibDef definition) {
-			string regex = Arguments[0].Evaluate(definition).ToString();
+			var regex = Arguments[0].Evaluate(definition).ToString();
 			return Regex.IsMatch(definition.FullName, regex);
 		}
 	}
@@ -44,7 +44,7 @@ namespace Confuser.Core.Project.Patterns {
 
 		/// <inheritdoc />
 		public override object Evaluate(IDnlibDef definition) {
-			string regex = Arguments[0].Evaluate(definition).ToString();
+			var regex = Arguments[0].Evaluate(definition).ToString();
 			return Regex.IsMatch(definition.Name, regex);
 		}
 	}
@@ -68,11 +68,11 @@ namespace Confuser.Core.Project.Patterns {
 		/// <inheritdoc />
 		public override object Evaluate(IDnlibDef definition) {
 			if (definition is TypeDef) {
-				string regex = Arguments[0].Evaluate(definition).ToString();
+				var regex = Arguments[0].Evaluate(definition).ToString();
 				return Regex.IsMatch(definition.Name, regex);
 			}
 			if (definition is IMemberDef && ((IMemberDef)definition).DeclaringType != null) {
-				string regex = Arguments[0].Evaluate(definition).ToString();
+				var regex = Arguments[0].Evaluate(definition).ToString();
 				return Regex.IsMatch(((IMemberDef)definition).DeclaringType.Name, regex);
 			}
 			return false;

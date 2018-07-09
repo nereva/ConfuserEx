@@ -135,7 +135,7 @@ namespace Confuser.Core {
             }
 
             var ret = new byte[buffer1.Length];
-			for (int i = 0; i < ret.Length; i++)
+			for (var i = 0; i < ret.Length; i++)
             {
                 ret[i] = (byte)(buffer1[i] ^ buffer2[i]);
             }
@@ -162,7 +162,7 @@ namespace Confuser.Core {
 		public static string EncodeString(byte[] buff, char[] charset) {
 			int current = buff[0];
 			var ret = new StringBuilder();
-			for (int i = 1; i < buff.Length; i++) {
+			for (var i = 1; i < buff.Length; i++) {
 				current = (current << 8) + buff[i];
 				while (current >= charset.Length) {
 					ret.Append(charset[current % charset.Length]);
@@ -192,10 +192,10 @@ namespace Confuser.Core {
 		/// <param name="comparison">One of the <see cref="StringComparison" /> values. </param>
 		/// <remarks>Adopted from http://stackoverflow.com/a/244933 </remarks>
 		public static string Replace(this string str, string oldValue, string newValue, StringComparison comparison) {
-			StringBuilder sb = new StringBuilder();
+			var sb = new StringBuilder();
 
-			int previousIndex = 0;
-			int index = str.IndexOf(oldValue, comparison);
+			var previousIndex = 0;
+			var index = str.IndexOf(oldValue, comparison);
 			while (index != -1) {
 				sb.Append(str.Substring(previousIndex, index - previousIndex));
 				sb.Append(newValue);
@@ -216,8 +216,8 @@ namespace Confuser.Core {
 		/// <returns>A hexadecimal representation of input buffer.</returns>
 		public static string ToHexString(byte[] buff) {
 			var ret = new char[buff.Length * 2];
-			int i = 0;
-			foreach (byte val in buff) {
+			var i = 0;
+			foreach (var val in buff) {
 				ret[i++] = hexCharset[val >> 4];
 				ret[i++] = hexCharset[val & 0xf];
 			}
@@ -232,7 +232,7 @@ namespace Confuser.Core {
 		/// <param name="match">The predicate that defines the conditions of the elements to remove.</param>
 		/// <returns><paramref name="self" /> for method chaining.</returns>
 		public static IList<T> RemoveWhere<T>(this IList<T> self, Predicate<T> match) {
-			for (int i = self.Count - 1; i >= 0; i--) {
+			for (var i = self.Count - 1; i >= 0; i--) {
 				if (match(self[i]))
                 {
                     self.RemoveAt(i);

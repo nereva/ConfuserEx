@@ -39,11 +39,11 @@ namespace Confuser.Renamer.Analyzers {
 
 			// TypeRef
 			var table = module.TablesStream.Get(Table.TypeRef);
-			uint len = table.Rows;
+			var len = table.Rows;
 			for (uint i = 1; i <= len; i++) {
-				TypeRef typeRef = module.ResolveTypeRef(i);
+				var typeRef = module.ResolveTypeRef(i);
 
-				TypeDef typeDef = typeRef.ResolveTypeDefThrow();
+				var typeDef = typeRef.ResolveTypeDefThrow();
 				if (typeDef.Module != module && context.Modules.Contains((ModuleDefMD)typeDef.Module)) {
 					service.AddReference(typeDef, new TypeRefReference(typeRef, typeDef));
 				}
@@ -63,7 +63,7 @@ namespace Confuser.Renamer.Analyzers {
                     return;
                 }
 
-                TypeDef declType = memberRef.DeclaringType.ResolveTypeDefThrow();
+                var declType = memberRef.DeclaringType.ResolveTypeDefThrow();
 				if (declType.Module != module && context.Modules.Contains((ModuleDefMD)declType.Module)) {
 					var memberDef = (IDnlibDef)declType.ResolveThrow(memberRef);
 					service.AddReference(memberDef, new MemberRefReference(memberRef, memberDef));

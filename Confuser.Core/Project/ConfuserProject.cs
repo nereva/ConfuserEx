@@ -87,30 +87,30 @@ namespace Confuser.Core.Project {
 		/// <param name="xmlDoc">The root XML document.</param>
 		/// <returns>The serialized module description.</returns>
 		internal XmlElement Save(XmlDocument xmlDoc) {
-			XmlElement elem = xmlDoc.CreateElement("module", ConfuserProject.Namespace);
+			var elem = xmlDoc.CreateElement("module", ConfuserProject.Namespace);
 
-			XmlAttribute nameAttr = xmlDoc.CreateAttribute("path");
+			var nameAttr = xmlDoc.CreateAttribute("path");
 			nameAttr.Value = Path;
 			elem.Attributes.Append(nameAttr);
 
 			if (IsExternal) {
-				XmlAttribute extAttr = xmlDoc.CreateAttribute("external");
+				var extAttr = xmlDoc.CreateAttribute("external");
 				extAttr.Value = IsExternal.ToString();
 				elem.Attributes.Append(extAttr);
 			}
 			if (SNKeyPath != null) {
-				XmlAttribute snKeyAttr = xmlDoc.CreateAttribute("snKey");
+				var snKeyAttr = xmlDoc.CreateAttribute("snKey");
 				snKeyAttr.Value = SNKeyPath;
 				elem.Attributes.Append(snKeyAttr);
 			}
 			if (SNKeyPassword != null) {
-				XmlAttribute snKeyPassAttr = xmlDoc.CreateAttribute("snKeyPass");
+				var snKeyPassAttr = xmlDoc.CreateAttribute("snKeyPass");
 				snKeyPassAttr.Value = SNKeyPassword;
 				elem.Attributes.Append(snKeyPassAttr);
 			}
 
 
-			foreach (Rule i in Rules)
+			foreach (var i in Rules)
             {
                 elem.AppendChild(i.Save(xmlDoc));
             }
@@ -153,7 +153,7 @@ namespace Confuser.Core.Project {
             }
 
             Rules.Clear();
-			foreach (XmlElement i in elem.ChildNodes.OfType<XmlElement>()) {
+			foreach (var i in elem.ChildNodes.OfType<XmlElement>()) {
 				var rule = new Rule();
 				rule.Load(i);
 				Rules.Add(rule);
@@ -236,25 +236,25 @@ namespace Confuser.Core.Project {
 		/// <param name="xmlDoc">The root XML document.</param>
 		/// <returns>The setting module description.</returns>
 		internal XmlElement Save(XmlDocument xmlDoc) {
-			XmlElement elem = xmlDoc.CreateElement(typeof(T) == typeof(Packer) ? "packer" : "protection", ConfuserProject.Namespace);
+			var elem = xmlDoc.CreateElement(typeof(T) == typeof(Packer) ? "packer" : "protection", ConfuserProject.Namespace);
 
-			XmlAttribute idAttr = xmlDoc.CreateAttribute("id");
+			var idAttr = xmlDoc.CreateAttribute("id");
 			idAttr.Value = Id;
 			elem.Attributes.Append(idAttr);
 
 			if (Action != SettingItemAction.Add) {
-				XmlAttribute pAttr = xmlDoc.CreateAttribute("action");
+				var pAttr = xmlDoc.CreateAttribute("action");
 				pAttr.Value = Action.ToString().ToLower();
 				elem.Attributes.Append(pAttr);
 			}
 
 			foreach (var i in this) {
-				XmlElement arg = xmlDoc.CreateElement("argument", ConfuserProject.Namespace);
+				var arg = xmlDoc.CreateElement("argument", ConfuserProject.Namespace);
 
-				XmlAttribute nameAttr = xmlDoc.CreateAttribute("name");
+				var nameAttr = xmlDoc.CreateAttribute("name");
 				nameAttr.Value = i.Key;
 				arg.Attributes.Append(nameAttr);
-				XmlAttribute valAttr = xmlDoc.CreateAttribute("value");
+				var valAttr = xmlDoc.CreateAttribute("value");
 				valAttr.Value = i.Value;
 				arg.Attributes.Append(valAttr);
 
@@ -281,7 +281,7 @@ namespace Confuser.Core.Project {
             }
 
             Clear();
-			foreach (XmlElement i in elem.ChildNodes.OfType<XmlElement>())
+			foreach (var i in elem.ChildNodes.OfType<XmlElement>())
             {
                 Add(i.Attributes["name"].Value, i.Attributes["value"].Value);
             }
@@ -343,20 +343,20 @@ namespace Confuser.Core.Project {
 		/// <param name="xmlDoc">The root XML document.</param>
 		/// <returns>The serialized rule description.</returns>
 		internal XmlElement Save(XmlDocument xmlDoc) {
-			XmlElement elem = xmlDoc.CreateElement("rule", ConfuserProject.Namespace);
+			var elem = xmlDoc.CreateElement("rule", ConfuserProject.Namespace);
 
-			XmlAttribute ruleAttr = xmlDoc.CreateAttribute("pattern");
+			var ruleAttr = xmlDoc.CreateAttribute("pattern");
 			ruleAttr.Value = Pattern;
 			elem.Attributes.Append(ruleAttr);
 
 			if (Preset != ProtectionPreset.None) {
-				XmlAttribute pAttr = xmlDoc.CreateAttribute("preset");
+				var pAttr = xmlDoc.CreateAttribute("preset");
 				pAttr.Value = Preset.ToString().ToLower();
 				elem.Attributes.Append(pAttr);
 			}
 
 			if (Inherit != true) {
-				XmlAttribute attr = xmlDoc.CreateAttribute("inherit");
+				var attr = xmlDoc.CreateAttribute("inherit");
 				attr.Value = Inherit.ToString().ToLower();
 				elem.Attributes.Append(attr);
 			}
@@ -395,7 +395,7 @@ namespace Confuser.Core.Project {
             }
 
             Clear();
-			foreach (XmlElement i in elem.ChildNodes.OfType<XmlElement>()) {
+			foreach (var i in elem.ChildNodes.OfType<XmlElement>()) {
 				var x = new SettingItem<Protection>();
 				x.Load(i);
 				Add(x);
@@ -416,7 +416,7 @@ namespace Confuser.Core.Project {
 				var item = new SettingItem<Protection>();
 				item.Id = i.Id;
 				item.Action = i.Action;
-				foreach (string j in i.Keys)
+				foreach (var j in i.Keys)
                 {
                     item.Add(j, i[j]);
                 }
@@ -526,29 +526,29 @@ namespace Confuser.Core.Project {
 			var xmlDoc = new XmlDocument();
 			xmlDoc.Schemas.Add(Schema);
 
-			XmlElement elem = xmlDoc.CreateElement("project", Namespace);
+			var elem = xmlDoc.CreateElement("project", Namespace);
 
-			XmlAttribute outputAttr = xmlDoc.CreateAttribute("outputDir");
+			var outputAttr = xmlDoc.CreateAttribute("outputDir");
 			outputAttr.Value = OutputDirectory;
 			elem.Attributes.Append(outputAttr);
 
-			XmlAttribute baseAttr = xmlDoc.CreateAttribute("baseDir");
+			var baseAttr = xmlDoc.CreateAttribute("baseDir");
 			baseAttr.Value = BaseDirectory;
 			elem.Attributes.Append(baseAttr);
 
 			if (Seed != null) {
-				XmlAttribute seedAttr = xmlDoc.CreateAttribute("seed");
+				var seedAttr = xmlDoc.CreateAttribute("seed");
 				seedAttr.Value = Seed;
 				elem.Attributes.Append(seedAttr);
 			}
 
 			if (Debug) {
-				XmlAttribute debugAttr = xmlDoc.CreateAttribute("debug");
+				var debugAttr = xmlDoc.CreateAttribute("debug");
 				debugAttr.Value = Debug.ToString().ToLower();
 				elem.Attributes.Append(debugAttr);
 			}
 
-			foreach (Rule i in Rules)
+			foreach (var i in Rules)
             {
                 elem.AppendChild(i.Save(xmlDoc));
             }
@@ -558,19 +558,19 @@ namespace Confuser.Core.Project {
                 elem.AppendChild(Packer.Save(xmlDoc));
             }
 
-            foreach (ProjectModule i in this)
+            foreach (var i in this)
             {
                 elem.AppendChild(i.Save(xmlDoc));
             }
 
-            foreach (string i in ProbePaths) {
-				XmlElement path = xmlDoc.CreateElement("probePath", Namespace);
+            foreach (var i in ProbePaths) {
+				var path = xmlDoc.CreateElement("probePath", Namespace);
 				path.InnerText = i;
 				elem.AppendChild(path);
 			}
 
-			foreach (string i in PluginPaths) {
-				XmlElement path = xmlDoc.CreateElement("plugin", Namespace);
+			foreach (var i in PluginPaths) {
+				var path = xmlDoc.CreateElement("plugin", Namespace);
 				path.InnerText = i;
 				elem.AppendChild(path);
 			}
@@ -601,7 +601,7 @@ namespace Confuser.Core.Project {
 				throw new ProjectValidationException(exceptions);
 			}
 
-			XmlElement docElem = doc.DocumentElement;
+			var docElem = doc.DocumentElement;
 
 			OutputDirectory = docElem.Attributes["outputDir"].Value;
 			BaseDirectory = docElem.Attributes["baseDir"].Value;
@@ -629,7 +629,7 @@ namespace Confuser.Core.Project {
 			ProbePaths.Clear();
 			PluginPaths.Clear();
 			Rules.Clear();
-			foreach (XmlElement i in docElem.ChildNodes.OfType<XmlElement>()) {
+			foreach (var i in docElem.ChildNodes.OfType<XmlElement>()) {
 				if (i.Name == "rule") {
 					var rule = new Rule();
 					rule.Load(i);

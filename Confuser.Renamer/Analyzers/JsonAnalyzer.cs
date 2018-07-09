@@ -51,7 +51,7 @@ namespace Confuser.Renamer.Analyzers {
                 return false;
             }
 
-            int serialization = 0;
+            var serialization = 0;
 			if (attr.HasConstructorArguments && attr.ConstructorArguments[0].Type.FullName == "Newtonsoft.Json.MemberSerialization")
             {
                 serialization = (int)attr.ConstructorArguments[0].Value;
@@ -109,7 +109,7 @@ namespace Confuser.Renamer.Analyzers {
                 return;
             }
 
-            bool hasId = false;
+            var hasId = false;
 			if (attr.HasConstructorArguments && attr.ConstructorArguments[0].Type.FullName == "System.String")
             {
                 hasId = true;

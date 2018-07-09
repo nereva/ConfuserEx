@@ -28,14 +28,14 @@ namespace Confuser.Renamer.BAML {
 		}
 
 		public void ExtractAttachedDP(out string type, out string property) {
-			string name = Name.Substring(1, Name.Length - 2);
+			var name = Name.Substring(1, Name.Length - 2);
 			if (!name.Contains('.')) {
 				// type = null means the property is on the same type
 				type = null;
 				property = name.Trim();
 			}
 			else {
-				int dot = name.LastIndexOf('.');
+				var dot = name.LastIndexOf('.');
 				type = name.Substring(0, dot).Trim();
 				property = name.Substring(dot + 1).Trim();
 			}
@@ -68,17 +68,17 @@ namespace Confuser.Renamer.BAML {
 			var args = new List<PropertyPathIndexer>();
 			var typeString = new StringBuilder();
 			var valueString = new StringBuilder();
-			bool trim = false;
-			int level = 0;
+			var trim = false;
+			var level = 0;
 
 			const int STATE_WAIT = 0;
 			const int STATE_TYPE = 1;
 			const int STATE_VALUE = 2;
 			const int STATE_DONE = 3;
-			int state = STATE_WAIT;
+			var state = STATE_WAIT;
 
 			while (state != STATE_DONE) {
-				char c = path[index];
+				var c = path[index];
 				switch (state) {
 					case STATE_WAIT:
 						if (c == '(') {
@@ -128,7 +128,7 @@ namespace Confuser.Renamer.BAML {
 							trim = false;
 						}
 						else if (c == ']' || c == ',') {
-							string value = valueString.ToString();
+							var value = valueString.ToString();
 							// Note: it may be a WPF bug that if the value is "^  " (2 spaces after caret), all spaces will be trimmed.
 							// According to http://msdn.microsoft.com/en-us/library/ms742451.aspx, the result should have one space.
 							if (trim)
@@ -176,13 +176,13 @@ namespace Confuser.Renamer.BAML {
 		}
 
 		static PropertyPathPart ReadProperty(string path, ref int index, bool? isHiera) {
-			int begin = index;
+			var begin = index;
 			while (index < path.Length && path[index] == '.')
             {
                 index++;
             }
 
-            int level = 0;
+            var level = 0;
 			// If in brackets, read until not in bracket, ignoring special chars.
 			while (index < path.Length && (level > 0 || Array.IndexOf(SpecialChars, path[index]) == -1)) {
 				if (path[index] == '(')
@@ -197,7 +197,7 @@ namespace Confuser.Renamer.BAML {
                 index++;
 			}
 
-			string name = path.Substring(begin, index - begin).Trim();
+			var name = path.Substring(begin, index - begin).Trim();
 
 			return new PropertyPathPart(false, isHiera, name);
 		}
@@ -210,14 +210,14 @@ namespace Confuser.Renamer.BAML {
 
             var ret = new List<PropertyPathPart>();
 			bool? isHiera = null;
-			int index = 0;
+			var index = 0;
 			while (index < path.Length) {
 				if (char.IsWhiteSpace(path[index])) {
 					index++;
 					continue;
 				}
 
-				char c = path[index];
+				var c = path[index];
 				switch (c) {
 					case '.':
 						isHiera = false;
@@ -242,7 +242,7 @@ namespace Confuser.Renamer.BAML {
 
 		public override string ToString() {
 			var ret = new StringBuilder();
-			foreach (PropertyPathPart part in parts) {
+			foreach (var part in parts) {
 				if (part.IsHierarchical.HasValue) {
 					if (part.IsHierarchical.Value)
                     {
@@ -257,8 +257,8 @@ namespace Confuser.Renamer.BAML {
 				ret.Append(part.Name);
 
 				if (part.IsIndexer) {
-					PropertyPathIndexer[] args = part.IndexerArguments;
-					for (int i = 0; i < args.Length; i++) {
+					var args = part.IndexerArguments;
+					for (var i = 0; i < args.Length; i++) {
 						if (i == 0)
                         {
                             ret.Append("[");
@@ -275,7 +275,7 @@ namespace Confuser.Renamer.BAML {
 
                         if (!string.IsNullOrEmpty(args[i].Value))
                         {
-                            foreach (char c in args[i].Value) {
+                            foreach (var c in args[i].Value) {
 								// Too lazy to write all the level detection, just be safe, and escape all special chars.
 								if (c == '[' || c == ']' || c == ' ')
                                 {

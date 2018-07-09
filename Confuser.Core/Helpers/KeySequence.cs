@@ -68,7 +68,7 @@ namespace Confuser.Core.Helpers {
 		public static BlockKey[] ComputeKeys(ControlFlowGraph graph, RandomGenerator random) {
 			var keys = new BlockKey[graph.Count];
 
-			foreach (ControlFlowBlock block in graph) {
+			foreach (var block in graph) {
 				var key = new BlockKey();
 				if ((block.Type & ControlFlowBlockType.Entry) != 0)
                 {
@@ -87,7 +87,7 @@ namespace Confuser.Core.Helpers {
 
 		static void ProcessBlocks(BlockKey[] keys, ControlFlowGraph graph, RandomGenerator random) {
 			uint id = 0;
-			for (int i = 0; i < keys.Length; i++) {
+			for (var i = 0; i < keys.Length; i++) {
 				keys[i].EntryState = id++;
 				keys[i].ExitState = id++;
 			}
@@ -100,17 +100,17 @@ namespace Confuser.Core.Helpers {
 				updated = false;
 
 				// Update the state ids with the maximum id
-				foreach (ControlFlowBlock block in graph) {
-					BlockKey key = keys[block.Id];
+				foreach (var block in graph) {
+					var key = keys[block.Id];
 					if (block.Sources.Count > 0) {
-						uint newEntry = block.Sources.Select(b => keys[b.Id].ExitState).Max();
+						var newEntry = block.Sources.Select(b => keys[b.Id].ExitState).Max();
 						if (key.EntryState != newEntry) {
 							key.EntryState = newEntry;
 							updated = true;
 						}
 					}
 					if (block.Targets.Count > 0) {
-						uint newExit = block.Targets.Select(b => keys[b.Id].EntryState).Max();
+						var newExit = block.Targets.Select(b => keys[b.Id].EntryState).Max();
 						if (key.ExitState != newExit) {
 							key.ExitState = newExit;
 							updated = true;
@@ -121,7 +121,7 @@ namespace Confuser.Core.Helpers {
 						List<ExceptionHandler> ehs;
 						if (!ehMap.TryGetValue(block, out ehs)) {
 							ehs = new List<ExceptionHandler>();
-							int footerIndex = graph.IndexOf(block.Footer);
+							var footerIndex = graph.IndexOf(block.Footer);
 							foreach (var eh in graph.Body.ExceptionHandlers) {
 								if (eh.FilterStart != null && block.Footer.OpCode.Code == Code.Endfilter) {
 									if (footerIndex >= graph.IndexOf(eh.FilterStart) &&
@@ -164,7 +164,7 @@ namespace Confuser.Core.Helpers {
 						List<ExceptionHandler> ehs;
 						if (!ehMap.TryGetValue(block, out ehs)) {
 							ehs = new List<ExceptionHandler>();
-							int footerIndex = graph.IndexOf(block.Footer);
+							var footerIndex = graph.IndexOf(block.Footer);
 							foreach (var eh in graph.Body.ExceptionHandlers) {
 								if (footerIndex >= graph.IndexOf(eh.TryStart) &&
 								    (eh.TryEnd == null || footerIndex < graph.IndexOf(eh.TryEnd)))
@@ -209,16 +209,16 @@ namespace Confuser.Core.Helpers {
 			if (random != null) {
 				// Replace id with actual values
 				var idMap = new Dictionary<uint, uint>();
-				for (int i = 0; i < keys.Length; i++) {
-					BlockKey key = keys[i];
+				for (var i = 0; i < keys.Length; i++) {
+					var key = keys[i];
 
-					uint entryId = key.EntryState;
+					var entryId = key.EntryState;
 					if (!idMap.TryGetValue(entryId, out key.EntryState))
                     {
                         key.EntryState = idMap[entryId] = random.NextUInt32();
                     }
 
-                    uint exitId = key.ExitState;
+                    var exitId = key.ExitState;
 					if (!idMap.TryGetValue(exitId, out key.ExitState))
                     {
                         key.ExitState = idMap[exitId] = random.NextUInt32();

@@ -28,7 +28,7 @@ namespace Confuser.Renamer.BAML {
 			var reader = new BamlBinaryReader(str);
 			{
 				var rdr = new BinaryReader(str, Encoding.Unicode);
-				uint len = rdr.ReadUInt32();
+				var len = rdr.ReadUInt32();
 				ret.Signature = new string(rdr.ReadChars((int)(len >> 1)));
 				rdr.ReadBytes((int)(((len + 3) & ~3) - len));
 			}
@@ -49,7 +49,7 @@ namespace Confuser.Renamer.BAML {
 
             var recs = new Dictionary<long, BamlRecord>();
 			while (str.Position < str.Length) {
-				long pos = str.Position;
+				var pos = str.Position;
 				var type = (BamlRecordType)reader.ReadByte();
 				BamlRecord rec = null;
 				switch (type) {
@@ -219,7 +219,7 @@ namespace Confuser.Renamer.BAML {
 				ret.Add(rec);
 				recs.Add(pos, rec);
 			}
-			for (int i = 0; i < ret.Count; i++) {
+			for (var i = 0; i < ret.Count; i++) {
 				var defer = ret[i] as IBamlDeferRecord;
 				if (defer != null)
                 {
@@ -236,7 +236,7 @@ namespace Confuser.Renamer.BAML {
 			var writer = new BamlBinaryWriter(str);
 			{
 				var wtr = new BinaryWriter(str, Encoding.Unicode);
-				int len = doc.Signature.Length * 2;
+				var len = doc.Signature.Length * 2;
 				wtr.Write(len);
 				wtr.Write(doc.Signature.ToCharArray());
 				wtr.Write(new byte[((len + 3) & ~3) - len]);
@@ -249,8 +249,8 @@ namespace Confuser.Renamer.BAML {
 			writer.Write(doc.WriterVersion.Minor);
 
 			var defers = new List<int>();
-			for (int i = 0; i < doc.Count; i++) {
-				BamlRecord rec = doc[i];
+			for (var i = 0; i < doc.Count; i++) {
+				var rec = doc[i];
 				rec.Position = str.Position;
 				writer.Write((byte)rec.Type);
 				rec.Write(writer);
@@ -259,7 +259,7 @@ namespace Confuser.Renamer.BAML {
                     defers.Add(i);
                 }
             }
-			foreach (int i in defers)
+			foreach (var i in defers)
             {
                 (doc[i] as IBamlDeferRecord).WriteDefer(doc, i, writer);
             }

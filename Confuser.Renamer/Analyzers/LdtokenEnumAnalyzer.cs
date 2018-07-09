@@ -17,18 +17,18 @@ namespace Confuser.Renamer.Analyzers {
             // most likely it would be used in reflection and thus probably should not be renamed.
             // Also, when ToString is invoked on enum,
             // the enum should not be renamed.
-            for (int i = 0; i < method.Body.Instructions.Count; i++) {
-				Instruction instr = method.Body.Instructions[i];
+            for (var i = 0; i < method.Body.Instructions.Count; i++) {
+				var instr = method.Body.Instructions[i];
 				if (instr.OpCode.Code == Code.Ldtoken) {
 					if (instr.Operand is MemberRef) {
-						IMemberForwarded member = ((MemberRef)instr.Operand).ResolveThrow();
+						var member = ((MemberRef)instr.Operand).ResolveThrow();
 						if (context.Modules.Contains((ModuleDefMD)member.Module))
                         {
                             service.SetCanRename(member, false);
                         }
                     }
 					else if (instr.Operand is IField) {
-						FieldDef field = ((IField)instr.Operand).ResolveThrow();
+						var field = ((IField)instr.Operand).ResolveThrow();
 						if (context.Modules.Contains((ModuleDefMD)field.Module))
                         {
                             service.SetCanRename(field, false);
@@ -37,7 +37,7 @@ namespace Confuser.Renamer.Analyzers {
 					else if (instr.Operand is IMethod) {
 						var im = (IMethod)instr.Operand;
 						if (!im.IsArrayAccessors()) {
-							MethodDef m = im.ResolveThrow();
+							var m = im.ResolveThrow();
 							if (context.Modules.Contains((ModuleDefMD)m.Module))
                             {
                                 service.SetCanRename(method, false);
@@ -46,7 +46,7 @@ namespace Confuser.Renamer.Analyzers {
 					}
 					else if (instr.Operand is ITypeDefOrRef) {
 						if (!(instr.Operand is TypeSpec)) {
-							TypeDef type = ((ITypeDefOrRef)instr.Operand).ResolveTypeDefThrow();
+							var type = ((ITypeDefOrRef)instr.Operand).ResolveTypeDefThrow();
 							if (context.Modules.Contains((ModuleDefMD)type.Module) &&
 							    HandleTypeOf(context, service, method, i)) {
 								var t = type;
@@ -67,7 +67,7 @@ namespace Confuser.Renamer.Analyzers {
 					HandleEnum(context, service, method, i);
 				}
 				else if (instr.OpCode.Code == Code.Ldstr) {
-					TypeDef typeDef = method.Module.FindReflection((string)instr.Operand);
+					var typeDef = method.Module.FindReflection((string)instr.Operand);
 					if (typeDef != null)
                     {
                         service.AddReference(typeDef, new StringTypeReference(instr, typeDef));
@@ -88,7 +88,7 @@ namespace Confuser.Renamer.Analyzers {
 			var target = (IMethod)method.Body.Instructions[index].Operand;
 			if (target.FullName == "System.String System.Object::ToString()" ||
 			    target.FullName == "System.String System.Enum::ToString(System.String)") {
-				int prevIndex = index - 1;
+				var prevIndex = index - 1;
 				while (prevIndex >= 0 && method.Body.Instructions[prevIndex].OpCode.Code == Code.Nop)
                 {
                     prevIndex--;
@@ -99,7 +99,7 @@ namespace Confuser.Renamer.Analyzers {
                     return;
                 }
 
-                Instruction prevInstr = method.Body.Instructions[prevIndex];
+                var prevInstr = method.Body.Instructions[prevIndex];
 				TypeSig targetType;
 
 				if (prevInstr.Operand is MemberRef) {
@@ -131,13 +131,13 @@ namespace Confuser.Renamer.Analyzers {
                     return;
                 }
 
-                ITypeDefOrRef targetTypeRef = targetType.ToBasicTypeDefOrRef();
+                var targetTypeRef = targetType.ToBasicTypeDefOrRef();
 				if (targetTypeRef == null)
                 {
                     return;
                 }
 
-                TypeDef targetTypeDef = targetTypeRef.ResolveTypeDefThrow();
+                var targetTypeDef = targetTypeRef.ResolveTypeDefThrow();
 				if (targetTypeDef != null && targetTypeDef.IsEnum && context.Modules.Contains((ModuleDefMD)targetTypeDef.Module))
                 {
                     DisableRename(service, targetTypeDef);
@@ -158,7 +158,7 @@ namespace Confuser.Renamer.Analyzers {
             }
 
             if (index + 2 < method.Body.Instructions.Count) {
-				Instruction instr = method.Body.Instructions[index + 2];
+				var instr = method.Body.Instructions[index + 2];
 				var operand = instr.Operand as IMethod;
 				if (instr.OpCode == OpCodes.Newobj && operand.FullName == "System.Void System.ComponentModel.ComponentResourceManager::.ctor(System.Type)")
                 {
@@ -191,7 +191,7 @@ namespace Confuser.Renamer.Analyzers {
 				}
 			}
 			if (index + 3 < method.Body.Instructions.Count) {
-				Instruction instr = method.Body.Instructions[index + 3];
+				var instr = method.Body.Instructions[index + 3];
 				var operand = instr.Operand as IMethod;
 				if (instr.OpCode == OpCodes.Call || instr.OpCode == OpCodes.Callvirt) {
 					switch (operand.DeclaringType.FullName) {
@@ -207,27 +207,27 @@ namespace Confuser.Renamer.Analyzers {
 		void DisableRename(INameService service, TypeDef typeDef, bool memberOnly = true) {
 			service.SetCanRename(typeDef, false);
 
-			foreach (MethodDef m in typeDef.Methods)
+			foreach (var m in typeDef.Methods)
             {
                 service.SetCanRename(m, false);
             }
 
-            foreach (FieldDef field in typeDef.Fields)
+            foreach (var field in typeDef.Fields)
             {
                 service.SetCanRename(field, false);
             }
 
-            foreach (PropertyDef prop in typeDef.Properties)
+            foreach (var prop in typeDef.Properties)
             {
                 service.SetCanRename(prop, false);
             }
 
-            foreach (EventDef evt in typeDef.Events)
+            foreach (var evt in typeDef.Events)
             {
                 service.SetCanRename(evt, false);
             }
 
-            foreach (TypeDef nested in typeDef.NestedTypes)
+            foreach (var nested in typeDef.NestedTypes)
             {
                 DisableRename(service, nested, false);
             }

@@ -97,7 +97,7 @@ namespace ConfuserEx.ViewModel {
 
                 FileName = sfd.FileName;
 			}
-			ConfuserProject proj = ((IViewModel<ConfuserProject>)Project).Model;
+			var proj = ((IViewModel<ConfuserProject>)Project).Model;
 			proj.Save().Save(FileName);
 			Project.IsModified = false;
 			firstSaved = true;
@@ -140,7 +140,7 @@ namespace ConfuserEx.ViewModel {
             var ofd = new VistaOpenFileDialog();
 			ofd.Filter = "ConfuserEx Projects (*.crproj)|*.crproj|All Files (*.*)|*.*";
 			if ((ofd.ShowDialog(Application.Current.MainWindow) ?? false) && ofd.FileName != null) {
-				string fileName = ofd.FileName;
+				var fileName = ofd.FileName;
 				try {
 					var xmlDoc = new XmlDocument();
 					xmlDoc.Load(fileName);

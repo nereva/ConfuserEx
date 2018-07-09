@@ -26,8 +26,8 @@ namespace Confuser.Renamer {
 		}
 
 		byte[] GetIV(byte ivId) {
-			byte[] iv = new byte[cipher.BlockSize / 8];
-			for (int i = 0; i < iv.Length; i++)
+			var iv = new byte[cipher.BlockSize / 8];
+			for (var i = 0; i < iv.Length; i++)
             {
                 iv[i] = (byte)(ivId ^ key[i]);
             }
@@ -36,8 +36,8 @@ namespace Confuser.Renamer {
 		}
 
 		byte GetIVId(string str) {
-			byte x = (byte)str[0];
-			for (int i = 1; i < str.Length; i++)
+			var x = (byte)str[0];
+			for (var i = 1; i < str.Length; i++)
             {
                 x = (byte)(x * 3 + (byte)str[i]);
             }
@@ -46,7 +46,7 @@ namespace Confuser.Renamer {
 		}
 
 		public string Encrypt(string name) {
-			byte ivId = GetIVId(name);
+			var ivId = GetIVId(name);
 			cipher.IV = GetIV(ivId);
 			var buf = Encoding.UTF8.GetBytes(name);
 
@@ -64,7 +64,7 @@ namespace Confuser.Renamer {
 
 		public string Decrypt(string name) {
 			using (var ms = new MemoryStream(Base64Decode(name))) {
-				byte ivId = (byte)ms.ReadByte();
+				var ivId = (byte)ms.ReadByte();
 				cipher.IV = GetIV(ivId);
 
 				var result = new MemoryStream();

@@ -17,7 +17,7 @@ namespace Confuser.DynCipher.Elements {
 		}
 
 		public override void Emit(CipherGenContext context) {
-			Expression val = context.GetDataExpression(DataIndexes[0]);
+			var val = context.GetDataExpression(DataIndexes[0]);
 			VariableExpression tmp;
 			using (context.AcquireTempVar(out tmp)) {
 				if (IsAlternate)
@@ -44,7 +44,7 @@ namespace Confuser.DynCipher.Elements {
 		}
 
 		public override void EmitInverse(CipherGenContext context) {
-			Expression val = context.GetDataExpression(DataIndexes[0]);
+			var val = context.GetDataExpression(DataIndexes[0]);
 			VariableExpression tmp;
 			using (context.AcquireTempVar(out tmp)) {
 				if (IsAlternate)

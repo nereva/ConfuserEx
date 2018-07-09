@@ -10,7 +10,7 @@ namespace Confuser.Protections.ReferenceProxy {
 		readonly Dictionary<Tuple<Code, TypeDef, IMethod>, MethodDef> proxies = new Dictionary<Tuple<Code, TypeDef, IMethod>, MethodDef>();
 
 		public override void ProcessCall(RPContext ctx, int instrIndex) {
-			Instruction invoke = ctx.Body.Instructions[instrIndex];
+			var invoke = ctx.Body.Instructions[instrIndex];
 			var target = (IMethod)invoke.Operand;
 
 			// Value type proxy is not supported in mild mode.
@@ -24,10 +24,10 @@ namespace Confuser.Protections.ReferenceProxy {
                 return;
             }
 
-            Tuple<Code, TypeDef, IMethod> key = Tuple.Create(invoke.OpCode.Code, ctx.Method.DeclaringType, target);
+            var key = Tuple.Create(invoke.OpCode.Code, ctx.Method.DeclaringType, target);
 			MethodDef proxy;
 			if (!proxies.TryGetValue(key, out proxy)) {
-				MethodSig sig = CreateProxySignature(ctx, target, invoke.OpCode.Code == Code.Newobj);
+				var sig = CreateProxySignature(ctx, target, invoke.OpCode.Code == Code.Newobj);
 
 				proxy = new MethodDefUser(ctx.Name.RandomName(), sig);
 				proxy.Attributes = MethodAttributes.PrivateScope | MethodAttributes.Static;
@@ -46,7 +46,7 @@ namespace Confuser.Protections.ReferenceProxy {
 				ctx.Name.SetCanRename(proxy, false);
 
 				proxy.Body = new CilBody();
-				for (int i = 0; i < proxy.Parameters.Count; i++)
+				for (var i = 0; i < proxy.Parameters.Count; i++)
                 {
                     proxy.Body.Instructions.Add(Instruction.Create(OpCodes.Ldarg, proxy.Parameters[i]));
                 }
@@ -60,7 +60,7 @@ namespace Confuser.Protections.ReferenceProxy {
 			invoke.OpCode = OpCodes.Call;
 			if (ctx.Method.DeclaringType.HasGenericParameters) {
 				var genArgs = new GenericVar[ctx.Method.DeclaringType.GenericParameters.Count];
-				for (int i = 0; i < genArgs.Length; i++)
+				for (var i = 0; i < genArgs.Length; i++)
                 {
                     genArgs[i] = new GenericVar(i);
                 }

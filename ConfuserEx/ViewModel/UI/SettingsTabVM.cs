@@ -64,11 +64,11 @@ namespace ConfuserEx.ViewModel {
 		public ICommand Remove {
 			get {
 				return new RelayCommand(() => {
-					int selIndex = SelectedRuleIndex;
+					var selIndex = SelectedRuleIndex;
 					Debug.Assert(SelectedList != null);
 					Debug.Assert(selIndex != -1);
 
-					ProjectRuleVM rule = SelectedList.Rules[selIndex];
+					var rule = SelectedList.Rules[selIndex];
 					SelectedList.Rules.RemoveAt(selIndex);
 					SelectedRuleIndex = selIndex >= SelectedList.Rules.Count ? SelectedList.Rules.Count - 1 : selIndex;
 				}, () => SelectedRuleIndex != -1 && SelectedList != null);

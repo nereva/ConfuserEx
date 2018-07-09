@@ -109,7 +109,7 @@ namespace Confuser.Core.Services {
 		/// <returns>This instance.</returns>
 		/// <exception cref="InvalidMethodException">Bad method body.</exception>
 		internal MethodTrace Trace() {
-			CilBody body = method.Body;
+			var body = method.Body;
 			method.Body.UpdateInstructionOffsets();
 			Instructions = method.Body.Instructions.ToArray();
 
@@ -118,13 +118,13 @@ namespace Confuser.Core.Services {
 			var afterDepths = new int[body.Instructions.Count];
 			fromInstrs = new Dictionary<int, List<Instruction>>();
 
-			IList<Instruction> instrs = body.Instructions;
-			for (int i = 0; i < instrs.Count; i++) {
+			var instrs = body.Instructions;
+			for (var i = 0; i < instrs.Count; i++) {
 				offset2index.Add(instrs[i].Offset, i);
 				beforeDepths[i] = int.MinValue;
 			}
 
-			foreach (ExceptionHandler eh in body.ExceptionHandlers) {
+			foreach (var eh in body.ExceptionHandlers) {
 				beforeDepths[offset2index[eh.TryStart.Offset]] = 0;
 				beforeDepths[offset2index[eh.HandlerStart.Offset]] = (eh.HandlerType != ExceptionHandlerType.Finally ? 1 : 0);
 				if (eh.FilterStart != null)
@@ -134,9 +134,9 @@ namespace Confuser.Core.Services {
             }
 
 			// Just do a simple forward scan to build the stack depth map
-			int currentStack = 0;
-			for (int i = 0; i < instrs.Count; i++) {
-				Instruction instr = instrs[i];
+			var currentStack = 0;
+			for (var i = 0; i < instrs.Count; i++) {
+				var instr = instrs[i];
 
 				if (beforeDepths[i] != int.MinValue) // Already set due to being target of a branch / beginning of EHs.
                 {
@@ -149,7 +149,7 @@ namespace Confuser.Core.Services {
 
 				switch (instr.OpCode.FlowControl) {
 					case FlowControl.Branch:
-						int index = offset2index[((Instruction)instr.Operand).Offset];
+						var index = offset2index[((Instruction)instr.Operand).Offset];
 						if (beforeDepths[index] == int.MinValue)
                         {
                             beforeDepths[index] = currentStack;
@@ -169,8 +169,8 @@ namespace Confuser.Core.Services {
                         break;
 					case FlowControl.Cond_Branch:
 						if (instr.OpCode.Code == Code.Switch) {
-							foreach (Instruction target in (Instruction[])instr.Operand) {
-								int targetIndex = offset2index[target.Offset];
+							foreach (var target in (Instruction[])instr.Operand) {
+								var targetIndex = offset2index[target.Offset];
 								if (beforeDepths[targetIndex] == int.MinValue)
                                 {
                                     beforeDepths[targetIndex] = currentStack;
@@ -180,7 +180,7 @@ namespace Confuser.Core.Services {
 							}
 						}
 						else {
-							int targetIndex = offset2index[((Instruction)instr.Operand).Offset];
+							var targetIndex = offset2index[((Instruction)instr.Operand).Offset];
 							if (beforeDepths[targetIndex] == int.MinValue)
                             {
                                 beforeDepths[targetIndex] = currentStack;
@@ -202,7 +202,7 @@ namespace Confuser.Core.Services {
 				}
 			}
 
-			foreach (int stackDepth in beforeDepths)
+			foreach (var stackDepth in beforeDepths)
             {
                 if (stackDepth == int.MinValue)
                 {
@@ -210,7 +210,7 @@ namespace Confuser.Core.Services {
                 }
             }
 
-            foreach (int stackDepth in afterDepths)
+            foreach (var stackDepth in afterDepths)
             {
                 if (stackDepth == int.MinValue)
                 {
@@ -244,17 +244,17 @@ namespace Confuser.Core.Services {
                 return new int[0];
             }
 
-            int instrIndex = offset2index[instr.Offset];
-			int argCount = pop;
-			int targetStack = BeforeStackDepths[instrIndex] - argCount;
+            var instrIndex = offset2index[instr.Offset];
+			var argCount = pop;
+			var targetStack = BeforeStackDepths[instrIndex] - argCount;
 
 			// Find the begin instruction of method call
-			int beginInstrIndex = -1;
+			var beginInstrIndex = -1;
 			var seen = new HashSet<uint>();
 			var working = new Queue<int>();
 			working.Enqueue(offset2index[instr.Offset] - 1);
 			while (working.Count > 0) {
-				int index = working.Dequeue();
+				var index = working.Dequeue();
 				while (index >= 0) {
 					if (BeforeStackDepths[index] == targetStack)
                     {
@@ -263,7 +263,7 @@ namespace Confuser.Core.Services {
 
                     if (fromInstrs.ContainsKey(index))
                     {
-                        foreach (Instruction fromInstr in fromInstrs[index]) {
+                        foreach (var fromInstr in fromInstrs[index]) {
 							if (!seen.Contains(fromInstr.Offset)) {
 								seen.Add(fromInstr.Offset);
 								working.Enqueue(offset2index[fromInstr.Offset]);
@@ -295,14 +295,14 @@ namespace Confuser.Core.Services {
 			working2.Enqueue(Tuple.Create(beginInstrIndex, new Stack<int>()));
 			int[] ret = null;
 			while (working2.Count > 0) {
-				Tuple<int, Stack<int>> tuple = working2.Dequeue();
-				int index = tuple.Item1;
-				Stack<int> evalStack = tuple.Item2;
+				var tuple = working2.Dequeue();
+				var index = tuple.Item1;
+				var evalStack = tuple.Item2;
 
 				while (index != instrIndex && index < method.Body.Instructions.Count) {
-					Instruction currentInstr = Instructions[index];
+					var currentInstr = Instructions[index];
 					currentInstr.CalculateStackUsage(out push, out pop);
-					int stackUsage = pop - push;
+					var stackUsage = pop - push;
 					if (stackUsage < 0) {
 						Debug.Assert(stackUsage == -1); // i.e. push
 						evalStack.Push(index);
@@ -313,15 +313,15 @@ namespace Confuser.Core.Services {
                             return null;
                         }
 
-                        for (int i = 0; i < stackUsage; i++)
+                        for (var i = 0; i < stackUsage; i++)
                         {
                             evalStack.Pop();
                         }
                     }
 
-					object instrOperand = currentInstr.Operand;
+					var instrOperand = currentInstr.Operand;
 					if (currentInstr.Operand is Instruction) {
-						int targetIndex = offset2index[((Instruction)currentInstr.Operand).Offset];
+						var targetIndex = offset2index[((Instruction)currentInstr.Operand).Offset];
 						if (currentInstr.OpCode.FlowControl == FlowControl.Branch)
                         {
                             index = targetIndex;
@@ -332,7 +332,7 @@ namespace Confuser.Core.Services {
 						}
 					}
 					else if (currentInstr.Operand is Instruction[]) {
-						foreach (Instruction targetInstr in (Instruction[])currentInstr.Operand)
+						foreach (var targetInstr in (Instruction[])currentInstr.Operand)
                         {
                             working2.Enqueue(Tuple.Create(offset2index[targetInstr.Offset], new Stack<int>(evalStack)));
                         }

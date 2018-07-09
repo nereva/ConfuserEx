@@ -55,7 +55,7 @@ namespace Confuser.Protections.AntiTamper {
 		public void Serialize(uint token, uint key, byte[] fieldLayout) {
 			using (var ms = new MemoryStream()) {
 				var writer = new BinaryWriter(ms);
-				foreach (byte i in fieldLayout)
+				foreach (var i in fieldLayout)
                 {
                     switch (i) {
 						case 0:
@@ -81,7 +81,7 @@ namespace Confuser.Protections.AntiTamper {
 
                 writer.Write(ILCode);
 				writer.Write(LocalVars);
-				foreach (JITEHClause clause in EHs) {
+				foreach (var clause in EHs) {
 					writer.Write(clause.Flags);
 					writer.Write(clause.TryOffset);
 					writer.Write(clause.TryLength);
@@ -94,10 +94,10 @@ namespace Confuser.Protections.AntiTamper {
 			}
 			Debug.Assert(Body.Length % 4 == 0);
 			// encrypt body
-			uint state = token * key;
-			uint counter = state;
+			var state = token * key;
+			var counter = state;
 			for (uint i = 0; i < Body.Length; i += 4) {
-				uint data = Body[i] | (uint)(Body[i + 1] << 8) | (uint)(Body[i + 2] << 16) | (uint)(Body[i + 3] << 24);
+				var data = Body[i] | (uint)(Body[i + 1] << 8) | (uint)(Body[i + 2] << 16) | (uint)(Body[i + 3] << 24);
 				Body[i + 0] ^= (byte)(state >> 0);
 				Body[i + 1] ^= (byte)(state >> 8);
 				Body[i + 2] ^= (byte)(state >> 16);
@@ -124,7 +124,7 @@ namespace Confuser.Protections.AntiTamper {
 		}
 
 		public void Write() {
-			uint codeSize = InitializeInstructionOffsets();
+			var codeSize = InitializeInstructionOffsets();
 			jitBody.MaxStack = keepMaxStack ? body.MaxStack : GetMaxStack();
 
 			jitBody.Options = 0;
@@ -143,7 +143,7 @@ namespace Confuser.Protections.AntiTamper {
             }
 
             using (var ms = new MemoryStream()) {
-				uint _codeSize = WriteInstructions(new BinaryWriter(ms));
+				var _codeSize = WriteInstructions(new BinaryWriter(ms));
 				Debug.Assert(codeSize == _codeSize);
 				jitBody.ILCode = ms.ToArray();
 			}
@@ -151,22 +151,22 @@ namespace Confuser.Protections.AntiTamper {
 			jitBody.EHs = new JITEHClause[exceptionHandlers.Count];
 			if (exceptionHandlers.Count > 0) {
 				jitBody.Options |= 8;
-				for (int i = 0; i < exceptionHandlers.Count; i++) {
-					ExceptionHandler eh = exceptionHandlers[i];
+				for (var i = 0; i < exceptionHandlers.Count; i++) {
+					var eh = exceptionHandlers[i];
 					jitBody.EHs[i].Flags = (uint)eh.HandlerType;
 
-					uint tryStart = GetOffset(eh.TryStart);
-					uint tryEnd = GetOffset(eh.TryEnd);
+					var tryStart = GetOffset(eh.TryStart);
+					var tryEnd = GetOffset(eh.TryEnd);
 					jitBody.EHs[i].TryOffset = tryStart;
 					jitBody.EHs[i].TryLength = tryEnd - tryStart;
 
-					uint handlerStart = GetOffset(eh.HandlerStart);
-					uint handlerEnd = GetOffset(eh.HandlerEnd);
+					var handlerStart = GetOffset(eh.HandlerStart);
+					var handlerEnd = GetOffset(eh.HandlerEnd);
 					jitBody.EHs[i].HandlerOffset = handlerStart;
 					jitBody.EHs[i].HandlerLength = handlerEnd - handlerStart;
 
 					if (eh.HandlerType == ExceptionHandlerType.Catch) {
-						uint token = metadata.GetToken(eh.CatchType).Raw;
+						var token = metadata.GetToken(eh.CatchType).Raw;
 						if ((token & 0xff000000) == 0x1b000000)
                         {
                             jitBody.Options |= 0x80;
@@ -231,7 +231,7 @@ namespace Confuser.Protections.AntiTamper {
 		}
 
 		public void WriteTo(BinaryWriter writer) {
-			uint length = GetFileLength() - 4; // minus length field
+			var length = GetFileLength() - 4; // minus length field
 			writer.Write((uint)bodies.Count);
 			foreach (var entry in bodies.OrderBy(entry => entry.Key)) {
 				writer.Write(entry.Key);

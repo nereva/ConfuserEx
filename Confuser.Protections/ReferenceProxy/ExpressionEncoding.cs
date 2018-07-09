@@ -10,7 +10,7 @@ namespace Confuser.Protections.ReferenceProxy {
 		readonly Dictionary<MethodDef, Tuple<Expression, Func<int, int>>> keys = new Dictionary<MethodDef, Tuple<Expression, Func<int, int>>>();
 
 		public Instruction[] EmitDecode(MethodDef init, RPContext ctx, Instruction[] arg) {
-			Tuple<Expression, Func<int, int>> key = GetKey(ctx, init);
+			var key = GetKey(ctx, init);
 
 			var invCompiled = new List<Instruction>();
 			new CodeGen(arg, ctx.Method, invCompiled).GenerateCIL(key.Item1);
@@ -19,7 +19,7 @@ namespace Confuser.Protections.ReferenceProxy {
 		}
 
 		public int Encode(MethodDef init, RPContext ctx, int value) {
-			Tuple<Expression, Func<int, int>> key = GetKey(ctx, init);
+			var key = GetKey(ctx, init);
 			return key.Item2(value);
 		}
 
@@ -59,7 +59,7 @@ namespace Confuser.Protections.ReferenceProxy {
 
 			protected override void LoadVar(Variable var) {
 				if (var.Name == "{RESULT}") {
-					foreach (Instruction instr in arg)
+					foreach (var instr in arg)
                     {
                         Emit(instr);
                     }

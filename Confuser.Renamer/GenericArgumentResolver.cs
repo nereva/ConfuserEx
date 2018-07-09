@@ -66,7 +66,7 @@ namespace Confuser.Renamer {
                 return false;
             }
 
-            TypeSig newTypeSig = genericArguments.Resolve(typeSig);
+            var newTypeSig = genericArguments.Resolve(typeSig);
 			if (newTypeSig != typeSig) {
 				typeSig = newTypeSig;
 				return true;
@@ -85,7 +85,7 @@ namespace Confuser.Renamer {
                 return null;
             }
 
-            MethodSig result = ResolveGenericArgs(new MethodSig(sig.GetCallingConvention()), sig);
+            var result = ResolveGenericArgs(new MethodSig(sig.GetCallingConvention()), sig);
 
 			recursionCounter.Decrement();
 			return result;
@@ -93,14 +93,14 @@ namespace Confuser.Renamer {
 
 		MethodSig ResolveGenericArgs(MethodSig sig, MethodSig old) {
 			sig.RetType = ResolveGenericArgs(old.RetType);
-			foreach (TypeSig p in old.Params)
+			foreach (var p in old.Params)
             {
                 sig.Params.Add(ResolveGenericArgs(p));
             }
 
             sig.GenParamCount = old.GenParamCount;
 			if (sig.ParamsAfterSentinel != null) {
-				foreach (TypeSig p in old.ParamsAfterSentinel)
+				foreach (var p in old.ParamsAfterSentinel)
                 {
                     sig.ParamsAfterSentinel.Add(ResolveGenericArgs(p));
                 }
@@ -163,7 +163,7 @@ namespace Confuser.Renamer {
 				case ElementType.GenericInst:
 					var gis = (GenericInstSig)typeSig;
 					var genArgs = new List<TypeSig>(gis.GenericArguments.Count);
-					foreach (TypeSig ga in gis.GenericArguments) {
+					foreach (var ga in gis.GenericArguments) {
 						genArgs.Add(ResolveGenericArgs(ga));
 					}
 					result = new GenericInstSig(ResolveGenericArgs(gis.GenericType) as ClassOrValueTypeSig, genArgs);

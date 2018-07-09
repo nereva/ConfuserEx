@@ -76,8 +76,8 @@ namespace Confuser.Protections.Constants {
 
 			// compress
 			var encodedBuff = new byte[moduleCtx.EncodedBuffer.Count * 4];
-			int buffIndex = 0;
-			foreach (uint dat in moduleCtx.EncodedBuffer) {
+			var buffIndex = 0;
+			foreach (var dat in moduleCtx.EncodedBuffer) {
 				encodedBuff[buffIndex++] = (byte)((dat >> 0) & 0xff);
 				encodedBuff[buffIndex++] = (byte)((dat >> 8) & 0xff);
 				encodedBuff[buffIndex++] = (byte)((dat >> 16) & 0xff);
@@ -87,17 +87,17 @@ namespace Confuser.Protections.Constants {
 			encodedBuff = context.Registry.GetService<ICompressionService>().Compress(encodedBuff);
 			context.CheckCancellation();
 
-			uint compressedLen = (uint)(encodedBuff.Length + 3) / 4;
+			var compressedLen = (uint)(encodedBuff.Length + 3) / 4;
 			compressedLen = (compressedLen + 0xfu) & ~0xfu;
 			var compressedBuff = new uint[compressedLen];
 			Buffer.BlockCopy(encodedBuff, 0, compressedBuff, 0, encodedBuff.Length);
 			Debug.Assert(compressedLen % 0x10 == 0);
 
 			// encrypt
-			uint keySeed = moduleCtx.Random.NextUInt32();
+			var keySeed = moduleCtx.Random.NextUInt32();
 			var key = new uint[0x10];
-			uint state = keySeed;
-			for (int i = 0; i < 0x10; i++) {
+			var state = keySeed;
+			for (var i = 0; i < 0x10; i++) {
 				state ^= state >> 12;
 				state ^= state << 25;
 				state ^= state >> 27;
@@ -107,8 +107,8 @@ namespace Confuser.Protections.Constants {
 			var encryptedBuffer = new byte[compressedBuff.Length * 4];
 			buffIndex = 0;
 			while (buffIndex < compressedBuff.Length) {
-				uint[] enc = moduleCtx.ModeHandler.Encrypt(compressedBuff, buffIndex, key);
-				for (int j = 0; j < 0x10; j++)
+				var enc = moduleCtx.ModeHandler.Encrypt(compressedBuff, buffIndex, key);
+				for (var j = 0; j < 0x10; j++)
                 {
                     key[j] ^= compressedBuff[buffIndex + j];
                 }
@@ -136,13 +136,13 @@ namespace Confuser.Protections.Constants {
 		}
 
 		void EncodeString(CEContext moduleCtx, string value, List<Tuple<MethodDef, Instruction>> references) {
-			int buffIndex = EncodeByteArray(moduleCtx, Encoding.UTF8.GetBytes(value));
+			var buffIndex = EncodeByteArray(moduleCtx, Encoding.UTF8.GetBytes(value));
 
 			UpdateReference(moduleCtx, moduleCtx.Module.CorLibTypes.String, references, buffIndex, desc => desc.StringID);
 		}
 
 		void EncodeConstant32(CEContext moduleCtx, uint value, TypeSig valueType, List<Tuple<MethodDef, Instruction>> references) {
-			int buffIndex = moduleCtx.EncodedBuffer.IndexOf(value);
+			var buffIndex = moduleCtx.EncodedBuffer.IndexOf(value);
 			if (buffIndex == -1) {
 				buffIndex = moduleCtx.EncodedBuffer.Count;
 				moduleCtx.EncodedBuffer.Add(value);
@@ -152,7 +152,7 @@ namespace Confuser.Protections.Constants {
 		}
 
 		void EncodeConstant64(CEContext moduleCtx, uint hi, uint lo, TypeSig valueType, List<Tuple<MethodDef, Instruction>> references) {
-			int buffIndex = -1;
+			var buffIndex = -1;
 			do {
 				buffIndex = moduleCtx.EncodedBuffer.IndexOf(lo, buffIndex + 1);
 				if (buffIndex + 1 < moduleCtx.EncodedBuffer.Count && moduleCtx.EncodedBuffer[buffIndex + 1] == hi)
@@ -171,19 +171,19 @@ namespace Confuser.Protections.Constants {
 		}
 
 		void EncodeInitializer(CEContext moduleCtx, byte[] init, List<Tuple<MethodDef, Instruction>> references) {
-			int buffIndex = -1;
+			var buffIndex = -1;
 
 			foreach (var instr in references) {
-				IList<Instruction> instrs = instr.Item1.Body.Instructions;
-				int i = instrs.IndexOf(instr.Item2);
+				var instrs = instr.Item1.Body.Instructions;
+				var i = instrs.IndexOf(instr.Item2);
 
 				if (buffIndex == -1)
                 {
                     buffIndex = EncodeByteArray(moduleCtx, init);
                 }
 
-                Tuple<MethodDef, DecoderDesc> decoder = moduleCtx.Decoders[moduleCtx.Random.NextInt32(moduleCtx.Decoders.Count)];
-				uint id = (uint)buffIndex | (uint)(decoder.Item2.InitializerID << 30);
+                var decoder = moduleCtx.Decoders[moduleCtx.Random.NextInt32(moduleCtx.Decoders.Count)];
+				var id = (uint)buffIndex | (uint)(decoder.Item2.InitializerID << 30);
 				id = moduleCtx.ModeHandler.Encode(decoder.Item2.Data, moduleCtx, id);
 
 				instrs[i - 4].Operand = (int)id;
@@ -197,19 +197,19 @@ namespace Confuser.Protections.Constants {
 		}
 
 		int EncodeByteArray(CEContext moduleCtx, byte[] buff) {
-			int buffIndex = moduleCtx.EncodedBuffer.Count;
+			var buffIndex = moduleCtx.EncodedBuffer.Count;
 			moduleCtx.EncodedBuffer.Add((uint)buff.Length);
 
 			// byte[] -> uint[]
 			int integral = buff.Length / 4, remainder = buff.Length % 4;
-			for (int i = 0; i < integral; i++) {
+			for (var i = 0; i < integral; i++) {
 				var data = (uint)(buff[i * 4] | (buff[i * 4 + 1] << 8) | (buff[i * 4 + 2] << 16) | (buff[i * 4 + 3] << 24));
 				moduleCtx.EncodedBuffer.Add(data);
 			}
 			if (remainder > 0) {
-				int baseIndex = integral * 4;
+				var baseIndex = integral * 4;
 				uint r = 0;
-				for (int i = 0; i < remainder; i++)
+				for (var i = 0; i < remainder; i++)
                 {
                     r |= (uint)(buff[baseIndex + i] << (i * 8));
                 }
@@ -221,8 +221,8 @@ namespace Confuser.Protections.Constants {
 
 		void UpdateReference(CEContext moduleCtx, TypeSig valueType, List<Tuple<MethodDef, Instruction>> references, int buffIndex, Func<DecoderDesc, byte> typeID) {
 			foreach (var instr in references) {
-				Tuple<MethodDef, DecoderDesc> decoder = moduleCtx.Decoders[moduleCtx.Random.NextInt32(moduleCtx.Decoders.Count)];
-				uint id = (uint)buffIndex | (uint)(typeID(decoder.Item2) << 30);
+				var decoder = moduleCtx.Decoders[moduleCtx.Random.NextInt32(moduleCtx.Decoders.Count)];
+				var id = (uint)buffIndex | (uint)(typeID(decoder.Item2) << 30);
 				id = moduleCtx.ModeHandler.Encode(decoder.Item2.Data, moduleCtx, id);
 
 				var targetDecoder = new MethodSpecUser(decoder.Item1, new GenericInstMethodSig(valueType));
@@ -255,15 +255,15 @@ namespace Confuser.Protections.Constants {
 			Dictionary<byte[], List<Tuple<MethodDef, Instruction>>> ldInit) {
 			var dataFields = new HashSet<FieldDef>();
 			var fieldRefs = new HashSet<Instruction>();
-			foreach (MethodDef method in parameters.Targets.OfType<MethodDef>().WithProgress(context.Logger)) {
+			foreach (var method in parameters.Targets.OfType<MethodDef>().WithProgress(context.Logger)) {
 				if (!method.HasBody)
                 {
                     continue;
                 }
 
                 moduleCtx.Elements = 0;
-				string elements = parameters.GetParameter(context, method, "elements", "SI");
-				foreach (char elem in elements)
+				var elements = parameters.GetParameter(context, method, "elements", "SI");
+				foreach (var elem in elements)
                 {
                     switch (elem) {
 						case 'S':
@@ -290,8 +290,8 @@ namespace Confuser.Protections.Constants {
                     continue;
                 }
 
-                foreach (Instruction instr in method.Body.Instructions) {
-					bool eligible = false;
+                foreach (var instr in method.Body.Instructions) {
+					var eligible = false;
 					if (instr.OpCode == OpCodes.Ldstr && (moduleCtx.Elements & EncodeElements.Strings) != 0) {
 						var operand = (string)instr.Operand;
 						if (string.IsNullOrEmpty(operand) && (moduleCtx.Elements & EncodeElements.Primitive) == 0)
@@ -307,8 +307,8 @@ namespace Confuser.Protections.Constants {
 						    operand.DeclaringType.Namespace == "System.Runtime.CompilerServices" &&
 						    operand.DeclaringType.Name == "RuntimeHelpers" &&
 						    operand.Name == "InitializeArray") {
-							IList<Instruction> instrs = method.Body.Instructions;
-							int i = instrs.IndexOf(instr);
+							var instrs = method.Body.Instructions;
+							var i = instrs.IndexOf(instr);
 							if (instrs[i - 1].OpCode != OpCodes.Ldtoken)
                             {
                                 continue;
@@ -343,7 +343,7 @@ namespace Confuser.Protections.Constants {
                             // Prevent array length from being encoded
                             var arrLen = (int)instrs[i - 4].Operand;
 							if (ldc.ContainsKey(arrLen)) {
-								List<Tuple<MethodDef, Instruction>> list = ldc[arrLen];
+								var list = ldc[arrLen];
 								list.RemoveWhere(entry => entry.Item2 == instrs[i - 4]);
 								if (list.Count == 0)
                                 {
@@ -419,8 +419,8 @@ namespace Confuser.Protections.Constants {
 			}
 
 			public int GetHashCode(byte[] obj) {
-				int ret = 31;
-				foreach (byte v in obj)
+				var ret = 31;
+				foreach (var v in obj)
                 {
                     ret = ret * 17 + v;
                 }

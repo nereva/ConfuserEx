@@ -13,7 +13,7 @@ namespace Confuser.Protections.ReferenceProxy {
 		public abstract void Finalize(RPContext ctx);
 
 		static ITypeDefOrRef Import(RPContext ctx, TypeDef typeDef) {
-			ITypeDefOrRef retTypeRef = new Importer(ctx.Module, ImporterOptions.TryToUseTypeDefs).Import(typeDef);
+			var retTypeRef = new Importer(ctx.Module, ImporterOptions.TryToUseTypeDefs).Import(typeDef);
 			if (typeDef.Module != ctx.Module && ctx.Context.Modules.Contains((ModuleDefMD)typeDef.Module))
             {
                 ctx.Name.AddReference(typeDef, new TypeRefReference((TypeRef)retTypeRef, typeDef));
@@ -23,11 +23,11 @@ namespace Confuser.Protections.ReferenceProxy {
 		}
 
 		protected static MethodSig CreateProxySignature(RPContext ctx, IMethod method, bool newObj) {
-			ModuleDef module = ctx.Module;
+			var module = ctx.Module;
 			if (newObj) {
 				Debug.Assert(method.MethodSig.HasThis);
 				Debug.Assert(method.Name == ".ctor");
-				TypeSig[] paramTypes = method.MethodSig.Params.Select(type => {
+				var paramTypes = method.MethodSig.Params.Select(type => {
 					if (ctx.TypeErasure && type.IsClassSig && method.MethodSig.HasThis)
                     {
                         return module.CorLibTypes.Object;
@@ -42,13 +42,13 @@ namespace Confuser.Protections.ReferenceProxy {
                     retType = module.CorLibTypes.Object;
                 }
                 else {
-					TypeDef declType = method.DeclaringType.ResolveTypeDefThrow();
+					var declType = method.DeclaringType.ResolveTypeDefThrow();
 					retType = Import(ctx, declType).ToTypeSig();
 				}
 				return MethodSig.CreateStatic(retType, paramTypes);
 			}
 			else {
-				IEnumerable<TypeSig> paramTypes = method.MethodSig.Params.Select(type => {
+				var paramTypes = method.MethodSig.Params.Select(type => {
 					if (ctx.TypeErasure && type.IsClassSig && method.MethodSig.HasThis)
                     {
                         return module.CorLibTypes.Object;
@@ -57,7 +57,7 @@ namespace Confuser.Protections.ReferenceProxy {
                     return type;
 				});
 				if (method.MethodSig.HasThis && !method.MethodSig.ExplicitThis) {
-					TypeDef declType = method.DeclaringType.ResolveTypeDefThrow();
+					var declType = method.DeclaringType.ResolveTypeDefThrow();
 					if (ctx.TypeErasure && !declType.IsValueType)
                     {
                         paramTypes = new[] { module.CorLibTypes.Object }.Concat(paramTypes);
@@ -67,7 +67,7 @@ namespace Confuser.Protections.ReferenceProxy {
                         paramTypes = new[] { Import(ctx, declType).ToTypeSig() }.Concat(paramTypes);
                     }
                 }
-				TypeSig retType = method.MethodSig.RetType;
+				var retType = method.MethodSig.RetType;
 				if (ctx.TypeErasure && retType.IsClassSig)
                 {
                     retType = module.CorLibTypes.Object;
@@ -100,7 +100,7 @@ namespace Confuser.Protections.ReferenceProxy {
 
 			ctx.Module.Types.Add(ret);
 
-			foreach (IDnlibDef def in ret.FindDefinitions()) {
+			foreach (var def in ret.FindDefinitions()) {
 				ctx.Marker.Mark(def, ctx.Protection);
 				ctx.Name.SetCanRename(def, false);
 			}

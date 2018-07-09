@@ -47,7 +47,7 @@ namespace Confuser.DynCipher.Transforms {
 		}
 
 		public static void Run(StatementBlock block) {
-			foreach (Statement st in block.Statements)
+			foreach (var st in block.Statements)
             {
                 ProcessStatement(st);
             }

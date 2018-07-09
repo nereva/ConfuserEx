@@ -6,7 +6,7 @@ using System.Threading;
 namespace Confuser.Runtime {
 	internal static class AntiDebugWin32 {
 		static void Initialize() {
-			string x = "COR";
+			var x = "COR";
 			if (Environment.GetEnvironmentVariable(x + "_PROFILER") != null ||
 			    Environment.GetEnvironmentVariable(x + "_ENABLE_PROFILING") != null)
             {
@@ -49,7 +49,7 @@ namespace Confuser.Runtime {
                 }
 
                 // OpenProcess
-                Process ps = Process.GetCurrentProcess();
+                var ps = Process.GetCurrentProcess();
 				if (ps.Handle == IntPtr.Zero)
                 {
                     Environment.FailFast("");

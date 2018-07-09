@@ -39,8 +39,8 @@ namespace Confuser.Protections.Constants {
 		}
 
 		public object CreateDecoder(MethodDef decoder, CEContext ctx) {
-			uint k1 = ctx.Random.NextUInt32() | 1;
-			uint k2 = ctx.Random.NextUInt32();
+			var k1 = ctx.Random.NextUInt32() | 1;
+			var k2 = ctx.Random.NextUInt32();
 			MutationHelper.ReplacePlaceholder(decoder, arg => {
 				var repl = new List<Instruction>();
 				repl.AddRange(arg);
@@ -55,7 +55,7 @@ namespace Confuser.Protections.Constants {
 
 		public uint Encode(object data, CEContext ctx, uint id) {
 			var key = (Tuple<uint, uint>)data;
-			uint ret = (id ^ key.Item2) * key.Item1;
+			var ret = (id ^ key.Item2) * key.Item1;
 			Debug.Assert(((ret * MathsUtils.modInv(key.Item1)) ^ key.Item2) == id);
 			return ret;
 		}

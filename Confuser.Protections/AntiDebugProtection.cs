@@ -59,8 +59,8 @@ namespace Confuser.Protections {
 				var marker = context.Registry.GetService<IMarkerService>();
 				var name = context.Registry.GetService<INameService>();
 
-				foreach (ModuleDef module in parameters.Targets.OfType<ModuleDef>()) {
-					AntiMode mode = parameters.GetParameter(context, module, "mode", AntiMode.Safe);
+				foreach (var module in parameters.Targets.OfType<ModuleDef>()) {
+					var mode = parameters.GetParameter(context, module, "mode", AntiMode.Safe);
 
 					TypeDef rtType;
 					TypeDef attr = null;
@@ -77,7 +77,7 @@ namespace Confuser.Protections {
 
 							attr = rt.GetRuntimeType(attrName);
 							module.Types.Add(attr = InjectHelper.Inject(attr, module));
-							foreach (IDnlibDef member in attr.FindDefinitions()) {
+							foreach (var member in attr.FindDefinitions()) {
 								marker.Mark(member, (Protection)Parent);
 								name.Analyze(member);
 							}
@@ -87,17 +87,17 @@ namespace Confuser.Protections {
 							throw new UnreachableException();
 					}
 
-					IEnumerable<IDnlibDef> members = InjectHelper.Inject(rtType, module.GlobalType, module);
+					var members = InjectHelper.Inject(rtType, module.GlobalType, module);
 
-					MethodDef cctor = module.GlobalType.FindStaticConstructor();
+					var cctor = module.GlobalType.FindStaticConstructor();
 					var init = (MethodDef)members.Single(method => method.Name == "Initialize");
 					cctor.Body.Instructions.Insert(0, Instruction.Create(OpCodes.Call, init));
 
-					foreach (IDnlibDef member in members) {
+					foreach (var member in members) {
 						marker.Mark(member, (Protection)Parent);
 						name.Analyze(member);
 
-						bool ren = true;
+						var ren = true;
 						if (member is MethodDef) {
 							var method = (MethodDef)member;
 							if (method.Access == MethodAttributes.Public)
@@ -114,7 +114,7 @@ namespace Confuser.Protections {
                                 ren = false;
                             }
 
-                            CustomAttribute ca = method.CustomAttributes.Find(attrName);
+                            var ca = method.CustomAttributes.Find(attrName);
 							if (ca != null)
                             {
                                 ca.Constructor = attr.FindMethod(".ctor");

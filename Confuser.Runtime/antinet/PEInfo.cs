@@ -35,7 +35,7 @@ namespace Confuser.Runtime {
 			/// </summary>
 			/// <returns>The new instance or <c>null</c> if we failed</returns>
 			public static PEInfo GetCLR() {
-				IntPtr clrAddr = GetCLRAddress();
+				var clrAddr = GetCLRAddress();
 				if (clrAddr == IntPtr.Zero)
                 {
                     return null;
@@ -59,8 +59,8 @@ namespace Confuser.Runtime {
 				p += 4 + 2; // Skip magic + machine
 				numSects = *(ushort*)p;
 				p += 2 + 0x10; // Skip the rest of file header
-				bool is32 = *(ushort*)p == 0x010B;
-				uint sizeOfImage = *(uint*)(p + 0x38);
+				var is32 = *(ushort*)p == 0x010B;
+				var sizeOfImage = *(uint*)(p + 0x38);
 				imageEnd = new IntPtr((byte*)imageBase + sizeOfImage);
 				p += is32 ? 0x60 : 0x70; // Skip optional header
 				p += 0x10 * 8; // Skip data dirs
@@ -131,9 +131,9 @@ namespace Confuser.Runtime {
 			/// <param name="sectionSize">Updated with size of section</param>
 			/// <returns><c>true</c> on success, <c>false</c> on failure</returns>
 			public unsafe bool FindSection(string name, out IntPtr sectionStart, out uint sectionSize) {
-				byte[] nameBytes = Encoding.UTF8.GetBytes(name + "\0\0\0\0\0\0\0\0");
-				for (int i = 0; i < numSects; i++) {
-					byte* p = (byte*)sectionsAddr + i * 0x28;
+				var nameBytes = Encoding.UTF8.GetBytes(name + "\0\0\0\0\0\0\0\0");
+				for (var i = 0; i < numSects; i++) {
+					var p = (byte*)sectionsAddr + i * 0x28;
 					if (!CompareSectionName(p, nameBytes))
                     {
                         continue;
@@ -150,7 +150,7 @@ namespace Confuser.Runtime {
 			}
 
 			private static unsafe bool CompareSectionName(byte* sectionName, byte[] nameBytes) {
-				for (int i = 0; i < 8; i++) {
+				for (var i = 0; i < 8; i++) {
 					if (*sectionName != nameBytes[i])
                     {
                         return false;

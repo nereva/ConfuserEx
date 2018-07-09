@@ -102,11 +102,11 @@ namespace Confuser.Protections.ReferenceProxy {
 		}
 
 		protected override void Execute(ConfuserContext context, ProtectionParameters parameters) {
-			RandomGenerator random = context.Registry.GetService<IRandomService>().GetRandomGenerator(ReferenceProxyProtection._FullId);
+			var random = context.Registry.GetService<IRandomService>().GetRandomGenerator(ReferenceProxyProtection._FullId);
 
 			var store = new RPStore { random = random };
 
-			foreach (MethodDef method in parameters.Targets.OfType<MethodDef>().WithProgress(context.Logger))
+			foreach (var method in parameters.Targets.OfType<MethodDef>().WithProgress(context.Logger))
             {
                 if (method.HasBody && method.Body.Instructions.Count > 0) {
 					ProcessMethod(ParseParameters(method, context, parameters, store));
@@ -114,7 +114,7 @@ namespace Confuser.Protections.ReferenceProxy {
 				}
             }
 
-            RPContext ctx = ParseParameters(context.CurrentModule, context, parameters, store);
+            var ctx = ParseParameters(context.CurrentModule, context, parameters, store);
 
 			if (store.mild != null)
             {
@@ -128,8 +128,8 @@ namespace Confuser.Protections.ReferenceProxy {
         }
 
 		void ProcessMethod(RPContext ctx) {
-			for (int i = 0; i < ctx.Body.Instructions.Count; i++) {
-				Instruction instr = ctx.Body.Instructions[i];
+			for (var i = 0; i < ctx.Body.Instructions.Count; i++) {
+				var instr = ctx.Body.Instructions[i];
 				if (instr.OpCode.Code == Code.Call || instr.OpCode.Code == Code.Callvirt || instr.OpCode.Code == Code.Newobj) {
 					var operand = (IMethod)instr.Operand;
 					var def = operand.ResolveMethodDef();
@@ -166,7 +166,7 @@ namespace Confuser.Protections.ReferenceProxy {
                         continue;
                     }
 
-                    TypeDef declType = operand.DeclaringType.ResolveTypeDefThrow();
+                    var declType = operand.DeclaringType.ResolveTypeDefThrow();
 					// No delegates
 					if (declType.IsDelegate())
                     {

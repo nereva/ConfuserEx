@@ -16,29 +16,29 @@ namespace Confuser.Runtime {
 		static compileMethod handler;
 
 		public static void Initialize() {
-			Module m = typeof(AntiTamperNormal).Module;
-			string n = m.FullyQualifiedName;
-			bool f = n.Length > 0 && n[0] == '<';
+			var m = typeof(AntiTamperNormal).Module;
+			var n = m.FullyQualifiedName;
+			var f = n.Length > 0 && n[0] == '<';
 			var b = (byte*)Marshal.GetHINSTANCE(m);
-			byte* p = b + *(uint*)(b + 0x3c);
-			ushort s = *(ushort*)(p + 0x6);
-			ushort o = *(ushort*)(p + 0x14);
+			var p = b + *(uint*)(b + 0x3c);
+			var s = *(ushort*)(p + 0x6);
+			var o = *(ushort*)(p + 0x14);
 
 			uint* e = null;
 			uint l = 0;
 			var r = (uint*)(p + 0x18 + o);
 			uint z = (uint)Mutation.KeyI1, x = (uint)Mutation.KeyI2, c = (uint)Mutation.KeyI3, v = (uint)Mutation.KeyI4;
-			for (int i = 0; i < s; i++) {
-				uint g = (*r++) * (*r++);
+			for (var i = 0; i < s; i++) {
+				var g = (*r++) * (*r++);
 				if (g == (uint)Mutation.KeyI0) {
 					e = (uint*)(b + (f ? *(r + 3) : *(r + 1)));
 					l = (f ? *(r + 2) : *(r + 0)) >> 2;
 				}
 				else if (g != 0) {
 					var q = (uint*)(b + (f ? *(r + 3) : *(r + 1)));
-					uint j = *(r + 2) >> 2;
+					var j = *(r + 2) >> 2;
 					for (uint k = 0; k < j; k++) {
-						uint t = (z ^ (*q++)) + x + c * v;
+						var t = (z ^ (*q++)) + x + c * v;
 						z = x;
 						x = c;
 						x = v;
@@ -49,7 +49,7 @@ namespace Confuser.Runtime {
 			}
 
 			uint[] y = new uint[0x10], d = new uint[0x10];
-			for (int i = 0; i < 0x10; i++) {
+			for (var i = 0; i < 0x10; i++) {
 				y[i] = v;
 				d[i] = x;
 				z = (x >> 5) | (x << 27);
@@ -60,7 +60,7 @@ namespace Confuser.Runtime {
 			Mutation.Crypt(y, d);
 
 			uint h = 0;
-			uint* u = e;
+			var u = e;
 			VirtualProtect((IntPtr)e, l << 2, 0x40, out z);
 			for (uint i = 0; i < l; i++) {
 				*e ^= y[h & 0xf];
@@ -72,9 +72,9 @@ namespace Confuser.Runtime {
 			len = *ptr++;
 
 			ver4 = Environment.Version.Major == 4;
-			ModuleHandle hnd = m.ModuleHandle;
+			var hnd = m.ModuleHandle;
 			if (ver4) {
-				ulong* str = stackalloc ulong[1];
+				var str = stackalloc ulong[1];
 				str[0] = 0x0061746144705f6d; //m_pData.
 				moduleHnd = (IntPtr)m.GetType().GetField(new string((sbyte*)str), BindingFlags.NonPublic | BindingFlags.Instance).GetValue(m);
 				ver5 = Environment.Version.Revision > 17020;
@@ -97,7 +97,7 @@ namespace Confuser.Runtime {
 		static extern bool VirtualProtect(IntPtr lpAddress, uint dwSize, uint flNewProtect, out uint lpflOldProtect);
 
 		static void Hook() {
-			ulong* ptr = stackalloc ulong[2];
+			var ptr = stackalloc ulong[2];
 			if (ver4) {
 				ptr[0] = 0x642e74696a726c63; //clrjit.d
 				ptr[1] = 0x0000000000006c6c; //ll......
@@ -106,11 +106,11 @@ namespace Confuser.Runtime {
 				ptr[0] = 0x74696a726f63736d; //mscorjit
 				ptr[1] = 0x000000006c6c642e; //.dll....
 			}
-			IntPtr jit = LoadLibrary(new string((sbyte*)ptr));
+			var jit = LoadLibrary(new string((sbyte*)ptr));
 			ptr[0] = 0x000074694a746567; //getJit
 			var get = (getJit)Marshal.GetDelegateForFunctionPointer(GetProcAddress(jit, new string((sbyte*)ptr)), typeof(getJit));
-			IntPtr hookPosition = *get();
-			IntPtr original = *(IntPtr*)hookPosition;
+			var hookPosition = *get();
+			var original = *(IntPtr*)hookPosition;
 
 			IntPtr trampoline;
 			uint oldPl;
@@ -176,7 +176,7 @@ namespace Confuser.Runtime {
             }
 
             localVar++;
-			byte b = *localVar;
+			var b = *localVar;
 			ushort numArgs;
 			IntPtr args;
 			if ((b & 0x80) == 0) {
@@ -214,8 +214,8 @@ namespace Confuser.Runtime {
 					token = getMethodDef((IntPtr)comp, info->ftn);
 				}
 				else {
-					ICorClassInfo* clsInfo = ICorStaticInfo.ICorClassInfo(ICorDynamicInfo.ICorStaticInfo(ICorJitInfo.ICorDynamicInfo(comp)));
-					int gmdSlot = 12 + (ver4 ? 2 : 1);
+					var clsInfo = ICorStaticInfo.ICorClassInfo(ICorDynamicInfo.ICorStaticInfo(ICorJitInfo.ICorDynamicInfo(comp)));
+					var gmdSlot = 12 + (ver4 ? 2 : 1);
 					var getMethodDef = (getMethodDefFromMethod)Marshal.GetDelegateForFunctionPointer(clsInfo->vfptr[gmdSlot], typeof(getMethodDefFromMethod));
 					token = getMethodDef((IntPtr)clsInfo, info->ftn);
 				}
@@ -223,8 +223,8 @@ namespace Confuser.Runtime {
 				uint lo = 0, hi = len;
 				uint? offset = null;
 				while (hi >= lo) {
-					uint mid = lo + ((hi - lo) >> 1);
-					uint midTok = *(ptr + (mid << 1));
+					var mid = lo + ((hi - lo) >> 1);
+					var midTok = *(ptr + (mid << 1));
 					if (midTok == token) {
 						offset = *(ptr + (mid << 1) + 1);
 						break;
@@ -243,15 +243,15 @@ namespace Confuser.Runtime {
                     return originalDelegate(self, comp, info, flags, nativeEntry, nativeSizeOfCode);
                 }
 
-                uint* dataPtr = ptr + (uint)offset;
-				uint dataLen = *dataPtr++;
+                var dataPtr = ptr + (uint)offset;
+				var dataLen = *dataPtr++;
 				var newPtr = (uint*)Marshal.AllocHGlobal((int)dataLen << 2);
 				try {
 					var data = (MethodData*)newPtr;
-					uint* copyData = newPtr;
+					var copyData = newPtr;
 
-					uint state = token * (uint)Mutation.KeyI0;
-					uint counter = state;
+					var state = token * (uint)Mutation.KeyI0;
+					var counter = state;
 					for (uint i = 0; i < dataLen; i++) {
 						*copyData = *dataPtr++ ^ state;
 						state += (*copyData++) ^ counter;
@@ -284,12 +284,12 @@ namespace Confuser.Runtime {
 
 					uint ret;
 					if (ver5) {
-						CorJitInfoHook hook = CorJitInfoHook.Hook(comp, info->ftn, ehPtr);
+						var hook = CorJitInfoHook.Hook(comp, info->ftn, ehPtr);
 						ret = originalDelegate(self, comp, info, flags, nativeEntry, nativeSizeOfCode);
 						hook.Dispose();
 					}
 					else {
-						CorMethodInfoHook hook = CorMethodInfoHook.Hook(comp, info->ftn, ehPtr);
+						var hook = CorMethodInfoHook.Hook(comp, info->ftn, ehPtr);
 						ret = originalDelegate(self, comp, info, flags, nativeEntry, nativeSizeOfCode);
 						hook.Dispose();
 					}
@@ -439,19 +439,19 @@ namespace Confuser.Runtime {
 			}
 
 			public static CorMethodInfoHook Hook(ICorJitInfo* comp, IntPtr ftn, CORINFO_EH_CLAUSE* clauses) {
-				ICorMethodInfo* mtdInfo = ICorStaticInfo.ICorMethodInfo(ICorDynamicInfo.ICorStaticInfo(ICorJitInfo.ICorDynamicInfo(comp)));
-				IntPtr* vfTbl = mtdInfo->vfptr;
+				var mtdInfo = ICorStaticInfo.ICorMethodInfo(ICorDynamicInfo.ICorStaticInfo(ICorJitInfo.ICorDynamicInfo(comp)));
+				var vfTbl = mtdInfo->vfptr;
 				const int SLOT_NUM = 0x1B;
 				var newVfTbl = (IntPtr*)Marshal.AllocHGlobal(SLOT_NUM * IntPtr.Size);
-				for (int i = 0; i < SLOT_NUM; i++)
+				for (var i = 0; i < SLOT_NUM; i++)
                 {
                     newVfTbl[i] = vfTbl[i];
                 }
 
                 if (ehNum == -1)
                 {
-                    for (int i = 0; i < SLOT_NUM; i++) {
-						bool isEh = true;
+                    for (var i = 0; i < SLOT_NUM; i++) {
+						var isEh = true;
 						for (var func = (byte*)vfTbl[i]; *func != 0xe9; func++)
                         {
                             if (IntPtr.Size == 8 ?
@@ -513,10 +513,10 @@ namespace Confuser.Runtime {
 			public static CorJitInfoHook Hook(ICorJitInfo* comp, IntPtr ftn, CORINFO_EH_CLAUSE* clauses) {
 				const int slotNum = 8;
 
-				IntPtr* vfTbl = comp->vfptr;
+				var vfTbl = comp->vfptr;
 				const int SLOT_NUM = 0x9E;
 				var newVfTbl = (IntPtr*)Marshal.AllocHGlobal(SLOT_NUM * IntPtr.Size);
-				for (int i = 0; i < SLOT_NUM; i++)
+				for (var i = 0; i < SLOT_NUM; i++)
                 {
                     newVfTbl[i] = vfTbl[i];
                 }

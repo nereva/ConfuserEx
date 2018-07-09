@@ -67,7 +67,7 @@ namespace Confuser.Protections {
                     return;
                 }
 
-                Mode mode = parameters.GetParameter(context, context.CurrentModule, "mode", Mode.Normal);
+                var mode = parameters.GetParameter(context, context.CurrentModule, "mode", Mode.Normal);
 				IModeHandler modeHandler;
 				switch (mode) {
 					case Mode.Normal:

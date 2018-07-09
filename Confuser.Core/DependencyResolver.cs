@@ -34,39 +34,39 @@ namespace Confuser.Core {
 
 			var edges = new List<DependencyGraphEdge>();
 			var roots = new HashSet<Protection>(protections);
-			Dictionary<string, Protection> id2prot = protections.ToDictionary(prot => prot.FullId, prot => prot);
+			var id2prot = protections.ToDictionary(prot => prot.FullId, prot => prot);
 
-			foreach (Protection prot in protections) {
-				Type protType = prot.GetType();
+			foreach (var prot in protections) {
+				var protType = prot.GetType();
 
-				BeforeProtectionAttribute before = protType
+				var before = protType
 					.GetCustomAttributes(typeof(BeforeProtectionAttribute), false)
 					.Cast<BeforeProtectionAttribute>()
 					.SingleOrDefault();
 				if (before != null) {
 					// current -> target
-					IEnumerable<Protection> targets = before.Ids.Select(id => id2prot[id]);
-					foreach (Protection target in targets) {
+					var targets = before.Ids.Select(id => id2prot[id]);
+					foreach (var target in targets) {
 						edges.Add(new DependencyGraphEdge(prot, target));
 						roots.Remove(target);
 					}
 				}
 
-				AfterProtectionAttribute after = protType
+				var after = protType
 					.GetCustomAttributes(typeof(AfterProtectionAttribute), false)
 					.Cast<AfterProtectionAttribute>()
 					.SingleOrDefault();
 				if (after != null) {
 					// target -> current
-					IEnumerable<Protection> targets = after.Ids.Select(id => id2prot[id]);
-					foreach (Protection target in targets) {
+					var targets = after.Ids.Select(id => id2prot[id]);
+					foreach (var target in targets) {
 						edges.Add(new DependencyGraphEdge(target, prot));
 						roots.Remove(prot);
 					}
 				}
 			}
 
-			IEnumerable<Protection> sorted = SortGraph(roots, edges);
+			var sorted = SortGraph(roots, edges);
 			return sorted.ToList();
 		}
 
@@ -79,11 +79,11 @@ namespace Confuser.Core {
 		IEnumerable<Protection> SortGraph(IEnumerable<Protection> roots, IList<DependencyGraphEdge> edges) {
 			var queue = new Queue<Protection>(roots.OrderBy(prot => prot.FullId));
 			while (queue.Count > 0) {
-				Protection root = queue.Dequeue(); // Find a node with no incoming edges
+				var root = queue.Dequeue(); // Find a node with no incoming edges
 				Debug.Assert(!edges.Where(edge => edge.To == root).Any());
 				yield return root;
 
-				foreach (DependencyGraphEdge edge in edges.Where(edge => edge.From == root).ToList()) {
+				foreach (var edge in edges.Where(edge => edge.From == root).ToList()) {
 					edges.Remove(edge);
 					if (!edges.Any(e => e.To == edge.To)) // No more incoming edge to edge.To
                     {

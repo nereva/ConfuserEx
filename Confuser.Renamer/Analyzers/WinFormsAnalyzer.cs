@@ -33,7 +33,7 @@ namespace Confuser.Renamer.Analyzers {
 
 		void AnalyzeMethod(ConfuserContext context, INameService service, MethodDef method) {
 			var binding = new List<Tuple<bool, Instruction>>();
-			foreach (Instruction instr in method.Body.Instructions) {
+			foreach (var instr in method.Body.Instructions) {
 				if ((instr.OpCode.Code == Code.Call || instr.OpCode.Code == Code.Callvirt)) {
 					var target = (IMethod)instr.Operand;
 
@@ -55,11 +55,11 @@ namespace Confuser.Renamer.Analyzers {
             }
 
             var traceSrv = context.Registry.GetService<ITraceService>();
-			MethodTrace trace = traceSrv.Trace(method);
+			var trace = traceSrv.Trace(method);
 
-			bool erred = false;
+			var erred = false;
 			foreach (var instrInfo in binding) {
-				int[] args = trace.TraceArguments(instrInfo.Item2);
+				var args = trace.TraceArguments(instrInfo.Item2);
 				if (args == null) {
 					if (!erred)
                     {
@@ -70,7 +70,7 @@ namespace Confuser.Renamer.Analyzers {
 					continue;
 				}
 
-				Instruction propertyName = method.Body.Instructions[args[0 + (instrInfo.Item1 ? 1 : 0)]];
+				var propertyName = method.Body.Instructions[args[0 + (instrInfo.Item1 ? 1 : 0)]];
 				if (propertyName.OpCode.Code != Code.Ldstr) {
 					if (!erred)
                     {
@@ -97,7 +97,7 @@ namespace Confuser.Renamer.Analyzers {
                     }
 				}
 
-				Instruction dataMember = method.Body.Instructions[args[2 + (instrInfo.Item1 ? 1 : 0)]];
+				var dataMember = method.Body.Instructions[args[2 + (instrInfo.Item1 ? 1 : 0)]];
 				if (dataMember.OpCode.Code != Code.Ldstr) {
 					if (!erred)
                     {

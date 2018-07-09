@@ -14,20 +14,20 @@ namespace Confuser.DynCipher.Transforms {
                 yield return ((VariableExpression)exp).Variable;
             }
             else if (exp is ArrayIndexExpression) {
-				foreach (Variable i in GetVariableUsage(((ArrayIndexExpression)exp).Array))
+				foreach (var i in GetVariableUsage(((ArrayIndexExpression)exp).Array))
                 {
                     yield return i;
                 }
             }
 			else if (exp is BinOpExpression) {
-				foreach (Variable i in GetVariableUsage(((BinOpExpression)exp).Left)
+				foreach (var i in GetVariableUsage(((BinOpExpression)exp).Left)
 					.Concat(GetVariableUsage(((BinOpExpression)exp).Right)))
                 {
                     yield return i;
                 }
             }
 			else if (exp is UnaryOpExpression) {
-				foreach (Variable i in GetVariableUsage(((UnaryOpExpression)exp).Value))
+				foreach (var i in GetVariableUsage(((UnaryOpExpression)exp).Value))
                 {
                     yield return i;
                 }
@@ -36,7 +36,7 @@ namespace Confuser.DynCipher.Transforms {
 
 		static IEnumerable<Variable> GetVariableUsage(Statement st) {
 			if (st is AssignmentStatement) {
-				foreach (Variable i in GetVariableUsage(((AssignmentStatement)st).Value))
+				foreach (var i in GetVariableUsage(((AssignmentStatement)st).Value))
                 {
                     yield return i;
                 }
@@ -52,7 +52,7 @@ namespace Confuser.DynCipher.Transforms {
 
 		static IEnumerable<Variable> GetVariableDefinition(Statement st) {
 			if (st is AssignmentStatement) {
-				foreach (Variable i in GetVariableDefinition(((AssignmentStatement)st).Target))
+				foreach (var i in GetVariableDefinition(((AssignmentStatement)st).Target))
                 {
                     yield return i;
                 }
@@ -63,9 +63,9 @@ namespace Confuser.DynCipher.Transforms {
 		// Cannot go before the statements that use the variable defined at the statement
 		// Cannot go further than the statements that override the variable used at the statement
 		static int SearchUpwardKill(TransformContext context, Statement st, StatementBlock block, int startIndex) {
-			Variable[] usage = context.Usages[st];
-			Variable[] definition = context.Definitions[st];
-			for (int i = startIndex - 1; i >= 0; i--) {
+			var usage = context.Usages[st];
+			var definition = context.Definitions[st];
+			for (var i = startIndex - 1; i >= 0; i--) {
 				if (context.Usages[block.Statements[i]].Intersect(definition).Count() > 0 ||
 				    context.Definitions[block.Statements[i]].Intersect(usage).Count() > 0)
                 {
@@ -76,9 +76,9 @@ namespace Confuser.DynCipher.Transforms {
 		}
 
 		static int SearchDownwardKill(TransformContext context, Statement st, StatementBlock block, int startIndex) {
-			Variable[] usage = context.Usages[st];
-			Variable[] definition = context.Definitions[st];
-			for (int i = startIndex + 1; i < block.Statements.Count; i++) {
+			var usage = context.Usages[st];
+			var definition = context.Definitions[st];
+			for (var i = startIndex + 1; i < block.Statements.Count; i++) {
 				if (context.Usages[block.Statements[i]].Intersect(definition).Count() > 0 ||
 				    context.Definitions[block.Statements[i]].Intersect(usage).Count() > 0)
                 {
@@ -94,18 +94,18 @@ namespace Confuser.DynCipher.Transforms {
 				Usages = block.Statements.ToDictionary(s => s, s => GetVariableUsage(s).ToArray()),
 				Definitions = block.Statements.ToDictionary(s => s, s => GetVariableDefinition(s).ToArray())
 			};
-			for (int i = 0; i < ITERATION; i++) {
-				foreach (Statement st in context.Statements) {
-					int index = block.Statements.IndexOf(st);
-					Variable[] vars = GetVariableUsage(st).Concat(GetVariableDefinition(st)).ToArray();
+			for (var i = 0; i < ITERATION; i++) {
+				foreach (var st in context.Statements) {
+					var index = block.Statements.IndexOf(st);
+					var vars = GetVariableUsage(st).Concat(GetVariableDefinition(st)).ToArray();
 
 					// Statement can move between defIndex & useIndex without side effects
-					int defIndex = SearchUpwardKill(context, st, block, index);
-					int useIndex = SearchDownwardKill(context, st, block, index);
+					var defIndex = SearchUpwardKill(context, st, block, index);
+					var useIndex = SearchDownwardKill(context, st, block, index);
 
 
 					// Move to a random spot in the interval
-					int newIndex = defIndex + random.NextInt32(1, useIndex - defIndex);
+					var newIndex = defIndex + random.NextInt32(1, useIndex - defIndex);
 					if (newIndex > index)
                     {
                         newIndex--;

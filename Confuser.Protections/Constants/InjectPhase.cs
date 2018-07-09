@@ -64,7 +64,7 @@ namespace Confuser.Protections.Constants {
 				}
 
 				// Inject helpers
-				MethodDef decomp = compression.GetRuntimeDecompressor(context.CurrentModule, member => {
+				var decomp = compression.GetRuntimeDecompressor(context.CurrentModule, member => {
 					name.MarkHelper(member, marker, (Protection)Parent);
 					if (member is MethodDef)
                     {
@@ -76,7 +76,7 @@ namespace Confuser.Protections.Constants {
 				// Mutate codes
 				MutateInitializer(moduleCtx, decomp);
 
-				MethodDef cctor = context.CurrentModule.GlobalType.FindStaticConstructor();
+				var cctor = context.CurrentModule.GlobalType.FindStaticConstructor();
 				cctor.Body.Instructions.Insert(0, Instruction.Create(OpCodes.Call, moduleCtx.InitMethod));
 
 				context.Annotations.Set(context.CurrentModule, ConstantProtection.ContextKey, moduleCtx);
@@ -84,8 +84,8 @@ namespace Confuser.Protections.Constants {
 		}
 
 		void InjectHelpers(ConfuserContext context, ICompressionService compression, IRuntimeService rt, CEContext moduleCtx) {
-			IEnumerable<IDnlibDef> members = InjectHelper.Inject(rt.GetRuntimeType("Confuser.Runtime.Constant"), context.CurrentModule.GlobalType, context.CurrentModule);
-			foreach (IDnlibDef member in members) {
+			var members = InjectHelper.Inject(rt.GetRuntimeType("Confuser.Runtime.Constant"), context.CurrentModule.GlobalType, context.CurrentModule);
+			foreach (var member in members) {
 				if (member.Name == "Get") {
 					context.CurrentModule.GlobalType.Remove((MethodDef)member);
 					continue;
@@ -118,12 +118,12 @@ namespace Confuser.Protections.Constants {
 			context.CurrentModule.GlobalType.Fields.Add(moduleCtx.DataField);
 			moduleCtx.Name.MarkHelper(moduleCtx.DataField, moduleCtx.Marker, (Protection)Parent);
 
-			MethodDef decoder = rt.GetRuntimeType("Confuser.Runtime.Constant").FindMethod("Get");
+			var decoder = rt.GetRuntimeType("Confuser.Runtime.Constant").FindMethod("Get");
 			moduleCtx.Decoders = new List<Tuple<MethodDef, DecoderDesc>>();
-			for (int i = 0; i < moduleCtx.DecoderCount; i++) {
-				MethodDef decoderInst = InjectHelper.Inject(decoder, context.CurrentModule);
-				for (int j = 0; j < decoderInst.Body.Instructions.Count; j++) {
-					Instruction instr = decoderInst.Body.Instructions[j];
+			for (var i = 0; i < moduleCtx.DecoderCount; i++) {
+				var decoderInst = InjectHelper.Inject(decoder, context.CurrentModule);
+				for (var j = 0; j < decoderInst.Body.Instructions.Count; j++) {
+					var instr = decoderInst.Body.Instructions[j];
 					var method = instr.Operand as IMethod;
 					var field = instr.Operand as IField;
 					if (instr.OpCode == OpCodes.Call &&
@@ -173,15 +173,15 @@ namespace Confuser.Protections.Constants {
 
 		void MutateInitializer(CEContext moduleCtx, MethodDef decomp) {
 			moduleCtx.InitMethod.Body.SimplifyMacros(moduleCtx.InitMethod.Parameters);
-			List<Instruction> instrs = moduleCtx.InitMethod.Body.Instructions.ToList();
-			for (int i = 0; i < instrs.Count; i++) {
-				Instruction instr = instrs[i];
+			var instrs = moduleCtx.InitMethod.Body.Instructions.ToList();
+			for (var i = 0; i < instrs.Count; i++) {
+				var instr = instrs[i];
 				var method = instr.Operand as IMethod;
 				if (instr.OpCode == OpCodes.Call) {
 					if (method.DeclaringType.Name == "Mutation" &&
 					    method.Name == "Crypt") {
-						Instruction ldBlock = instrs[i - 2];
-						Instruction ldKey = instrs[i - 1];
+						var ldBlock = instrs[i - 2];
+						var ldKey = instrs[i - 1];
 						Debug.Assert(ldBlock.OpCode == OpCodes.Ldloc && ldKey.OpCode == OpCodes.Ldloc);
 						instrs.RemoveAt(i);
 						instrs.RemoveAt(i - 1);
@@ -195,7 +195,7 @@ namespace Confuser.Protections.Constants {
 				}
 			}
 			moduleCtx.InitMethod.Body.Instructions.Clear();
-			foreach (Instruction instr in instrs)
+			foreach (var instr in instrs)
             {
                 moduleCtx.InitMethod.Body.Instructions.Add(instr);
             }

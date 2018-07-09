@@ -54,7 +54,7 @@ namespace Confuser.Protections {
 				throw new ConfuserException(null);
 			}
 
-			ModuleDefMD originModule = context.Modules[ctx.ModuleIndex];
+			var originModule = context.Modules[ctx.ModuleIndex];
 			ctx.OriginModuleDef = originModule;
 
 			var stubModule = new ModuleDefUser(ctx.ModuleName, originModule.Mvid, originModule.CorLibTypes.AssemblyRef);
@@ -110,18 +110,18 @@ namespace Confuser.Protections {
 		}
 
 		void PackModules(ConfuserContext context, CompressorContext compCtx, ModuleDef stubModule, ICompressionService comp, RandomGenerator random) {
-			int maxLen = 0;
+			var maxLen = 0;
 			var modules = new Dictionary<string, byte[]>();
-			for (int i = 0; i < context.OutputModules.Count; i++) {
+			for (var i = 0; i < context.OutputModules.Count; i++) {
 				if (i == compCtx.ModuleIndex)
                 {
                     continue;
                 }
 
-                string id = GetId(context.Modules[i].Assembly);
+                var id = GetId(context.Modules[i].Assembly);
 				modules.Add(id, context.OutputModules[i]);
 
-				int strLen = Encoding.UTF8.GetByteCount(id);
+				var strLen = Encoding.UTF8.GetByteCount(id);
 				if (strLen > maxLen)
                 {
                     maxLen = strLen;
@@ -131,40 +131,40 @@ namespace Confuser.Protections {
 				var name = GetId(extModule).ToUpperInvariant();
 				modules.Add(name, extModule);
 
-				int strLen = Encoding.UTF8.GetByteCount(name);
+				var strLen = Encoding.UTF8.GetByteCount(name);
 				if (strLen > maxLen)
                 {
                     maxLen = strLen;
                 }
             }
 
-			byte[] key = random.NextBytes(4 + maxLen);
+			var key = random.NextBytes(4 + maxLen);
 			key[0] = (byte)(compCtx.EntryPointToken >> 0);
 			key[1] = (byte)(compCtx.EntryPointToken >> 8);
 			key[2] = (byte)(compCtx.EntryPointToken >> 16);
 			key[3] = (byte)(compCtx.EntryPointToken >> 24);
-			for (int i = 4; i < key.Length; i++) // no zero bytes
+			for (var i = 4; i < key.Length; i++) // no zero bytes
             {
                 key[i] |= 1;
             }
 
             compCtx.KeySig = key;
 
-			int moduleIndex = 0;
+			var moduleIndex = 0;
 			foreach (var entry in modules) {
-				byte[] name = Encoding.UTF8.GetBytes(entry.Key);
-				for (int i = 0; i < name.Length; i++)
+				var name = Encoding.UTF8.GetBytes(entry.Key);
+				for (var i = 0; i < name.Length; i++)
                 {
                     name[i] *= key[i + 4];
                 }
 
                 uint state = 0x6fff61;
-				foreach (byte chr in name)
+				foreach (var chr in name)
                 {
                     state = state * 0x5e3f1f + chr;
                 }
 
-                byte[] encrypted = compCtx.Encrypt(comp, entry.Value, state, progress => {
+                var encrypted = compCtx.Encrypt(comp, entry.Value, state, progress => {
 					progress = (progress + moduleIndex) / modules.Count;
 					context.Logger.Progress((int)(progress * 10000), 10000);
 				});
@@ -206,11 +206,11 @@ namespace Confuser.Protections {
 
 		void InjectStub(ConfuserContext context, CompressorContext compCtx, ProtectionParameters parameters, ModuleDef stubModule) {
 			var rt = context.Registry.GetService<IRuntimeService>();
-			RandomGenerator random = context.Registry.GetService<IRandomService>().GetRandomGenerator(Id);
+			var random = context.Registry.GetService<IRandomService>().GetRandomGenerator(Id);
 			var comp = context.Registry.GetService<ICompressionService>();
 
 			var rtType = rt.GetRuntimeType(compCtx.CompatMode ? "Confuser.Runtime.CompressorCompat" : "Confuser.Runtime.Compressor");
-			IEnumerable<IDnlibDef> defs = InjectHelper.Inject(rtType, stubModule.GlobalType, stubModule);
+			var defs = InjectHelper.Inject(rtType, stubModule.GlobalType, stubModule);
 
 			switch (parameters.GetParameter(context, context.CurrentModule, "key", Mode.Normal)) {
 				case Mode.Normal:
@@ -227,7 +227,7 @@ namespace Confuser.Protections {
 			context.Logger.Debug("Encrypting modules...");
 
 			// Main
-			MethodDef entryPoint = defs.OfType<MethodDef>().Single(method => method.Name == "Main");
+			var entryPoint = defs.OfType<MethodDef>().Single(method => method.Name == "Main");
 			stubModule.EntryPoint = entryPoint;
 
 			if (compCtx.EntryPoint.HasAttribute("System.STAThreadAttribute")) {
@@ -243,10 +243,10 @@ namespace Confuser.Protections {
 					new MemberRefUser(stubModule, ".ctor", ctorSig, attrType)));
 			}
 
-			uint seed = random.NextUInt32();
+			var seed = random.NextUInt32();
 			compCtx.OriginModule = context.OutputModules[compCtx.ModuleIndex];
 
-			byte[] encryptedModule = compCtx.Encrypt(comp, compCtx.OriginModule, seed,
+			var encryptedModule = compCtx.Encrypt(comp, compCtx.OriginModule, seed,
 			                                         progress => context.Logger.Progress((int)(progress * 10000), 10000));
 			context.Logger.EndProgress();
 			context.CheckCancellation();
@@ -259,17 +259,17 @@ namespace Confuser.Protections {
 			InjectData(stubModule, entryPoint, encryptedModule);
 
 			// Decrypt
-			MethodDef decrypter = defs.OfType<MethodDef>().Single(method => method.Name == "Decrypt");
+			var decrypter = defs.OfType<MethodDef>().Single(method => method.Name == "Decrypt");
 			decrypter.Body.SimplifyMacros(decrypter.Parameters);
-			List<Instruction> instrs = decrypter.Body.Instructions.ToList();
-			for (int i = 0; i < instrs.Count; i++) {
-				Instruction instr = instrs[i];
+			var instrs = decrypter.Body.Instructions.ToList();
+			for (var i = 0; i < instrs.Count; i++) {
+				var instr = instrs[i];
 				if (instr.OpCode == OpCodes.Call) {
 					var method = (IMethod)instr.Operand;
 					if (method.DeclaringType.Name == "Mutation" &&
 					    method.Name == "Crypt") {
-						Instruction ldDst = instrs[i - 2];
-						Instruction ldSrc = instrs[i - 1];
+						var ldDst = instrs[i - 2];
+						var ldSrc = instrs[i - 1];
 						Debug.Assert(ldDst.OpCode == OpCodes.Ldloc && ldSrc.OpCode == OpCodes.Ldloc);
 						instrs.RemoveAt(i);
 						instrs.RemoveAt(i - 1);
@@ -278,13 +278,13 @@ namespace Confuser.Protections {
 					}
 					else if (method.DeclaringType.Name == "Lzma" &&
 					         method.Name == "Decompress") {
-						MethodDef decomp = comp.GetRuntimeDecompressor(stubModule, member => { });
+						var decomp = comp.GetRuntimeDecompressor(stubModule, member => { });
 						instr.Operand = decomp;
 					}
 				}
 			}
 			decrypter.Body.Instructions.Clear();
-			foreach (Instruction instr in instrs)
+			foreach (var instr in instrs)
             {
                 decrypter.Body.Instructions.Add(instr);
             }
@@ -319,27 +319,27 @@ namespace Confuser.Protections {
 			public void OnWriterEvent(ModuleWriterBase writer, ModuleWriterEvent evt) {
 				if (evt == ModuleWriterEvent.MDBeginCreateTables) {
 					// Add key signature
-					uint sigBlob = writer.MetaData.BlobHeap.Add(ctx.KeySig);
-					uint sigRid = writer.MetaData.TablesHeap.StandAloneSigTable.Add(new RawStandAloneSigRow(sigBlob));
+					var sigBlob = writer.MetaData.BlobHeap.Add(ctx.KeySig);
+					var sigRid = writer.MetaData.TablesHeap.StandAloneSigTable.Add(new RawStandAloneSigRow(sigBlob));
 					Debug.Assert(sigRid == 1);
-					uint sigToken = 0x11000000 | sigRid;
+					var sigToken = 0x11000000 | sigRid;
 					ctx.KeyToken = sigToken;
 					MutationHelper.InjectKey(writer.Module.EntryPoint, 2, (int)sigToken);
 				}
 				else if (evt == ModuleWriterEvent.MDBeginAddResources && !ctx.CompatMode) {
 					// Compute hash
-					byte[] hash = SHA1.Create().ComputeHash(ctx.OriginModule);
-					uint hashBlob = writer.MetaData.BlobHeap.Add(hash);
+					var hash = SHA1.Create().ComputeHash(ctx.OriginModule);
+					var hashBlob = writer.MetaData.BlobHeap.Add(hash);
 
-					MDTable<RawFileRow> fileTbl = writer.MetaData.TablesHeap.FileTable;
-					uint fileRid = fileTbl.Add(new RawFileRow(
+					var fileTbl = writer.MetaData.TablesHeap.FileTable;
+					var fileRid = fileTbl.Add(new RawFileRow(
 						                           (uint)FileAttributes.ContainsMetaData,
 						                           writer.MetaData.StringsHeap.Add("koi"),
 						                           hashBlob));
-					uint impl = CodedToken.Implementation.Encode(new MDToken(Table.File, fileRid));
+					var impl = CodedToken.Implementation.Encode(new MDToken(Table.File, fileRid));
 
 					// Add resources
-					MDTable<RawManifestResourceRow> resTbl = writer.MetaData.TablesHeap.ManifestResourceTable;
+					var resTbl = writer.MetaData.TablesHeap.ManifestResourceTable;
 					foreach (var resource in ctx.ManifestResources)
                     {
                         resTbl.Add(new RawManifestResourceRow(resource.Item1, resource.Item2, writer.MetaData.StringsHeap.Add(resource.Item3), impl));

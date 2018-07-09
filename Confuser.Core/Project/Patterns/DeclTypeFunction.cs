@@ -25,7 +25,7 @@ namespace Confuser.Core.Project.Patterns {
                 return false;
             }
 
-            object fullName = Arguments[0].Evaluate(definition);
+            var fullName = Arguments[0].Evaluate(definition);
 			return ((IMemberDef)definition).DeclaringType.FullName == fullName.ToString();
 		}
 	}

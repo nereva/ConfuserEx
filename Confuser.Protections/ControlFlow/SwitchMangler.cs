@@ -31,7 +31,7 @@ namespace Confuser.Protections.ControlFlow {
 
 				body.UpdateInstructionOffsets();
 
-				foreach (ExceptionHandler eh in body.ExceptionHandlers) {
+				foreach (var eh in body.ExceptionHandlers) {
 					BeforeStack[eh.TryStart.Offset] = 0;
 					BeforeStack[eh.HandlerStart.Offset] = (eh.HandlerType != ExceptionHandlerType.Finally ? 1 : 0);
 					if (eh.FilterStart != null)
@@ -40,8 +40,8 @@ namespace Confuser.Protections.ControlFlow {
                     }
                 }
 
-				int currentStack = 0;
-				for (int i = 0; i < body.Instructions.Count; i++) {
+				var currentStack = 0;
+				for (var i = 0; i < body.Instructions.Count; i++) {
 					var instr = body.Instructions[i];
 
 					if (BeforeStack.ContainsKey(instr.Offset))
@@ -76,7 +76,7 @@ namespace Confuser.Protections.ControlFlow {
                             break;
 						case FlowControl.Cond_Branch:
 							if (instr.OpCode.Code == Code.Switch) {
-								foreach (Instruction target in (Instruction[])instr.Operand) {
+								foreach (var target in (Instruction[])instr.Operand) {
 									if (!BeforeStack.ContainsKey(target.Offset))
                                     {
                                         BeforeStack[target.Offset] = currentStack;
@@ -144,11 +144,11 @@ namespace Confuser.Protections.ControlFlow {
 			// branches have stack = 0
 			var requiredInstr = new HashSet<Instruction>();
 
-			for (int i = 0; i < block.Instructions.Count; i++) {
-				Instruction instr = block.Instructions[i];
+			for (var i = 0; i < block.Instructions.Count; i++) {
+				var instr = block.Instructions[i];
 				currentStatement.Add(instr);
 
-				bool shouldSpilt = i + 1 < block.Instructions.Count && trace.HasMultipleSources(block.Instructions[i + 1].Offset);
+				var shouldSpilt = i + 1 < block.Instructions.Count && trace.HasMultipleSources(block.Instructions[i + 1].Offset);
 				switch (instr.OpCode.FlowControl) {
 					case FlowControl.Branch:
 					case FlowControl.Cond_Branch:
@@ -217,7 +217,7 @@ namespace Confuser.Protections.ControlFlow {
 		}
 
 		public override void Mangle(CilBody body, ScopeBlock root, CFContext ctx) {
-			Trace trace = new Trace(body, ctx.Method.ReturnType.RemoveModifiers().ElementType != ElementType.Void);
+			var trace = new Trace(body, ctx.Method.ReturnType.RemoveModifiers().ElementType != ElementType.Void);
 			var local = new Local(ctx.Method.Module.CorLibTypes.UInt32);
 			body.Variables.Add(local);
 			body.InitLocals = true;
@@ -234,15 +234,15 @@ namespace Confuser.Protections.ControlFlow {
 				predicate = new x86Predicate(ctx);
 			}
 
-			foreach (InstrBlock block in GetAllBlocks(root)) {
-				LinkedList<Instruction[]> statements = SpiltStatements(block, trace, ctx);
+			foreach (var block in GetAllBlocks(root)) {
+				var statements = SpiltStatements(block, trace, ctx);
 
 				// Make sure .ctor is executed before switch
 				if (ctx.Method.IsInstanceConstructor) {
 					var newStatement = new List<Instruction>();
 					while (statements.First != null) {
 						newStatement.AddRange(statements.First.Value);
-						Instruction lastInstr = statements.First.Value.Last();
+						var lastInstr = statements.First.Value.Last();
 						statements.RemoveFirst();
 						if (lastInstr.OpCode == OpCodes.Call && ((IMethod)lastInstr.Operand).Name == ".ctor")
                         {
@@ -268,7 +268,7 @@ namespace Confuser.Protections.ControlFlow {
 				}
 
 				var statementKeys = new Dictionary<Instruction, int>();
-				LinkedListNode<Instruction[]> current = statements.First;
+				var current = statements.First;
 				i = 0;
 				while (current != null) {
 					if (i != 0)
@@ -342,7 +342,7 @@ namespace Confuser.Protections.ControlFlow {
 
 					if (i != 0) {
 						// Convert to switch
-						bool converted = false;
+						var converted = false;
 
 						if (newStatement.Last().IsBr()) {
 							// Unconditional
@@ -382,14 +382,14 @@ namespace Confuser.Protections.ControlFlow {
 							int brKey;
 							if (!trace.IsBranchTarget(newStatement.Last().Offset) &&
 							    statementKeys.TryGetValue(target, out brKey)) {
-								bool unkSrc = hasUnknownSource(newStatement);
-								int nextKey = key[i + 1];
-								OpCode condBr = newStatement.Last().OpCode;
+								var unkSrc = hasUnknownSource(newStatement);
+								var nextKey = key[i + 1];
+								var condBr = newStatement.Last().OpCode;
 								newStatement.RemoveAt(newStatement.Count - 1);
 
 								if (ctx.Random.NextBoolean()) {
 									condBr = InverseBranch(condBr);
-									int tmp = brKey;
+									var tmp = brKey;
 									brKey = nextKey;
 									nextKey = tmp;
 								}
@@ -401,9 +401,9 @@ namespace Confuser.Protections.ControlFlow {
 									xorKey = thisKey * r;
 								}
 
-								Instruction brKeyInstr = Instruction.CreateLdcI4(xorKey ^ (predicate != null ? predicate.GetSwitchKey(brKey) : brKey));
-								Instruction nextKeyInstr = Instruction.CreateLdcI4(xorKey ^ (predicate != null ? predicate.GetSwitchKey(nextKey) : nextKey));
-								Instruction pop = Instruction.Create(OpCodes.Pop);
+								var brKeyInstr = Instruction.CreateLdcI4(xorKey ^ (predicate != null ? predicate.GetSwitchKey(brKey) : brKey));
+								var nextKeyInstr = Instruction.CreateLdcI4(xorKey ^ (predicate != null ? predicate.GetSwitchKey(nextKey) : nextKey));
+								var pop = Instruction.Create(OpCodes.Pop);
 
 								newStatement.Add(Instruction.Create(condBr, brKeyInstr));
 								newStatement.Add(nextKeyInstr);
@@ -461,12 +461,12 @@ namespace Confuser.Protections.ControlFlow {
 				operands[keyId[i]] = current.Value[0];
 				switchInstr.Operand = operands;
 
-				Instruction[] first = statements.First.Value;
+				var first = statements.First.Value;
 				statements.RemoveFirst();
-				Instruction[] last = statements.Last.Value;
+				var last = statements.Last.Value;
 				statements.RemoveLast();
 
-				List<Instruction[]> newStatements = statements.ToList();
+				var newStatements = statements.ToList();
 				ctx.Random.Shuffle(newStatements);
 
 				block.Instructions.Clear();

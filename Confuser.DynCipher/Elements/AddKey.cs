@@ -15,7 +15,7 @@ namespace Confuser.DynCipher.Elements {
 		public override void Initialize(RandomGenerator random) { }
 
 		void EmitCore(CipherGenContext context) {
-			Expression val = context.GetDataExpression(Index);
+			var val = context.GetDataExpression(Index);
 
 			context.Emit(new AssignmentStatement {
 				Value = val ^ context.GetKeyExpression(Index),

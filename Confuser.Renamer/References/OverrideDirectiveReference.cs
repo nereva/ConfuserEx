@@ -32,7 +32,7 @@ namespace Confuser.Renamer.References {
 		}
 
 		public bool UpdateNameReference(ConfuserContext context, INameService service) {
-			MethodDef method = thisSlot.MethodDef;
+			var method = thisSlot.MethodDef;
 
 			IMethod target;
 			if (baseSlot.MethodDefDeclType is GenericInstSig) {

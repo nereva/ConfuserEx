@@ -25,7 +25,7 @@ namespace Confuser.Protections.Compress {
                 return;
             }
 
-            bool isExe = context.CurrentModule.Kind == ModuleKind.Windows ||
+            var isExe = context.CurrentModule.Kind == ModuleKind.Windows ||
 			             context.CurrentModule.Kind == ModuleKind.Console;
 
 			if (context.Annotations.Get<CompressorContext>(context, Compressor.ContextKey) != null) {
@@ -71,8 +71,8 @@ namespace Confuser.Protections.Compress {
 				if (e.WriterEvent == ModuleWriterEvent.MDEndAddResources) {
 					var writer = (ModuleWriterBase)sender;
 					ctx.ManifestResources = new List<Tuple<uint, uint, string>>();
-					Dictionary<uint, byte[]> stringDict = writer.MetaData.StringsHeap.GetAllRawData().ToDictionary(pair => pair.Key, pair => pair.Value);
-					foreach (RawManifestResourceRow resource in writer.MetaData.TablesHeap.ManifestResourceTable)
+					var stringDict = writer.MetaData.StringsHeap.GetAllRawData().ToDictionary(pair => pair.Key, pair => pair.Value);
+					foreach (var resource in writer.MetaData.TablesHeap.ManifestResourceTable)
                     {
                         ctx.ManifestResources.Add(Tuple.Create(resource.Offset, resource.Flags, Encoding.UTF8.GetString(stringDict[resource.Name])));
                     }

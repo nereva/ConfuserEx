@@ -22,7 +22,7 @@ namespace Confuser.Protections.Compress {
 		public uint[] DeriveKey(uint[] a, uint[] b) {
 			var ret = new uint[0x10];
 			var state = seed;
-			for (int i = 0; i < 0x10; i++) {
+			for (var i = 0; i < 0x10; i++) {
 				switch (state % 3) {
 					case 0:
 						ret[i] = a[i] ^ b[i];
@@ -53,7 +53,7 @@ namespace Confuser.Protections.Compress {
 
 		public IEnumerable<Instruction> EmitDerivation(MethodDef method, ConfuserContext ctx, Local dst, Local src) {
 			var state = seed;
-			for (int i = 0; i < 0x10; i++) {
+			for (var i = 0; i < 0x10; i++) {
 				yield return Instruction.Create(OpCodes.Ldloc, dst);
 				yield return Instruction.Create(OpCodes.Ldc_I4, i);
 				yield return Instruction.Create(OpCodes.Ldloc, dst);

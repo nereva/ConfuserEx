@@ -39,10 +39,10 @@ namespace Confuser.Core.Project {
 
 		string ReadLiteral() {
 			var ret = new StringBuilder();
-			char delim = NextChar();
+			var delim = NextChar();
 			Debug.Assert(delim == '"' || delim == '\'');
 
-			char chr = NextChar();
+			var chr = NextChar();
 			while (chr != delim) {
 				// Escape sequence
 				if (chr == '\\')
@@ -62,7 +62,7 @@ namespace Confuser.Core.Project {
 		string ReadIdentifier() {
 			var ret = new StringBuilder();
 
-			char? chr = PeekChar();
+			var chr = PeekChar();
 			while (chr != null && (char.IsLetterOrDigit(chr.Value) || chr == '_' || chr == '-')) {
 				ret.Append(NextChar());
 				chr = PeekChar();
@@ -78,13 +78,13 @@ namespace Confuser.Core.Project {
             }
 
             SkipWhitespace();
-			char? tokenBegin = PeekChar();
+			var tokenBegin = PeekChar();
 			if (tokenBegin == null)
             {
                 return null;
             }
 
-            int pos = index;
+            var pos = index;
 			switch (tokenBegin.Value) {
 				case ',':
 					index++;

@@ -32,18 +32,18 @@ namespace Confuser.DynCipher.Elements {
 
 		static uint[,] mul(uint[,] a, uint[,] b) {
 			int n = a.GetLength(0), p = b.GetLength(1);
-			int m = a.GetLength(1);
+			var m = a.GetLength(1);
 			if (b.GetLength(0) != m)
             {
                 return null;
             }
 
             var ret = new uint[n, p];
-			for (int i = 0; i < n; i++)
+			for (var i = 0; i < n; i++)
             {
-                for (int j = 0; j < p; j++) {
+                for (var j = 0; j < p; j++) {
 					ret[i, j] = 0;
-					for (int k = 0; k < m; k++)
+					for (var k = 0; k < m; k++)
                     {
                         ret[i, j] += a[i, k] * b[k, j];
                     }
@@ -68,7 +68,7 @@ namespace Confuser.DynCipher.Elements {
 					sub[si, sj] = mat[ci, cj];
 				}
 			}
-			uint ret = det3(sub);
+			var ret = det3(sub);
 			if ((i + j) % 2 == 0)
             {
                 return ret;
@@ -88,9 +88,9 @@ namespace Confuser.DynCipher.Elements {
 
 		static uint[,] transpose4(uint[,] mat) {
 			var ret = new uint[4, 4];
-			for (int i = 0; i < 4; i++)
+			for (var i = 0; i < 4; i++)
             {
-                for (int j = 0; j < 4; j++)
+                for (var j = 0; j < 4; j++)
                 {
                     ret[j, i] = mat[i, j];
                 }
@@ -103,9 +103,9 @@ namespace Confuser.DynCipher.Elements {
 			InverseKey = mul(transpose4(GenerateUnimodularMatrix(random)), GenerateUnimodularMatrix(random));
 
 			var cof = new uint[4, 4];
-			for (int i = 0; i < 4; i++)
+			for (var i = 0; i < 4; i++)
             {
-                for (int j = 0; j < 4; j++)
+                for (var j = 0; j < 4; j++)
                 {
                     cof[i, j] = cofactor4(InverseKey, i, j);
                 }
@@ -115,10 +115,10 @@ namespace Confuser.DynCipher.Elements {
 		}
 
 		void EmitCore(CipherGenContext context, uint[,] k) {
-			Expression a = context.GetDataExpression(DataIndexes[0]);
-			Expression b = context.GetDataExpression(DataIndexes[1]);
-			Expression c = context.GetDataExpression(DataIndexes[2]);
-			Expression d = context.GetDataExpression(DataIndexes[3]);
+			var a = context.GetDataExpression(DataIndexes[0]);
+			var b = context.GetDataExpression(DataIndexes[1]);
+			var c = context.GetDataExpression(DataIndexes[2]);
+			var d = context.GetDataExpression(DataIndexes[3]);
 
 			VariableExpression ta, tb, tc, td;
 

@@ -15,19 +15,19 @@ namespace ConfuserEx.ViewModel {
 			this.proj = proj;
 			FileName = fileName;
 
-			ObservableCollection<ProjectModuleVM> modules = Utils.Wrap(proj, module => new ProjectModuleVM(this, module));
+			var modules = Utils.Wrap(proj, module => new ProjectModuleVM(this, module));
 			modules.CollectionChanged += (sender, e) => IsModified = true;
 			Modules = modules;
 
-			ObservableCollection<StringItem> plugins = Utils.Wrap(proj.PluginPaths, path => new StringItem(path));
+			var plugins = Utils.Wrap(proj.PluginPaths, path => new StringItem(path));
 			plugins.CollectionChanged += (sender, e) => IsModified = true;
 			Plugins = plugins;
 
-			ObservableCollection<StringItem> probePaths = Utils.Wrap(proj.ProbePaths, path => new StringItem(path));
+			var probePaths = Utils.Wrap(proj.ProbePaths, path => new StringItem(path));
 			probePaths.CollectionChanged += (sender, e) => IsModified = true;
 			ProbePaths = probePaths;
 
-			ObservableCollection<ProjectRuleVM> rules = Utils.Wrap(proj.Rules, rule => new ProjectRuleVM(this, rule));
+			var rules = Utils.Wrap(proj.Rules, rule => new ProjectRuleVM(this, rule));
 			rules.CollectionChanged += (sender, e) => IsModified = true;
 			Rules = rules;
 
@@ -81,7 +81,7 @@ namespace ConfuserEx.ViewModel {
 			}
 			set {
 				var vm = (IViewModel<SettingItem<Packer>>)value;
-				bool changed = (vm == null && proj.Packer != null) || (vm != null && proj.Packer != vm.Model);
+				var changed = (vm == null && proj.Packer != null) || (vm != null && proj.Packer != vm.Model);
 				SetProperty(changed, val => proj.Packer = val == null ? null : val.Model, vm, "Packer");
 			}
 		}

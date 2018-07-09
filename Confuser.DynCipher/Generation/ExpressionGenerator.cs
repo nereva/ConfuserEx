@@ -42,7 +42,7 @@ namespace Confuser.DynCipher.Generation {
 			if (exp is BinOpExpression) {
 				var binExp = (BinOpExpression)exp;
 				if (random.NextBoolean()) {
-					Expression tmp = binExp.Left;
+					var tmp = binExp.Left;
 					binExp.Left = binExp.Right;
 					binExp.Right = tmp;
 				}
@@ -92,7 +92,7 @@ namespace Confuser.DynCipher.Generation {
 		}
 
 		static Expression GenerateInverse(Expression exp, Expression var, Dictionary<Expression, bool> hasVar) {
-			Expression result = var;
+			var result = var;
 			while (!(exp is VariableExpression)) {
 				Debug.Assert(hasVar[exp]);
 				if (exp is UnaryOpExpression) {
@@ -105,9 +105,9 @@ namespace Confuser.DynCipher.Generation {
 				}
 				else if (exp is BinOpExpression) {
 					var binOp = (BinOpExpression)exp;
-					bool leftHasVar = hasVar[binOp.Left];
-					Expression varExp = leftHasVar ? binOp.Left : binOp.Right;
-					Expression constExp = leftHasVar ? binOp.Right : binOp.Left;
+					var leftHasVar = hasVar[binOp.Left];
+					var varExp = leftHasVar ? binOp.Left : binOp.Right;
+					var constExp = leftHasVar ? binOp.Right : binOp.Left;
 
 					if (binOp.Operation == BinOps.Add)
                     {
@@ -137,7 +137,7 @@ namespace Confuser.DynCipher.Generation {
 					}
 					else if (binOp.Operation == BinOps.Mul) {
 						Debug.Assert(constExp is LiteralExpression);
-						uint val = ((LiteralExpression)constExp).Value;
+						var val = ((LiteralExpression)constExp).Value;
 						val = MathsUtils.modInv(val);
 						result = new BinOpExpression {
 							Operation = BinOps.Mul,

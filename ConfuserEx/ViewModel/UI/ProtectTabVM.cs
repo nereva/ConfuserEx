@@ -135,8 +135,8 @@ namespace ConfuserEx.ViewModel {
 		}
 
 		void ILogger.Finish(bool successful) {
-			DateTime now = DateTime.Now;
-			string timeString = string.Format(
+			var now = DateTime.Now;
+			var timeString = string.Format(
 				"at {0}, {1}:{2:d2} elapsed.",
 				now.ToShortTimeString(),
 				(int)now.Subtract(begin).TotalMinutes,

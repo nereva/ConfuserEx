@@ -35,9 +35,9 @@ namespace Confuser.DynCipher.Transforms {
 			bool workDone;
 			do {
 				workDone = false;
-				Statement[] copy = block.Statements.ToArray();
+				var copy = block.Statements.ToArray();
 				block.Statements.Clear();
-				foreach (Statement st in copy)
+				foreach (var st in copy)
                 {
                     workDone |= ProcessStatement(st, block);
                 }

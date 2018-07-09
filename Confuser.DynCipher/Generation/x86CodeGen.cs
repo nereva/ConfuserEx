@@ -39,7 +39,7 @@ namespace Confuser.DynCipher.Generation {
 		}
 
 		x86Register GetFreeRegister() {
-			for (int i = 0; i < 8; i++)
+			for (var i = 0; i < 8; i++)
             {
                 if (!usedRegs[i])
                 {
@@ -72,7 +72,7 @@ namespace Confuser.DynCipher.Generation {
                  * mov reg, imm1
                  * op reg, imm2
                  */
-				x86Register reg = GetFreeRegister();
+				var reg = GetFreeRegister();
 				instrs.Add(x86Instruction.Create(x86OpCode.MOV, new x86RegisterOperand(reg), instr.Operands[0]));
 				instr.Operands[0] = new x86RegisterOperand(reg);
 				instrs.Add(instr);
@@ -88,7 +88,7 @@ namespace Confuser.DynCipher.Generation {
                  * mov reg, imm
                  * op reg
                  */
-				x86Register reg = GetFreeRegister();
+				var reg = GetFreeRegister();
 				instrs.Add(x86Instruction.Create(x86OpCode.MOV, new x86RegisterOperand(reg), instr.Operands[0]));
 				instr.Operands[0] = new x86RegisterOperand(reg);
 				instrs.Add(instr);
@@ -106,7 +106,7 @@ namespace Confuser.DynCipher.Generation {
                  * add reg, imm
                  */
 
-				x86Register reg = ((x86RegisterOperand)instr.Operands[1]).Register;
+				var reg = ((x86RegisterOperand)instr.Operands[1]).Register;
 				instrs.Add(x86Instruction.Create(x86OpCode.NEG, new x86RegisterOperand(reg)));
 				instr.OpCode = x86OpCode.ADD;
 				instr.Operands[1] = instr.Operands[0];
@@ -125,7 +125,7 @@ namespace Confuser.DynCipher.Generation {
                  * op reg, imm
                  */
 
-				x86Register reg = ((x86RegisterOperand)instr.Operands[1]).Register;
+				var reg = ((x86RegisterOperand)instr.Operands[1]).Register;
 				instr.Operands[1] = instr.Operands[0];
 				instr.Operands[0] = new x86RegisterOperand(reg);
 				instrs.Add(instr);
@@ -198,7 +198,7 @@ namespace Confuser.DynCipher.Generation {
             }
 
             if (exp is VariableExpression) {
-				x86Register reg = GetFreeRegister();
+				var reg = GetFreeRegister();
 				TakeRegister(reg);
 				instrs.AddRange(loadArg(((VariableExpression)exp).Variable, reg));
 				return new x86RegisterOperand(reg);
@@ -465,7 +465,7 @@ namespace Confuser.DynCipher.Generation {
 		public override string ToString() {
 			var ret = new StringBuilder();
 			ret.Append(OpCode);
-			for (int i = 0; i < Operands.Length; i++) {
+			for (var i = 0; i < Operands.Length; i++) {
 				ret.AppendFormat("{0}{1}", i == 0 ? " " : ", ", Operands[i]);
 			}
 			return ret.ToString();

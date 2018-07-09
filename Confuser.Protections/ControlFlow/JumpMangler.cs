@@ -9,8 +9,8 @@ namespace Confuser.Protections.ControlFlow {
 			var fragments = new LinkedList<Instruction[]>();
 			var currentFragment = new List<Instruction>();
 
-			int skipCount = -1;
-			for (int i = 0; i < block.Instructions.Count; i++) {
+			var skipCount = -1;
+			for (var i = 0; i < block.Instructions.Count; i++) {
 				if (skipCount != -1) {
 					if (skipCount > 0) {
 						currentFragment.Add(block.Instructions[i]);
@@ -68,14 +68,14 @@ namespace Confuser.Protections.ControlFlow {
 
 		public override void Mangle(CilBody body, ScopeBlock root, CFContext ctx) {
 			body.MaxStack++;
-			foreach (InstrBlock block in GetAllBlocks(root)) {
-				LinkedList<Instruction[]> fragments = SpiltFragments(block, ctx);
+			foreach (var block in GetAllBlocks(root)) {
+				var fragments = SpiltFragments(block, ctx);
 				if (fragments.Count < 4)
                 {
                     continue;
                 }
 
-                LinkedListNode<Instruction[]> current = fragments.First;
+                var current = fragments.First;
 				while (current.Next != null) {
 					var newFragment = new List<Instruction>(current.Value);
 					ctx.AddJump(newFragment, current.Next.Value[0]);
@@ -83,12 +83,12 @@ namespace Confuser.Protections.ControlFlow {
 					current.Value = newFragment.ToArray();
 					current = current.Next;
 				}
-				Instruction[] first = fragments.First.Value;
+				var first = fragments.First.Value;
 				fragments.RemoveFirst();
-				Instruction[] last = fragments.Last.Value;
+				var last = fragments.Last.Value;
 				fragments.RemoveLast();
 
-				List<Instruction[]> newFragments = fragments.ToList();
+				var newFragments = fragments.ToList();
 				ctx.Random.Shuffle(newFragments);
 
 				block.Instructions = first

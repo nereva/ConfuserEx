@@ -10,8 +10,8 @@ namespace Confuser.Core.Services {
 		/// <inheritdoc />
 		public TypeDef GetRuntimeType(string fullName) {
 			if (rtModule == null) {
-				Module module = typeof(RuntimeService).Assembly.ManifestModule;
-				string rtPath = "Confuser.Runtime.dll";
+				var module = typeof(RuntimeService).Assembly.ManifestModule;
+				var rtPath = "Confuser.Runtime.dll";
 				if (module.FullyQualifiedName[0] != '<')
                 {
                     rtPath = Path.Combine(Path.GetDirectoryName(module.FullyQualifiedName), rtPath);

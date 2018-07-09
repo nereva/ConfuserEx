@@ -18,25 +18,25 @@ namespace Confuser.Core {
 		/// <returns>A collection of all required definitions</returns>
 		public static IEnumerable<IDnlibDef> FindDefinitions(this ModuleDef module) {
 			yield return module;
-			foreach (TypeDef type in module.GetTypes()) {
+			foreach (var type in module.GetTypes()) {
 				yield return type;
 
-				foreach (MethodDef method in type.Methods)
+				foreach (var method in type.Methods)
                 {
                     yield return method;
                 }
 
-                foreach (FieldDef field in type.Fields)
+                foreach (var field in type.Fields)
                 {
                     yield return field;
                 }
 
-                foreach (PropertyDef prop in type.Properties)
+                foreach (var prop in type.Properties)
                 {
                     yield return prop;
                 }
 
-                foreach (EventDef evt in type.Events)
+                foreach (var evt in type.Events)
                 {
                     yield return evt;
                 }
@@ -51,27 +51,27 @@ namespace Confuser.Core {
 		public static IEnumerable<IDnlibDef> FindDefinitions(this TypeDef typeDef) {
 			yield return typeDef;
 
-			foreach (TypeDef nestedType in typeDef.NestedTypes)
+			foreach (var nestedType in typeDef.NestedTypes)
             {
                 yield return nestedType;
             }
 
-            foreach (MethodDef method in typeDef.Methods)
+            foreach (var method in typeDef.Methods)
             {
                 yield return method;
             }
 
-            foreach (FieldDef field in typeDef.Fields)
+            foreach (var field in typeDef.Fields)
             {
                 yield return field;
             }
 
-            foreach (PropertyDef prop in typeDef.Properties)
+            foreach (var prop in typeDef.Properties)
             {
                 yield return prop;
             }
 
-            foreach (EventDef evt in typeDef.Events)
+            foreach (var evt in typeDef.Events)
             {
                 yield return evt;
             }
@@ -148,7 +148,7 @@ namespace Confuser.Core {
                 return false;
             }
 
-            string fullName = type.BaseType.FullName;
+            var fullName = type.BaseType.FullName;
 			return fullName == "System.Delegate" || fullName == "System.MulticastDelegate";
 		}
 
@@ -164,7 +164,7 @@ namespace Confuser.Core {
                 return false;
             }
 
-            TypeDef bas = type;
+            var bas = type;
 			do {
 				bas = bas.BaseType.ResolveTypeDefThrow();
 				if (bas.ReflectionFullName == baseType)
@@ -187,7 +187,7 @@ namespace Confuser.Core {
                 return false;
             }
 
-            TypeDef bas = type;
+            var bas = type;
 			do {
 				bas = bas.BaseType.ResolveTypeDefThrow();
 				if (bas.ReflectionFullName == baseType)
@@ -206,7 +206,7 @@ namespace Confuser.Core {
 		/// <returns><c>true</c> if the specified type implements the interface; otherwise, <c>false</c>.</returns>
 		public static bool Implements(this TypeDef type, string fullName) {
 			do {
-				foreach (InterfaceImpl iface in type.Interfaces) {
+				foreach (var iface in type.Interfaces) {
 					if (iface.Interface.ReflectionFullName == fullName)
                     {
                         return true;
@@ -309,7 +309,7 @@ namespace Confuser.Core {
 			if (typeSig is GenericInstSig) {
 				var genInst = (GenericInstSig)typeSig;
 				ret.Add(genInst.GenericType.TypeDefOrRef);
-				foreach (TypeSig genArg in genInst.GenericArguments)
+				foreach (var genArg in genInst.GenericArguments)
                 {
                     FindTypeRefsInternal(genArg, ret);
                 }
@@ -416,7 +416,7 @@ namespace Confuser.Core {
 		/// <param name="target">The instruction to replace.</param>
 		/// <param name="newInstr">The new instruction.</param>
 		public static void ReplaceReference(this CilBody body, Instruction target, Instruction newInstr) {
-			foreach (ExceptionHandler eh in body.ExceptionHandlers) {
+			foreach (var eh in body.ExceptionHandlers) {
 				if (eh.TryStart == target)
                 {
                     eh.TryStart = newInstr;
@@ -437,14 +437,14 @@ namespace Confuser.Core {
                     eh.HandlerEnd = newInstr;
                 }
             }
-			foreach (Instruction instr in body.Instructions) {
+			foreach (var instr in body.Instructions) {
 				if (instr.Operand == target)
                 {
                     instr.Operand = newInstr;
                 }
                 else if (instr.Operand is Instruction[]) {
 					var targets = (Instruction[])instr.Operand;
-					for (int i = 0; i < targets.Length; i++)
+					for (var i = 0; i < targets.Length; i++)
                     {
                         if (targets[i] == target)
                         {

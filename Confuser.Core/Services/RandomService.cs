@@ -44,7 +44,7 @@ namespace Confuser.Core.Services {
                 ret = Utils.SHA256(Guid.NewGuid().ToByteArray());
             }
 
-            for (int i = 0; i < 32; i++) {
+            for (var i = 0; i < 32; i++) {
 				ret[i] *= primes[i % primes.Length];
 				ret = Utils.SHA256(ret);
 			}
@@ -55,7 +55,7 @@ namespace Confuser.Core.Services {
 		///     Refills the state buffer.
 		/// </summary>
 		void NextState() {
-			for (int i = 0; i < 32; i++)
+			for (var i = 0; i < 32; i++)
             {
                 state[i] ^= primes[mixIndex = (mixIndex + 1) % primes.Length];
             }
@@ -120,7 +120,7 @@ namespace Confuser.Core.Services {
 		/// </summary>
 		/// <returns>Requested random byte.</returns>
 		public byte NextByte() {
-			byte ret = state[32 - stateFilled];
+			var ret = state[32 - stateFilled];
 			stateFilled--;
 			if (stateFilled == 0)
             {
@@ -194,7 +194,7 @@ namespace Confuser.Core.Services {
 		/// </summary>
 		/// <returns>Requested random boolean value.</returns>
 		public bool NextBoolean() {
-			byte s = state[32 - stateFilled];
+			var s = state[32 - stateFilled];
 			stateFilled--;
 			if (stateFilled == 0)
             {
@@ -210,9 +210,9 @@ namespace Confuser.Core.Services {
 		/// <typeparam name="T"></typeparam>
 		/// <param name="list">The list to shuffle.</param>
 		public void Shuffle<T>(IList<T> list) {
-			for (int i = list.Count - 1; i > 1; i--) {
-				int k = NextInt32(i + 1);
-				T tmp = list[k];
+			for (var i = list.Count - 1; i > 1; i--) {
+				var k = NextInt32(i + 1);
+				var tmp = list[k];
 				list[k] = list[i];
 				list[i] = tmp;
 			}
@@ -240,9 +240,9 @@ namespace Confuser.Core.Services {
                 throw new ArgumentNullException("id");
             }
 
-            byte[] newSeed = seed;
-			byte[] idHash = Utils.SHA256(Encoding.UTF8.GetBytes(id));
-			for (int i = 0; i < 32; i++)
+            var newSeed = seed;
+			var idHash = Utils.SHA256(Encoding.UTF8.GetBytes(id));
+			for (var i = 0; i < 32; i++)
             {
                 newSeed[i] ^= idHash[i];
             }

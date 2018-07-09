@@ -28,12 +28,12 @@ namespace Confuser.Core {
 		/// <param name="snKey">The strong name key.</param>
 		/// <param name="prot">The packer protection that applies to the stub.</param>
 		protected void ProtectStub(ConfuserContext context, string fileName, byte[] module, StrongNameKey snKey, Protection prot = null) {
-			string tmpDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
-			string outDir = Path.Combine(tmpDir, Path.GetRandomFileName());
+			var tmpDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+			var outDir = Path.Combine(tmpDir, Path.GetRandomFileName());
 			Directory.CreateDirectory(tmpDir);
 
-			for (int i = 0; i < context.OutputModules.Count; i++) {
-				string path = Path.GetFullPath(Path.Combine(tmpDir, context.OutputPaths[i]));
+			for (var i = 0; i < context.OutputModules.Count; i++) {
+				var path = Path.GetFullPath(Path.Combine(tmpDir, context.OutputPaths[i]));
 				var dir = Path.GetDirectoryName(path);
 				if (!Directory.Exists(dir))
                 {
@@ -46,7 +46,7 @@ namespace Confuser.Core {
 
 			var proj = new ConfuserProject();
 			proj.Seed = context.Project.Seed;
-			foreach (Rule rule in context.Project.Rules)
+			foreach (var rule in context.Project.Rules)
             {
                 proj.Rules.Add(rule);
             }
@@ -170,8 +170,8 @@ namespace Confuser.Core {
 		}
 
 		protected internal override MarkerResult MarkProject(ConfuserProject proj, ConfuserContext context) {
-			MarkerResult result = base.MarkProject(proj, context);
-			foreach (ModuleDefMD module in result.Modules)
+			var result = base.MarkProject(proj, context);
+			foreach (var module in result.Modules)
             {
                 context.Annotations.Set(module, SNKey, snKey);
             }

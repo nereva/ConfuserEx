@@ -15,7 +15,7 @@ namespace Confuser.DynCipher.Generation {
 		public DMCodeGen(Type returnType, Tuple<string, Type>[] parameters) {
 			dm = new DynamicMethod("", returnType, parameters.Select(param => param.Item2).ToArray(), true);
 			paramMap = new Dictionary<string, int>();
-			for (int i = 0; i < parameters.Length; i++)
+			for (var i = 0; i < parameters.Length; i++)
             {
                 paramMap.Add(parameters[i].Item1, i);
             }
@@ -185,14 +185,14 @@ namespace Confuser.DynCipher.Generation {
                  *      blt     lop
                  *      pop
                  */
-				Label lbl = ilGen.DefineLabel();
-				Label dup = ilGen.DefineLabel();
+				var lbl = ilGen.DefineLabel();
+				var dup = ilGen.DefineLabel();
 				ilGen.Emit(OpCodes.Ldc_I4, loop.Begin);
 				ilGen.Emit(OpCodes.Br, dup);
 				ilGen.Emit(OpCodes.Ldc_I4, loop.Begin);
 				ilGen.MarkLabel(lbl);
 
-				foreach (Statement child in loop.Statements)
+				foreach (var child in loop.Statements)
                 {
                     EmitStatement(child);
                 }
@@ -206,7 +206,7 @@ namespace Confuser.DynCipher.Generation {
 				ilGen.Emit(OpCodes.Pop);
 			}
 			else if (statement is StatementBlock) {
-				foreach (Statement child in ((StatementBlock)statement).Statements)
+				foreach (var child in ((StatementBlock)statement).Statements)
                 {
                     EmitStatement(child);
                 }

@@ -25,7 +25,7 @@ namespace Confuser.Protections.Constants {
 
 		static void ReplaceNormal(MethodDef method, List<Tuple<Instruction, uint, IMethod>> instrs) {
 			foreach (var instr in instrs) {
-				int i = method.Body.Instructions.IndexOf(instr.Item1);
+				var i = method.Body.Instructions.IndexOf(instr.Item1);
 				instr.Item1.OpCode = OpCodes.Ldc_I4;
 				instr.Item1.Operand = (int)instr.Item2;
 				method.Body.Instructions.Insert(i + 1, Instruction.Create(OpCodes.Call, instr.Item3));
@@ -117,7 +117,7 @@ namespace Confuser.Protections.Constants {
 			}
 
 			public static byte EncodeFlag(bool exp, int updateId, int getId) {
-				byte fl = (byte)(exp ? 0x80 : 0);
+				var fl = (byte)(exp ? 0x80 : 0);
 				fl |= (byte)updateId;
 				fl |= (byte)(getId << 2);
 				return fl;
@@ -155,7 +155,7 @@ namespace Confuser.Protections.Constants {
 
             Instruction first = null;
 			// Cannot use graph.IndexOf because instructions has been modified.
-			int targetIndex = body.Instructions.IndexOf(block.Header);
+			var targetIndex = body.Instructions.IndexOf(block.Header);
 
 			CFGState entry;
 			if (!ctx.StatesMap.TryGetValue(key.EntryState, out entry)) {
@@ -171,11 +171,11 @@ namespace Confuser.Protections.Constants {
 					// Create new exit state
 					// Update one of the entry states to be exit state
 					exit = entry;
-					int updateId = ctx.Random.NextInt32(3);
-					uint targetValue = ctx.Random.NextUInt32();
+					var updateId = ctx.Random.NextInt32(3);
+					var targetValue = ctx.Random.NextUInt32();
 					exit.UpdateExplicit(updateId, targetValue);
 
-					int getId = ctx.Random.NextInt32(3);
+					var getId = ctx.Random.NextInt32(3);
 					var fl = CFGState.EncodeFlag(false, updateId, getId);
 					var incr = entry.GetIncrementalUpdate(updateId, targetValue);
 
@@ -190,14 +190,14 @@ namespace Confuser.Protections.Constants {
 				else {
 					// Scan for updated state
 					var headerIndex = targetIndex;
-					for (int stateId = 0; stateId < 4; stateId++) {
+					for (var stateId = 0; stateId < 4; stateId++) {
 						if (entry.Get(stateId) == exit.Get(stateId))
                         {
                             continue;
                         }
 
-                        uint targetValue = exit.Get(stateId);
-						int getId = ctx.Random.NextInt32(3);
+                        var targetValue = exit.Get(stateId);
+						var getId = ctx.Random.NextInt32(3);
 						var fl = CFGState.EncodeFlag(false, stateId, getId);
 						var incr = entry.GetIncrementalUpdate(stateId, targetValue);
 
@@ -227,9 +227,9 @@ namespace Confuser.Protections.Constants {
 				else {
 					// Scan for updated state
 					var headerIndex = targetIndex;
-					for (int stateId = 0; stateId < 4; stateId++) {
-						uint targetValue = exit.Get(stateId);
-						int getId = ctx.Random.NextInt32(3);
+					for (var stateId = 0; stateId < 4; stateId++) {
+						var targetValue = exit.Get(stateId);
+						var getId = ctx.Random.NextInt32(3);
 						var fl = CFGState.EncodeFlag(true, stateId, getId);
 
 						body.Instructions.Insert(targetIndex++, Instruction.Create(OpCodes.Ldloca, ctx.StateVariable));
@@ -253,10 +253,10 @@ namespace Confuser.Protections.Constants {
 
 				if (targetState == null) {
 					// Randomly update and get state
-					int updateId = ctx.Random.NextInt32(3);
-					uint targetValue = ctx.Random.NextUInt32();
+					var updateId = ctx.Random.NextInt32(3);
+					var targetValue = ctx.Random.NextUInt32();
 
-					int getId = ctx.Random.NextInt32(3);
+					var getId = ctx.Random.NextInt32(3);
 					var fl = CFGState.EncodeFlag(false, updateId, getId);
 					var incr = currentState.GetIncrementalUpdate(updateId, targetValue);
 					currentState.UpdateExplicit(updateId, targetValue);
@@ -271,7 +271,7 @@ namespace Confuser.Protections.Constants {
 				// Scan for updated state
 				int[] stateIds = { 0, 1, 2, 3 };
 				ctx.Random.Shuffle(stateIds);
-				int i = 0;
+				var i = 0;
 				uint getValue = 0;
 				foreach (var stateId in stateIds) {
 					// There must be at least one update&get
@@ -281,8 +281,8 @@ namespace Confuser.Protections.Constants {
 						continue;
 					}
 
-					uint targetValue = targetState.Value.Get(stateId);
-					int getId = ctx.Random.NextInt32(3);
+					var targetValue = targetState.Value.Get(stateId);
+					var getId = ctx.Random.NextInt32(3);
 					var fl = CFGState.EncodeFlag(false, stateId, getId);
 					var incr = currentState.GetIncrementalUpdate(stateId, targetValue);
 					currentState.UpdateExplicit(stateId, targetValue);
@@ -317,10 +317,10 @@ namespace Confuser.Protections.Constants {
 					body.Instructions.Insert(index++, Instruction.Create(OpCodes.Call, ctx.Ctx.CfgCtxCtor));
 
 					// Randomly get state
-					int updateId = ctx.Random.NextInt32(3);
-					uint targetValue = ctx.Random.NextUInt32();
+					var updateId = ctx.Random.NextInt32(3);
+					var targetValue = ctx.Random.NextUInt32();
 
-					int getId = ctx.Random.NextInt32(3);
+					var getId = ctx.Random.NextInt32(3);
 					var fl = CFGState.EncodeFlag(false, updateId, getId);
 					var incr = currentState.GetIncrementalUpdate(updateId, targetValue);
 					currentState.UpdateExplicit(updateId, targetValue);
@@ -335,11 +335,11 @@ namespace Confuser.Protections.Constants {
 					// Scan for updated state
 					int[] stateIds = { 0, 1, 2, 3 };
 					ctx.Random.Shuffle(stateIds);
-					int i = 0;
+					var i = 0;
 					uint getValue = 0;
 					foreach (var stateId in stateIds) {
-						uint targetValue = targetState.Value.Get(stateId);
-						int getId = ctx.Random.NextInt32(3);
+						var targetValue = targetState.Value.Get(stateId);
+						var getId = ctx.Random.NextInt32(3);
 						var fl = CFGState.EncodeFlag(true, stateId, getId);
 						currentState.UpdateExplicit(stateId, targetValue);
 
@@ -396,7 +396,7 @@ namespace Confuser.Protections.Constants {
 			}
 
 			// Update state for blocks not in use
-			for (int i = 0; i < graph.Count; i++) {
+			for (var i = 0; i < graph.Count; i++) {
 				var block = graph[i];
 				if (blockReferences.ContainsKey(block.Id))
                 {
@@ -415,7 +415,7 @@ namespace Confuser.Protections.Constants {
 					Debug.Assert(key.Type == BlockKeyType.Explicit);
 
 					// Create new entry state
-					uint blockSeed = ctx.Random.NextUInt32();
+					var blockSeed = ctx.Random.NextUInt32();
 					currentState = new CFGState(blockSeed);
 					cfgCtx.StatesMap[key.EntryState] = currentState;
 
@@ -429,7 +429,7 @@ namespace Confuser.Protections.Constants {
 				}
 				var type = key.Type;
 
-				for (int i = 0; i < blockRef.Value.Count; i++) {
+				for (var i = 0; i < blockRef.Value.Count; i++) {
 					var refEntry = blockRef.Value.Values[i];
 
 					CFGState? targetState = null;

@@ -30,7 +30,7 @@ namespace Confuser.Protections.ControlFlow {
 			ret.Type = parameters.GetParameter(context, method, "type", CFType.Switch);
 			ret.Predicate = parameters.GetParameter(context, method, "predicate", PredicateType.Normal);
 
-			int rawIntensity = parameters.GetParameter(context, method, "intensity", 60);
+			var rawIntensity = parameters.GetParameter(context, method, "intensity", 60);
 			ret.Intensity = rawIntensity / 100.0;
 			ret.Depth = parameters.GetParameter(context, method, "depth", 4);
 
@@ -53,8 +53,8 @@ namespace Confuser.Protections.ControlFlow {
 		}
 
 		static bool DisabledOptimization(ModuleDef module) {
-			bool disableOpti = false;
-			CustomAttribute debugAttr = module.Assembly.CustomAttributes.Find("System.Diagnostics.DebuggableAttribute");
+			var disableOpti = false;
+			var debugAttr = module.Assembly.CustomAttributes.Find("System.Diagnostics.DebuggableAttribute");
 			if (debugAttr != null) {
 				if (debugAttr.ConstructorArguments.Count == 1)
                 {
@@ -80,10 +80,10 @@ namespace Confuser.Protections.ControlFlow {
 		}
 
 		protected override void Execute(ConfuserContext context, ProtectionParameters parameters) {
-			bool disabledOpti = DisabledOptimization(context.CurrentModule);
-			RandomGenerator random = context.Registry.GetService<IRandomService>().GetRandomGenerator(ControlFlowProtection._FullId);
+			var disabledOpti = DisabledOptimization(context.CurrentModule);
+			var random = context.Registry.GetService<IRandomService>().GetRandomGenerator(ControlFlowProtection._FullId);
 
-			foreach (MethodDef method in parameters.Targets.OfType<MethodDef>().WithProgress(context.Logger))
+			foreach (var method in parameters.Targets.OfType<MethodDef>().WithProgress(context.Logger))
             {
                 if (method.HasBody && method.Body.Instructions.Count > 0) {
 					ProcessMethod(method.Body, ParseParameters(method, context, parameters, random, disabledOpti));
@@ -108,13 +108,13 @@ namespace Confuser.Protections.ControlFlow {
 				throw new ConfuserException(null);
 			}
 			body.MaxStack = (ushort)maxStack;
-			ScopeBlock root = BlockParser.ParseBody(body);
+			var root = BlockParser.ParseBody(body);
 
 			GetMangler(ctx.Type).Mangle(body, root, ctx);
 
 			body.Instructions.Clear();
 			root.ToBody(body);
-			foreach (ExceptionHandler eh in body.ExceptionHandlers) {
+			foreach (var eh in body.ExceptionHandlers) {
 				var index = body.Instructions.IndexOf(eh.TryEnd) + 1;
 				eh.TryEnd = index < body.Instructions.Count ? body.Instructions[index] : null;
 				index = body.Instructions.IndexOf(eh.HandlerEnd) + 1;

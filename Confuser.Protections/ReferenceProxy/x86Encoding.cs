@@ -18,7 +18,7 @@ namespace Confuser.Protections.ReferenceProxy {
 		bool addedHandler;
 
 		public Instruction[] EmitDecode(MethodDef init, RPContext ctx, Instruction[] arg) {
-			Tuple<MethodDef, Func<int, int>> key = GetKey(ctx, init);
+			var key = GetKey(ctx, init);
 
 			var repl = new List<Instruction>();
 			repl.AddRange(arg);
@@ -27,7 +27,7 @@ namespace Confuser.Protections.ReferenceProxy {
 		}
 
 		public int Encode(MethodDef init, RPContext ctx, int value) {
-			Tuple<MethodDef, Func<int, int>> key = GetKey(ctx, init);
+			var key = GetKey(ctx, init);
 			return key.Item2(value);
 		}
 
@@ -35,7 +35,7 @@ namespace Confuser.Protections.ReferenceProxy {
 			var var = new Variable("{VAR}");
 			var result = new Variable("{RESULT}");
 
-			CorLibTypeSig int32 = ctx.Module.CorLibTypes.Int32;
+			var int32 = ctx.Module.CorLibTypes.Int32;
 			native = new MethodDefUser(ctx.Context.Registry.GetService<INameService>().RandomName(), MethodSig.CreateStatic(int32, int32), MethodAttributes.PinvokeImpl | MethodAttributes.PrivateScope | MethodAttributes.Static);
 			native.ImplAttributes = MethodImplAttributes.Native | MethodImplAttributes.Unmanaged | MethodImplAttributes.PreserveSig;
 			ctx.Module.GlobalType.Methods.Add(native);
@@ -55,7 +55,7 @@ namespace Confuser.Protections.ReferenceProxy {
 				reg = codeGen.GenerateX86(inverse, (v, r) => { return new[] { x86Instruction.Create(x86OpCode.POP, new x86RegisterOperand(r)) }; });
 			} while (reg == null);
 
-			byte[] code = CodeGenUtils.AssembleCode(codeGen, reg.Value);
+			var code = CodeGenUtils.AssembleCode(codeGen, reg.Value);
 
 			expCompiled = new DMCodeGen(typeof(int), new[] { Tuple.Create("{VAR}", typeof(int)) })
 				.GenerateCIL(expression)
@@ -71,7 +71,7 @@ namespace Confuser.Protections.ReferenceProxy {
 		void InjectNativeCode(object sender, ModuleWriterListenerEventArgs e) {
 			var writer = (ModuleWriterBase)sender;
 			if (e.WriterEvent == ModuleWriterEvent.MDEndWriteMethodBodies) {
-				for (int n = 0; n < nativeCodes.Count; n++)
+				for (var n = 0; n < nativeCodes.Count; n++)
                 {
                     nativeCodes[n] = new Tuple<MethodDef, byte[], MethodBody>(
 						nativeCodes[n].Item1,
@@ -81,7 +81,7 @@ namespace Confuser.Protections.ReferenceProxy {
             }
 			else if (e.WriterEvent == ModuleWriterEvent.EndCalculateRvasAndFileOffsets) {
 				foreach (var native in nativeCodes) {
-					uint rid = writer.MetaData.GetRid(native.Item1);
+					var rid = writer.MetaData.GetRid(native.Item1);
 					writer.MetaData.TablesHeap.MethodTable[rid].RVA = (uint)native.Item3.RVA;
 				}
 			}
@@ -108,7 +108,7 @@ namespace Confuser.Protections.ReferenceProxy {
 
 			protected override void LoadVar(Variable var) {
 				if (var.Name == "{RESULT}") {
-					foreach (Instruction instr in arg)
+					foreach (var instr in arg)
                     {
                         Emit(instr);
                     }

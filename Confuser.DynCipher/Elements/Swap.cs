@@ -25,8 +25,8 @@ namespace Confuser.DynCipher.Elements {
 		}
 
 		void EmitCore(CipherGenContext context) {
-			Expression a = context.GetDataExpression(DataIndexes[0]);
-			Expression b = context.GetDataExpression(DataIndexes[1]);
+			var a = context.GetDataExpression(DataIndexes[0]);
+			var b = context.GetDataExpression(DataIndexes[1]);
 			VariableExpression tmp;
 
 			if (Mask == 0xffffffff) {

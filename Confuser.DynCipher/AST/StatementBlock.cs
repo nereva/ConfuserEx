@@ -13,7 +13,7 @@ namespace Confuser.DynCipher.AST {
 		public override string ToString() {
 			var sb = new StringBuilder();
 			sb.AppendLine("{");
-			foreach (Statement i in Statements)
+			foreach (var i in Statements)
             {
                 sb.AppendLine(i.ToString());
             }

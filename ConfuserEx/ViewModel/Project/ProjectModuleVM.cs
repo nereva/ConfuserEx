@@ -17,7 +17,7 @@ namespace ConfuserEx.ViewModel {
 			this.parent = parent;
 			this.module = module;
 
-			ObservableCollection<ProjectRuleVM> rules = Utils.Wrap(module.Rules, rule => new ProjectRuleVM(parent, rule));
+			var rules = Utils.Wrap(module.Rules, rule => new ProjectRuleVM(parent, rule));
 			rules.CollectionChanged += (sender, e) => parent.IsModified = true;
 			Rules = rules;
 
@@ -87,13 +87,13 @@ namespace ConfuserEx.ViewModel {
 			AssemblyName = "Loading...";
 			ThreadPool.QueueUserWorkItem(_ => {
 				try {
-					string path = System.IO.Path.Combine(parent.BaseDirectory, Path);
+					var path = System.IO.Path.Combine(parent.BaseDirectory, Path);
 					if (!string.IsNullOrEmpty(parent.FileName))
                     {
                         path = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(parent.FileName), path);
                     }
 
-                    AssemblyName name = System.Reflection.AssemblyName.GetAssemblyName(path);
+                    var name = System.Reflection.AssemblyName.GetAssemblyName(path);
 					AssemblyName = name.FullName;
 				}
 				catch {

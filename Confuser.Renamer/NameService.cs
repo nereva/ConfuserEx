@@ -85,7 +85,7 @@ namespace Confuser.Renamer {
                 }
 
                 var prot = (NameProtection)analyze.Parent;
-				ProtectionSettings parameters = ProtectionParameters.GetParameters(context, (IDnlibDef)obj);
+				var parameters = ProtectionParameters.GetParameters(context, (IDnlibDef)obj);
 				if (parameters == null || !parameters.ContainsKey(prot))
                 {
                     return false;
@@ -141,7 +141,7 @@ namespace Confuser.Renamer {
 		}
 
 		public void ReduceRenameMode(object obj, RenameMode val) {
-			RenameMode original = GetRenameMode(obj);
+			var original = GetRenameMode(obj);
 			if (original < val)
             {
                 context.Annotations.Set(obj, RenameModeKey, val);
@@ -167,14 +167,14 @@ namespace Confuser.Renamer {
 		}
 
 		public void SetNameId(uint id) {
-			for (int i = nameId.Length - 1; i >= 0; i--) {
+			for (var i = nameId.Length - 1; i >= 0; i--) {
 				nameId[i] = (byte)(id & 0xff);
 				id >>= 8;
 			}
 		}
 
 		void IncrementNameId() {
-			for (int i = nameId.Length - 1; i >= 0; i--) {
+			for (var i = nameId.Length - 1; i >= 0; i--) {
 				nameId[i]++;
 				if (nameId[i] != 0)
                 {
@@ -207,7 +207,7 @@ namespace Confuser.Renamer {
 
 		string ParseGenericName(string name, out int? count) {
 			if (name.LastIndexOf('`') != -1) {
-				int index = name.LastIndexOf('`');
+				var index = name.LastIndexOf('`');
 				int c;
 				if (int.TryParse(name.Substring(index + 1), out c)) {
 					count = c;
@@ -264,8 +264,8 @@ namespace Confuser.Renamer {
                 return nameMap1[name];
             }
 
-            byte[] hash = Utils.Xor(Utils.SHA1(Encoding.UTF8.GetBytes(name)), nameSeed);
-			for (int i = 0; i < 100; i++) {
+            var hash = Utils.Xor(Utils.SHA1(Encoding.UTF8.GetBytes(name)), nameSeed);
+			for (var i = 0; i < 100; i++) {
 				newName = ObfuscateNameInternal(hash, mode);
 				if (!identifiers.Contains(MakeGenericName(newName, count)))
                 {

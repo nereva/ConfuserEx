@@ -38,7 +38,7 @@ namespace Confuser.Core {
 		/// <param name="type">The type.</param>
 		/// <returns><c>true</c> if the specified type has an accessible default constructor; otherwise, <c>false</c>.</returns>
 		public static bool HasAccessibleDefConstructor(Type type) {
-			ConstructorInfo ctor = type.GetConstructor(Type.EmptyTypes);
+			var ctor = type.GetConstructor(Type.EmptyTypes);
 			if (ctor == null)
             {
                 return false;
@@ -107,7 +107,7 @@ namespace Confuser.Core {
 			ConfuserContext context, IList<Protection> protections,
 			IList<Packer> packers, IList<ConfuserComponent> components) {
 			try {
-				Assembly protAsm = Assembly.Load("Confuser.Protections");
+				var protAsm = Assembly.Load("Confuser.Protections");
 				AddPlugins(context, protections, packers, components, protAsm);
 			}
 			catch (Exception ex) {
@@ -115,7 +115,7 @@ namespace Confuser.Core {
 			}
 
 			try {
-				Assembly renameAsm = Assembly.Load("Confuser.Renamer");
+				var renameAsm = Assembly.Load("Confuser.Renamer");
 				AddPlugins(context, protections, packers, components, renameAsm);
 			}
 			catch (Exception ex) {
@@ -123,17 +123,17 @@ namespace Confuser.Core {
 			}
 
 			try {
-				Assembly renameAsm = Assembly.Load("Confuser.DynCipher");
+				var renameAsm = Assembly.Load("Confuser.DynCipher");
 				AddPlugins(context, protections, packers, components, renameAsm);
 			}
 			catch (Exception ex) {
 				context.Logger.WarnException("Failed to load dynamic cipher library.", ex);
 			}
 
-			foreach (string pluginPath in context.Project.PluginPaths) {
-				string realPath = Path.Combine(context.BaseDirectory, pluginPath);
+			foreach (var pluginPath in context.Project.PluginPaths) {
+				var realPath = Path.Combine(context.BaseDirectory, pluginPath);
 				try {
-					Assembly plugin = Assembly.LoadFile(realPath);
+					var plugin = Assembly.LoadFile(realPath);
 					AddPlugins(context, protections, packers, components, plugin);
 				}
 				catch (Exception ex) {

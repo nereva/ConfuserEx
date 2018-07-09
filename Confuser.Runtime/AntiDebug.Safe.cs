@@ -5,7 +5,7 @@ using System.Threading;
 namespace Confuser.Runtime {
 	internal static class AntiDebugSafe {
 		static void Initialize() {
-			string x = "COR";
+			var x = "COR";
 			var env = typeof(Environment);
 			var method = env.GetMethod("GetEnvironmentVariable", new[] { typeof(string) });
 			if (method != null &&

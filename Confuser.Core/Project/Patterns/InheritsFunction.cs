@@ -20,7 +20,7 @@ namespace Confuser.Core.Project.Patterns {
 
 		/// <inheritdoc />
 		public override object Evaluate(IDnlibDef definition) {
-			string name = Arguments[0].Evaluate(definition).ToString();
+			var name = Arguments[0].Evaluate(definition).ToString();
 
 			var type = definition as TypeDef;
 			if (type == null && definition is IMemberDef)

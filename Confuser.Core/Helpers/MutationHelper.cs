@@ -38,7 +38,7 @@ namespace Confuser.Core.Helpers {
 		/// <param name="keyId">The mutation key ID.</param>
 		/// <param name="key">The actual key.</param>
 		public static void InjectKey(MethodDef method, int keyId, int key) {
-			foreach (Instruction instr in method.Body.Instructions) {
+			foreach (var instr in method.Body.Instructions) {
 				if (instr.OpCode == OpCodes.Ldsfld) {
 					var field = (IField)instr.Operand;
 					int _keyId;
@@ -59,7 +59,7 @@ namespace Confuser.Core.Helpers {
 		/// <param name="keyIds">The mutation key IDs.</param>
 		/// <param name="keys">The actual keys.</param>
 		public static void InjectKeys(MethodDef method, int[] keyIds, int[] keys) {
-			foreach (Instruction instr in method.Body.Instructions) {
+			foreach (var instr in method.Body.Instructions) {
 				if (instr.OpCode == OpCodes.Ldsfld) {
 					var field = (IField)instr.Operand;
 					int _keyIndex;
@@ -79,29 +79,29 @@ namespace Confuser.Core.Helpers {
 		/// <param name="method">The methodto process.</param>
 		/// <param name="repl">The function replacing the argument of placeholder call with actual instruction sequence.</param>
 		public static void ReplacePlaceholder(MethodDef method, Func<Instruction[], Instruction[]> repl) {
-			MethodTrace trace = new MethodTrace(method).Trace();
-			for (int i = 0; i < method.Body.Instructions.Count; i++) {
-				Instruction instr = method.Body.Instructions[i];
+			var trace = new MethodTrace(method).Trace();
+			for (var i = 0; i < method.Body.Instructions.Count; i++) {
+				var instr = method.Body.Instructions[i];
 				if (instr.OpCode == OpCodes.Call) {
 					var operand = (IMethod)instr.Operand;
 					if (operand.DeclaringType.FullName == mutationType &&
 					    operand.Name == "Placeholder") {
-						int[] argIndexes = trace.TraceArguments(instr);
+						var argIndexes = trace.TraceArguments(instr);
 						if (argIndexes == null)
                         {
                             throw new ArgumentException("Failed to trace placeholder argument.");
                         }
 
-                        int argIndex = argIndexes[0];
-						Instruction[] arg = method.Body.Instructions.Skip(argIndex).Take(i - argIndex).ToArray();
-						for (int j = 0; j < arg.Length; j++)
+                        var argIndex = argIndexes[0];
+						var arg = method.Body.Instructions.Skip(argIndex).Take(i - argIndex).ToArray();
+						for (var j = 0; j < arg.Length; j++)
                         {
                             method.Body.Instructions.RemoveAt(argIndex);
                         }
 
                         method.Body.Instructions.RemoveAt(argIndex);
 						arg = repl(arg);
-						for (int j = arg.Length - 1; j >= 0; j--)
+						for (var j = arg.Length - 1; j >= 0; j--)
                         {
                             method.Body.Instructions.Insert(argIndex, arg[j]);
                         }

@@ -55,19 +55,19 @@ namespace Confuser.Protections {
 			}
 
 			protected override void Execute(ConfuserContext context, ProtectionParameters parameters) {
-				TypeDef rtType = context.Registry.GetService<IRuntimeService>().GetRuntimeType("Confuser.Runtime.AntiDump");
+				var rtType = context.Registry.GetService<IRuntimeService>().GetRuntimeType("Confuser.Runtime.AntiDump");
 
 				var marker = context.Registry.GetService<IMarkerService>();
 				var name = context.Registry.GetService<INameService>();
 
-				foreach (ModuleDef module in parameters.Targets.OfType<ModuleDef>()) {
-					IEnumerable<IDnlibDef> members = InjectHelper.Inject(rtType, module.GlobalType, module);
+				foreach (var module in parameters.Targets.OfType<ModuleDef>()) {
+					var members = InjectHelper.Inject(rtType, module.GlobalType, module);
 
-					MethodDef cctor = module.GlobalType.FindStaticConstructor();
+					var cctor = module.GlobalType.FindStaticConstructor();
 					var init = (MethodDef)members.Single(method => method.Name == "Initialize");
 					cctor.Body.Instructions.Insert(0, Instruction.Create(OpCodes.Call, init));
 
-					foreach (IDnlibDef member in members)
+					foreach (var member in members)
                     {
                         name.MarkHelper(member, marker, (Protection)Parent);
                     }

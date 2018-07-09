@@ -29,7 +29,7 @@ namespace Confuser.Core.Services {
                 return null;
             }
 
-            foreach (IDnlibDef member in decompressor.Item2)
+            foreach (var member in decompressor.Item2)
             {
                 init(member);
             }
@@ -39,12 +39,12 @@ namespace Confuser.Core.Services {
 
 		/// <inheritdoc />
 		public MethodDef GetRuntimeDecompressor(ModuleDef module, Action<IDnlibDef> init) {
-			Tuple<MethodDef, List<IDnlibDef>> decompressor = context.Annotations.GetOrCreate(module, Decompressor, m => {
+			var decompressor = context.Annotations.GetOrCreate(module, Decompressor, m => {
 				var rt = context.Registry.GetService<IRuntimeService>();
 
-				List<IDnlibDef> members = InjectHelper.Inject(rt.GetRuntimeType("Confuser.Runtime.Lzma"), module.GlobalType, module).ToList();
+				var members = InjectHelper.Inject(rt.GetRuntimeType("Confuser.Runtime.Lzma"), module.GlobalType, module).ToList();
 				MethodDef decomp = null;
-				foreach (IDnlibDef member in members) {
+				foreach (var member in members) {
 					if (member is MethodDef) {
 						var method = (MethodDef)member;
 						if (method.Access == MethodAttributes.Public)
@@ -79,7 +79,7 @@ namespace Confuser.Core.Services {
 				Debug.Assert(decomp != null);
 				return Tuple.Create(decomp, members);
 			});
-			foreach (IDnlibDef member in decompressor.Item2)
+			foreach (var member in decompressor.Item2)
             {
                 init(member);
             }
@@ -116,7 +116,7 @@ namespace Confuser.Core.Services {
 			encoder.WriteCoderProperties(x);
 			Int64 fileSize;
 			fileSize = data.Length;
-			for (int i = 0; i < 8; i++)
+			for (var i = 0; i < 8; i++)
             {
                 x.WriteByte((Byte)(fileSize >> (8 * i)));
             }
@@ -142,7 +142,7 @@ namespace Confuser.Core.Services {
 			}
 
 			public void SetProgress(long inSize, long outSize) {
-				double precentage = (double)inSize / size;
+				var precentage = (double)inSize / size;
 				progressFunc(precentage);
 			}
 		}

@@ -29,8 +29,8 @@ namespace Confuser.Renamer.Analyzers {
 						// A method in base type can implements an interface method for a
 						// derived type. If the base type/interface is not in our control, we should
 						// not rename the methods.
-						bool baseUnderCtrl = context.Modules.Contains(slot.MethodDef.DeclaringType.Module as ModuleDefMD);
-						bool ifaceUnderCtrl = context.Modules.Contains(slot.Overrides.MethodDef.DeclaringType.Module as ModuleDefMD);
+						var baseUnderCtrl = context.Modules.Contains(slot.MethodDef.DeclaringType.Module as ModuleDefMD);
+						var ifaceUnderCtrl = context.Modules.Contains(slot.Overrides.MethodDef.DeclaringType.Module as ModuleDefMD);
 						if ((!baseUnderCtrl && ifaceUnderCtrl) || !service.CanRename(slot.MethodDef)) {
 							service.SetCanRename(slot.Overrides.MethodDef, false);
 						}
@@ -48,7 +48,7 @@ namespace Confuser.Renamer.Analyzers {
                 }
 
                 vTbl = service.GetVTables()[method.DeclaringType];
-				VTableSignature sig = VTableSignature.FromMethod(method);
+				var sig = VTableSignature.FromMethod(method);
 				var slots = vTbl.FindSlots(method);
 
 				if (!method.IsAbstract) {

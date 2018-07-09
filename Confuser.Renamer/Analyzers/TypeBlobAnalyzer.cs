@@ -23,9 +23,9 @@ namespace Confuser.Renamer.Analyzers {
 			// MemberRef
 			table = module.TablesStream.Get(Table.Method);
 			len = table.Rows;
-			IEnumerable<MethodDef> methods = module.GetTypes().SelectMany(type => type.Methods);
-			foreach (MethodDef method in methods) {
-				foreach (MethodOverride methodImpl in method.Overrides) {
+			var methods = module.GetTypes().SelectMany(type => type.Methods);
+			foreach (var method in methods) {
+				foreach (var methodImpl in method.Overrides) {
 					if (methodImpl.MethodBody is MemberRef)
                     {
                         AnalyzeMemberRef(context, service, (MemberRef)methodImpl.MethodBody);
@@ -41,7 +41,7 @@ namespace Confuser.Renamer.Analyzers {
                     continue;
                 }
 
-                foreach (Instruction instr in method.Body.Instructions) {
+                foreach (var instr in method.Body.Instructions) {
 					if (instr.Operand is MemberRef)
                     {
                         AnalyzeMemberRef(context, service, (MemberRef)instr.Operand);
@@ -60,39 +60,39 @@ namespace Confuser.Renamer.Analyzers {
 			// CustomAttribute
 			table = module.TablesStream.Get(Table.CustomAttribute);
 			len = table.Rows;
-			IEnumerable<CustomAttribute> attrs = Enumerable.Range(1, (int)len)
+			var attrs = Enumerable.Range(1, (int)len)
 			                                               .Select(rid => module.ResolveHasCustomAttribute(module.TablesStream.ReadCustomAttributeRow((uint)rid).Parent))
 			                                               .Distinct()
 			                                               .SelectMany(owner => owner.CustomAttributes);
-			foreach (CustomAttribute attr in attrs) {
+			foreach (var attr in attrs) {
 				if (attr.Constructor is MemberRef)
                 {
                     AnalyzeMemberRef(context, service, (MemberRef)attr.Constructor);
                 }
 
-                foreach (CAArgument arg in attr.ConstructorArguments)
+                foreach (var arg in attr.ConstructorArguments)
                 {
                     AnalyzeCAArgument(context, service, arg);
                 }
 
-                foreach (CANamedArgument arg in attr.Fields)
+                foreach (var arg in attr.Fields)
                 {
                     AnalyzeCAArgument(context, service, arg.Argument);
                 }
 
-                foreach (CANamedArgument arg in attr.Properties)
+                foreach (var arg in attr.Properties)
                 {
                     AnalyzeCAArgument(context, service, arg.Argument);
                 }
 
-                TypeDef attrType = attr.AttributeType.ResolveTypeDefThrow();
+                var attrType = attr.AttributeType.ResolveTypeDefThrow();
 				if (!context.Modules.Contains((ModuleDefMD)attrType.Module))
                 {
                     continue;
                 }
 
-                foreach (CANamedArgument fieldArg in attr.Fields) {
-					FieldDef field = attrType.FindField(fieldArg.Name, new FieldSig(fieldArg.Type));
+                foreach (var fieldArg in attr.Fields) {
+					var field = attrType.FindField(fieldArg.Name, new FieldSig(fieldArg.Type));
 					if (field == null)
                     {
                         context.Logger.WarnFormat("Failed to resolve CA field '{0}::{1} : {2}'.", attrType, fieldArg.Name, fieldArg.Type);
@@ -102,8 +102,8 @@ namespace Confuser.Renamer.Analyzers {
                         service.AddReference(field, new CAMemberReference(fieldArg, field));
                     }
                 }
-				foreach (CANamedArgument propertyArg in attr.Properties) {
-					PropertyDef property = attrType.FindProperty(propertyArg.Name, new PropertySig(true, propertyArg.Type));
+				foreach (var propertyArg in attr.Properties) {
+					var property = attrType.FindProperty(propertyArg.Name, new PropertySig(true, propertyArg.Type));
 					if (property == null)
                     {
                         context.Logger.WarnFormat("Failed to resolve CA property '{0}::{1} : {2}'.", attrType, propertyArg.Name, propertyArg.Type);
@@ -127,8 +127,8 @@ namespace Confuser.Renamer.Analyzers {
 		void AnalyzeCAArgument(ConfuserContext context, INameService service, CAArgument arg) {
 			if (arg.Type.DefinitionAssembly.IsCorLib() && arg.Type.FullName == "System.Type") {
 				var typeSig = (TypeSig)arg.Value;
-				foreach (ITypeDefOrRef typeRef in typeSig.FindTypeRefs()) {
-					TypeDef typeDef = typeRef.ResolveTypeDefThrow();
+				foreach (var typeRef in typeSig.FindTypeRefs()) {
+					var typeDef = typeRef.ResolveTypeDefThrow();
 					if (context.Modules.Contains((ModuleDefMD)typeDef.Module)) {
 						if (typeRef is TypeRef)
                         {
@@ -140,7 +140,7 @@ namespace Confuser.Renamer.Analyzers {
 				}
 			}
 			else if (arg.Value is CAArgument[]) {
-				foreach (CAArgument elem in (CAArgument[])arg.Value)
+				foreach (var elem in (CAArgument[])arg.Value)
                 {
                     AnalyzeCAArgument(context, service, elem);
                 }
@@ -148,14 +148,14 @@ namespace Confuser.Renamer.Analyzers {
 		}
 
 		void AnalyzeMemberRef(ConfuserContext context, INameService service, MemberRef memberRef) {
-			ITypeDefOrRef declType = memberRef.DeclaringType;
+			var declType = memberRef.DeclaringType;
 			var typeSpec = declType as TypeSpec;
 			if (typeSpec == null || typeSpec.TypeSig.IsArray || typeSpec.TypeSig.IsSZArray)
             {
                 return;
             }
 
-            TypeSig sig = typeSpec.TypeSig;
+            var sig = typeSpec.TypeSig;
 			while (sig.Next != null)
             {
                 sig = sig.Next;
@@ -165,7 +165,7 @@ namespace Confuser.Renamer.Analyzers {
 			if (sig is GenericInstSig) {
 				var inst = (GenericInstSig)sig;
 				Debug.Assert(!(inst.GenericType.TypeDefOrRef is TypeSpec));
-				TypeDef openType = inst.GenericType.TypeDefOrRef.ResolveTypeDefThrow();
+				var openType = inst.GenericType.TypeDefOrRef.ResolveTypeDefThrow();
 				if (!context.Modules.Contains((ModuleDefMD)openType.Module) ||
 				    memberRef.IsArrayAccessors())
                 {

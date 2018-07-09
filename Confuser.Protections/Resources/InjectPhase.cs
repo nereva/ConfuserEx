@@ -59,7 +59,7 @@ namespace Confuser.Protections.Resources {
 				}
 
 				// Inject helpers
-				MethodDef decomp = compression.GetRuntimeDecompressor(context.CurrentModule, member => {
+				var decomp = compression.GetRuntimeDecompressor(context.CurrentModule, member => {
 					name.MarkHelper(member, marker, (Protection)Parent);
 					if (member is MethodDef)
                     {
@@ -71,7 +71,7 @@ namespace Confuser.Protections.Resources {
 				// Mutate codes
 				MutateInitializer(moduleCtx, decomp);
 
-				MethodDef cctor = context.CurrentModule.GlobalType.FindStaticConstructor();
+				var cctor = context.CurrentModule.GlobalType.FindStaticConstructor();
 				cctor.Body.Instructions.Insert(0, Instruction.Create(OpCodes.Call, moduleCtx.InitMethod));
 
 				new MDPhase(moduleCtx).Hook();
@@ -80,8 +80,8 @@ namespace Confuser.Protections.Resources {
 
 		void InjectHelpers(ConfuserContext context, ICompressionService compression, IRuntimeService rt, REContext moduleCtx) {
 			var rtName = context.Packer != null ? "Confuser.Runtime.Resource_Packer" : "Confuser.Runtime.Resource";
-			IEnumerable<IDnlibDef> members = InjectHelper.Inject(rt.GetRuntimeType(rtName), context.CurrentModule.GlobalType, context.CurrentModule);
-			foreach (IDnlibDef member in members) {
+			var members = InjectHelper.Inject(rt.GetRuntimeType(rtName), context.CurrentModule.GlobalType, context.CurrentModule);
+			foreach (var member in members) {
 				if (member.Name == "Initialize")
                 {
                     moduleCtx.InitMethod = (MethodDef)member;
@@ -111,15 +111,15 @@ namespace Confuser.Protections.Resources {
 
 		void MutateInitializer(REContext moduleCtx, MethodDef decomp) {
 			moduleCtx.InitMethod.Body.SimplifyMacros(moduleCtx.InitMethod.Parameters);
-			List<Instruction> instrs = moduleCtx.InitMethod.Body.Instructions.ToList();
-			for (int i = 0; i < instrs.Count; i++) {
-				Instruction instr = instrs[i];
+			var instrs = moduleCtx.InitMethod.Body.Instructions.ToList();
+			for (var i = 0; i < instrs.Count; i++) {
+				var instr = instrs[i];
 				var method = instr.Operand as IMethod;
 				if (instr.OpCode == OpCodes.Call) {
 					if (method.DeclaringType.Name == "Mutation" &&
 					    method.Name == "Crypt") {
-						Instruction ldBlock = instrs[i - 2];
-						Instruction ldKey = instrs[i - 1];
+						var ldBlock = instrs[i - 2];
+						var ldKey = instrs[i - 1];
 						Debug.Assert(ldBlock.OpCode == OpCodes.Ldloc && ldKey.OpCode == OpCodes.Ldloc);
 						instrs.RemoveAt(i);
 						instrs.RemoveAt(i - 1);
@@ -133,7 +133,7 @@ namespace Confuser.Protections.Resources {
 				}
 			}
 			moduleCtx.InitMethod.Body.Instructions.Clear();
-			foreach (Instruction instr in instrs)
+			foreach (var instr in instrs)
             {
                 moduleCtx.InitMethod.Body.Instructions.Add(instr);
             }

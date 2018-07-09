@@ -95,7 +95,7 @@ namespace Confuser.Protections.Constants {
 				var var = new Variable("{VAR}");
 				var result = new Variable("{RESULT}");
 
-				CorLibTypeSig int32 = ctx.Module.CorLibTypes.Int32;
+				var int32 = ctx.Module.CorLibTypes.Int32;
 				native = new MethodDefUser("", MethodSig.CreateStatic(int32, int32), MethodAttributes.PinvokeImpl | MethodAttributes.PrivateScope | MethodAttributes.Static);
 				native.ImplAttributes = MethodImplAttributes.Native | MethodImplAttributes.Unmanaged | MethodImplAttributes.PreserveSig;
 				// Attempt to improve performance --- failed with StackOverflowException... :/
@@ -133,7 +133,7 @@ namespace Confuser.Protections.Constants {
 					codeChunk = writer.MethodBodies.Add(new MethodBody(code));
 				}
 				else if (e.WriterEvent == ModuleWriterEvent.EndCalculateRvasAndFileOffsets) {
-					uint rid = writer.MetaData.GetRid(native);
+					var rid = writer.MetaData.GetRid(native);
 					writer.MetaData.TablesHeap.MethodTable[rid].RVA = (uint)codeChunk.RVA;
 				}
 			}

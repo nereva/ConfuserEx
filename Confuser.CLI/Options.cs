@@ -368,8 +368,8 @@ namespace NDesk.Options {
 
 		protected static T Parse<T> (string value, OptionContext c)
 		{
-			TypeConverter conv = TypeDescriptor.GetConverter (typeof (T));
-			T t = default (T);
+			var conv = TypeDescriptor.GetConverter (typeof (T));
+			var t = default (T);
 			try {
 				if (value != null)
                 {
@@ -393,16 +393,16 @@ namespace NDesk.Options {
 
 		private OptionValueType ParsePrototype ()
 		{
-			char type = '\0';
-			List<string> seps = new List<string> ();
-			for (int i = 0; i < names.Length; ++i) {
-				string name = names [i];
+			var type = '\0';
+			var seps = new List<string> ();
+			for (var i = 0; i < names.Length; ++i) {
+				var name = names [i];
 				if (name.Length == 0)
                 {
                     throw new ArgumentException ("Empty option names are not supported.", "prototype");
                 }
 
-                int end = name.IndexOfAny (NameTerminator);
+                var end = name.IndexOfAny (NameTerminator);
 				if (end == -1)
                 {
                     continue;
@@ -455,8 +455,8 @@ namespace NDesk.Options {
 
 		private static void AddSeparators (string name, int end, ICollection<string> seps)
 		{
-			int start = -1;
-			for (int i = end+1; i < name.Length; ++i) {
+			var start = -1;
+			for (var i = end+1; i < name.Length; ++i) {
 				switch (name [i]) {
 					case '{':
 						if (start != -1)
@@ -611,9 +611,9 @@ namespace NDesk.Options {
 		protected override void RemoveItem (int index)
 		{
 			base.RemoveItem (index);
-			Option p = Items [index];
+			var p = Items [index];
 			// KeyedCollection.RemoveItem() handles the 0th item
-			for (int i = 1; i < p.Names.Length; ++i) {
+			for (var i = 1; i < p.Names.Length; ++i) {
 				Dictionary.Remove (p.Names [i]);
 			}
 		}
@@ -632,16 +632,16 @@ namespace NDesk.Options {
                 throw new ArgumentNullException ("option");
             }
 
-            List<string> added = new List<string> (option.Names.Length);
+            var added = new List<string> (option.Names.Length);
 			try {
 				// KeyedCollection.InsertItem/SetItem handle the 0th name.
-				for (int i = 1; i < option.Names.Length; ++i) {
+				for (var i = 1; i < option.Names.Length; ++i) {
 					Dictionary.Add (option.Names [i], option);
 					added.Add (option.Names [i]);
 				}
 			}
 			catch (Exception) {
-				foreach (string name in added)
+				foreach (var name in added)
                 {
                     Dictionary.Remove (name);
                 }
@@ -810,12 +810,12 @@ namespace NDesk.Options {
 #else
 		public List<string> Parse (IEnumerable<string> arguments)
 		{
-			OptionContext c = CreateOptionContext ();
+			var c = CreateOptionContext ();
 			c.OptionIndex = -1;
-			bool process = true;
-			List<string> unprocessed = new List<string> ();
-			Option def = Contains ("<>") ? this ["<>"] : null;
-			foreach (string argument in arguments) {
+			var process = true;
+			var unprocessed = new List<string> ();
+			var def = Contains ("<>") ? this ["<>"] : null;
+			foreach (var argument in arguments) {
 				++c.OptionIndex;
 				if (argument == "--") {
 					process = false;
@@ -862,7 +862,7 @@ namespace NDesk.Options {
             }
 
             flag = name = sep = value = null;
-			Match m = ValueOption.Match (argument);
+			var m = ValueOption.Match (argument);
 			if (!m.Success) {
 				return false;
 			}
@@ -923,7 +923,7 @@ namespace NDesk.Options {
 		{
 			if (option != null)
             {
-                foreach (string o in c.Option.ValueSeparators != null 
+                foreach (var o in c.Option.ValueSeparators != null 
 						? option.Split (c.Option.ValueSeparators, StringSplitOptions.None)
 						: new string[]{option}) {
 					c.OptionValues.Add (o);
@@ -950,7 +950,7 @@ namespace NDesk.Options {
 			if (n.Length >= 1 && (n [n.Length-1] == '+' || n [n.Length-1] == '-') &&
 					Contains ((rn = n.Substring (0, n.Length-1)))) {
 				p = this [rn];
-				string v = n [n.Length-1] == '+' ? option : null;
+				var v = n [n.Length-1] == '+' ? option : null;
 				c.OptionName  = option;
 				c.Option      = p;
 				c.OptionValues.Add (v);
@@ -967,10 +967,10 @@ namespace NDesk.Options {
                 return false;
             }
 
-            for (int i = 0; i < n.Length; ++i) {
+            for (var i = 0; i < n.Length; ++i) {
 				Option p;
-				string opt = f + n [i].ToString ();
-				string rn = n [i].ToString ();
+				var opt = f + n [i].ToString ();
+				var rn = n [i].ToString ();
 				if (!Contains (rn)) {
 					if (i == 0)
                     {
@@ -987,7 +987,7 @@ namespace NDesk.Options {
 						break;
 					case OptionValueType.Optional:
 					case OptionValueType.Required: {
-						string v     = n.Substring (i+1);
+						var v     = n.Substring (i+1);
 						c.Option     = p;
 						c.OptionName = opt;
 						ParseValue (v.Length != 0 ? v : null, c);
@@ -1012,8 +1012,8 @@ namespace NDesk.Options {
 
 		public void WriteOptionDescriptions (TextWriter o)
 		{
-			foreach (Option p in this) {
-				int written = 0;
+			foreach (var p in this) {
+				var written = 0;
 				if (!WriteOptionPrototype (o, p, ref written))
                 {
                     continue;
@@ -1028,10 +1028,10 @@ namespace NDesk.Options {
 					o.Write (new string (' ', OptionWidth));
 				}
 
-				List<string> lines = GetLines (localizer (GetDescription (p.Description)));
+				var lines = GetLines (localizer (GetDescription (p.Description)));
 				o.WriteLine (lines [0]);
-				string prefix = new string (' ', OptionWidth+2);
-				for (int i = 1; i < lines.Count; ++i) {
+				var prefix = new string (' ', OptionWidth+2);
+				for (var i = 1; i < lines.Count; ++i) {
 					o.Write (prefix);
 					o.WriteLine (lines [i]);
 				}
@@ -1040,9 +1040,9 @@ namespace NDesk.Options {
 
 		bool WriteOptionPrototype (TextWriter o, Option p, ref int written)
 		{
-			string[] names = p.Names;
+			var names = p.Names;
 
-			int i = GetNextOptionIndex (names, 0);
+			var i = GetNextOptionIndex (names, 0);
 			if (i == names.Length)
             {
                 return false;
@@ -1070,10 +1070,10 @@ namespace NDesk.Options {
 					Write (o, ref written, localizer ("["));
 				}
 				Write (o, ref written, localizer ("=" + GetArgumentName (0, p.MaxValueCount, p.Description)));
-				string sep = p.ValueSeparators != null && p.ValueSeparators.Length > 0 
+				var sep = p.ValueSeparators != null && p.ValueSeparators.Length > 0 
 					? p.ValueSeparators [0]
 					: " ";
-				for (int c = 1; c < p.MaxValueCount; ++c) {
+				for (var c = 1; c < p.MaxValueCount; ++c) {
 					Write (o, ref written, localizer (sep + GetArgumentName (c, p.MaxValueCount, p.Description)));
 				}
 				if (p.OptionValueType == OptionValueType.Optional) {
@@ -1114,7 +1114,7 @@ namespace NDesk.Options {
                 nameStart = new string[]{"{" + index + ":"};
             }
 
-            for (int i = 0; i < nameStart.Length; ++i) {
+            for (var i = 0; i < nameStart.Length; ++i) {
 				int start, j = 0;
 				do {
 					start = description.IndexOf (nameStart [i], j);
@@ -1124,7 +1124,7 @@ namespace NDesk.Options {
                     continue;
                 }
 
-                int end = description.IndexOf ("}", start);
+                var end = description.IndexOf ("}", start);
 				if (end == -1)
                 {
                     continue;
@@ -1142,9 +1142,9 @@ namespace NDesk.Options {
                 return string.Empty;
             }
 
-            StringBuilder sb = new StringBuilder (description.Length);
-			int start = -1;
-			for (int i = 0; i < description.Length; ++i) {
+            var sb = new StringBuilder (description.Length);
+			var start = -1;
+			for (var i = 0; i < description.Length; ++i) {
 				switch (description [i]) {
 					case '{':
 						if (i == start) {
@@ -1194,18 +1194,18 @@ namespace NDesk.Options {
 
 		private static List<string> GetLines (string description)
 		{
-			List<string> lines = new List<string> ();
+			var lines = new List<string> ();
 			if (string.IsNullOrEmpty (description)) {
 				lines.Add (string.Empty);
 				return lines;
 			}
-			int length = 80 - OptionWidth - 2;
+			var length = 80 - OptionWidth - 2;
 			int start = 0, end;
 			do {
 				end = GetLineEnd (start, length, description);
-				bool cont = false;
+				var cont = false;
 				if (end < description.Length) {
-					char c = description [end];
+					var c = description [end];
 					if (c == '-' || (char.IsWhiteSpace (c) && c != '\n'))
                     {
                         ++end;
@@ -1230,9 +1230,9 @@ namespace NDesk.Options {
 
 		private static int GetLineEnd (int start, int length, string description)
 		{
-			int end = Math.Min (start + length, description.Length);
-			int sep = -1;
-			for (int i = start; i < end; ++i) {
+			var end = Math.Min (start + length, description.Length);
+			var sep = -1;
+			for (var i = start; i < end; ++i) {
 				switch (description [i]) {
 					case ' ':
 					case '\t':

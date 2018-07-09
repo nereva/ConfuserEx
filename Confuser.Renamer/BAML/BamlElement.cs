@@ -88,9 +88,9 @@ namespace Confuser.Renamer.BAML {
 			BamlElement current = null;
 			var stack = new Stack<BamlElement>();
 
-			for (int i = 0; i < document.Count; i++) {
+			for (var i = 0; i < document.Count; i++) {
 				if (IsHeader(document[i])) {
-					BamlElement prev = current;
+					var prev = current;
 
 					current = new BamlElement();
 					current.Header = document[i];

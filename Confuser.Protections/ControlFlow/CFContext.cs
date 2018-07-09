@@ -47,7 +47,7 @@ namespace Confuser.Protections.ControlFlow {
 						break;
 
 					case 2: // Take that, de4dot + ILSpy :)
-						bool addDefOk = false;
+						var addDefOk = false;
 						if (Random.NextBoolean()) {
 							TypeDef randomType;
 							randomType = Method.Module.Types[Random.NextInt32(Method.Module.Types.Count)];
@@ -63,7 +63,7 @@ namespace Confuser.Protections.ControlFlow {
 							instrs.Add(Instruction.Create(OpCodes.Ldc_I4, Random.NextBoolean() ? 0 : 1));
 							instrs.Add(Instruction.Create(OpCodes.Box, Method.Module.CorLibTypes.Int32.TypeDefOrRef));
 						}
-						Instruction pop = Instruction.Create(OpCodes.Pop);
+						var pop = Instruction.Create(OpCodes.Pop);
 						instrs.Add(Instruction.Create(OpCodes.Brfalse, instrs[0]));
 						instrs.Add(Instruction.Create(OpCodes.Ldc_I4, Random.NextBoolean() ? 0 : 1));
 						instrs.Add(pop);

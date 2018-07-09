@@ -30,7 +30,7 @@ namespace Confuser.Core {
 		static readonly string Copyright;
 
 		static ConfuserEngine() {
-			Assembly assembly = typeof(ConfuserEngine).Assembly;
+			var assembly = typeof(ConfuserEngine).Assembly;
 			var nameAttr = (ProductAttribute)assembly.GetCustomAttributes(typeof(ProductAttribute), false)[0];
 			var verAttr = (InformationalAttribute)assembly.GetCustomAttributes(typeof(InformationalAttribute), false)[0];
 			var cpAttr = (CopyrightAttribute)assembly.GetCustomAttributes(typeof(CopyrightAttribute), false)[0];
@@ -94,7 +94,7 @@ namespace Confuser.Core {
 
 			PrintInfo(context);
 
-			bool ok = false;
+			var ok = false;
 			try {
 				var asmResolver = new AssemblyResolver();
 				asmResolver.EnableTypeDefCache = true;
@@ -102,14 +102,14 @@ namespace Confuser.Core {
 				context.Resolver = asmResolver;
 				context.BaseDirectory = Path.Combine(Environment.CurrentDirectory, parameters.Project.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar);
 				context.OutputDirectory = Path.Combine(parameters.Project.BaseDirectory, parameters.Project.OutputDirectory.TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar);
-				foreach (string probePath in parameters.Project.ProbePaths)
+				foreach (var probePath in parameters.Project.ProbePaths)
                 {
                     asmResolver.PostSearchPaths.Insert(0, Path.Combine(context.BaseDirectory, probePath));
                 }
 
                 context.CheckCancellation();
 
-				Marker marker = parameters.GetMarker();
+				var marker = parameters.GetMarker();
 
 				// 2. Discover plugins
 				context.Logger.Debug("Discovering plugins...");
@@ -135,12 +135,12 @@ namespace Confuser.Core {
 				}
 
 				components.Insert(0, new CoreComponent(parameters, marker));
-				foreach (Protection prot in prots)
+				foreach (var prot in prots)
                 {
                     components.Add(prot);
                 }
 
-                foreach (Packer packer in packers)
+                foreach (var packer in packers)
                 {
                     components.Add(packer);
                 }
@@ -150,7 +150,7 @@ namespace Confuser.Core {
 				// 4. Load modules
 				context.Logger.Info("Loading input modules...");
 				marker.Initalize(prots, packers);
-				MarkerResult markings = marker.MarkProject(parameters.Project, context);
+				var markings = marker.MarkProject(parameters.Project, context);
 				context.Modules = new ModuleSorter(markings.Modules).Sort().ToList().AsReadOnly();
 				foreach (var module in context.Modules)
                 {
@@ -167,7 +167,7 @@ namespace Confuser.Core {
 
 				// 5. Initialize components
 				context.Logger.Info("Initializing...");
-				foreach (ConfuserComponent comp in components) {
+				foreach (var comp in components) {
 					try {
 						comp.Initialize(context);
 					}
@@ -184,7 +184,7 @@ namespace Confuser.Core {
 				context.Logger.Debug("Building pipeline...");
 				var pipeline = new ProtectionPipeline();
 				context.Pipeline = pipeline;
-				foreach (ConfuserComponent comp in components) {
+				foreach (var comp in components) {
 					comp.PopulatePipeline(pipeline);
 				}
 
@@ -244,7 +244,7 @@ namespace Confuser.Core {
 
 			var options = new ModuleWriterOptionsBase[context.Modules.Count];
 			var listeners = new ModuleWriterListener[context.Modules.Count];
-			for (int i = 0; i < context.Modules.Count; i++) {
+			for (var i = 0; i < context.Modules.Count; i++) {
 				context.CurrentModuleIndex = i;
 				context.CurrentModuleWriterOptions = null;
 				context.CurrentModuleWriterListener = null;
@@ -258,7 +258,7 @@ namespace Confuser.Core {
 				listeners[i] = context.CurrentModuleWriterListener;
 			}
 
-			for (int i = 0; i < context.Modules.Count; i++) {
+			for (var i = 0; i < context.Modules.Count; i++) {
 				context.CurrentModuleIndex = i;
 				context.CurrentModuleWriterOptions = options[i];
 				context.CurrentModuleWriterListener = listeners[i];
@@ -290,7 +290,7 @@ namespace Confuser.Core {
 			foreach (var dependency in context.Modules
 			                                  .SelectMany(module => module.GetAssemblyRefs().Select(asmRef => Tuple.Create(asmRef, module)))) {
 				try {
-					AssemblyDef assembly = context.Resolver.ResolveThrow(dependency.Item1, dependency.Item2);
+					var assembly = context.Resolver.ResolveThrow(dependency.Item1, dependency.Item2);
 				}
 				catch (AssemblyResolveException ex) {
 					context.Logger.ErrorException("Failed to resolve dependency of '" + dependency.Item2.Name + "'.", ex);
@@ -299,7 +299,7 @@ namespace Confuser.Core {
 			}
 
 			context.Logger.Debug("Checking Strong Name...");
-			foreach (ModuleDefMD module in context.Modules) {
+			foreach (var module in context.Modules) {
 				var snKey = context.Annotations.Get<StrongNameKey>(module, Marker.SNKey);
 				if (snKey == null && module.IsStrongNameSigned)
                 {
@@ -319,15 +319,15 @@ namespace Confuser.Core {
 			var marker = context.Registry.GetService<IMarkerService>();
 
 			context.Logger.Debug("Creating global .cctors...");
-			foreach (ModuleDefMD module in context.Modules) {
-				TypeDef modType = module.GlobalType;
+			foreach (var module in context.Modules) {
+				var modType = module.GlobalType;
 				if (modType == null) {
 					modType = new TypeDefUser("", "<Module>", null);
 					modType.Attributes = TypeAttributes.AnsiClass;
 					module.Types.Add(modType);
 					marker.Mark(modType, null);
 				}
-				MethodDef cctor = modType.FindOrCreateStaticConstructor();
+				var cctor = modType.FindOrCreateStaticConstructor();
 				if (!marker.IsMarked(cctor))
                 {
                     marker.Mark(cctor, null);
@@ -335,8 +335,8 @@ namespace Confuser.Core {
             }
 
 			context.Logger.Debug("Watermarking...");
-			foreach (ModuleDefMD module in context.Modules) {
-				TypeRef attrRef = module.CorLibTypes.GetTypeRef("System", "Attribute");
+			foreach (var module in context.Modules) {
+				var attrRef = module.CorLibTypes.GetTypeRef("System", "Attribute");
 				var attrType = new TypeDefUser("", "ConfusedByAttribute", attrRef);
 				module.Types.Add(attrType);
 				marker.Mark(attrType, null);
@@ -389,9 +389,9 @@ namespace Confuser.Core {
             var snKey = context.Annotations.Get<StrongNameKey>(context.CurrentModule, Marker.SNKey);
 			context.CurrentModuleWriterOptions.InitializeStrongNameSigning(context.CurrentModule, snKey);
 
-			foreach (TypeDef type in context.CurrentModule.GetTypes())
+			foreach (var type in context.CurrentModule.GetTypes())
             {
-                foreach (MethodDef method in type.Methods) {
+                foreach (var method in type.Methods) {
 					if (method.Body != null) {
 						method.Body.Instructions.SimplifyMacros(method.Body.Variables, method.Parameters);
 					}
@@ -402,9 +402,9 @@ namespace Confuser.Core {
 		static void ProcessModule(ConfuserContext context) { }
 
 		static void OptimizeMethods(ConfuserContext context) {
-			foreach (TypeDef type in context.CurrentModule.GetTypes())
+			foreach (var type in context.CurrentModule.GetTypes())
             {
-                foreach (MethodDef method in type.Methods) {
+                foreach (var method in type.Methods) {
 					if (method.Body != null)
                     {
                         method.Body.Instructions.OptimizeMacros();
@@ -414,7 +414,7 @@ namespace Confuser.Core {
         }
 
 		static void EndModule(ConfuserContext context) {
-			string output = context.Modules[context.CurrentModuleIndex].Location;
+			var output = context.Modules[context.CurrentModuleIndex].Location;
 			if (output != null) {
 				if (!Path.IsPathRooted(output))
                 {
@@ -459,14 +459,14 @@ namespace Confuser.Core {
 
 		static void Debug(ConfuserContext context) {
 			context.Logger.Info("Finalizing...");
-			for (int i = 0; i < context.OutputModules.Count; i++) {
+			for (var i = 0; i < context.OutputModules.Count; i++) {
 				if (context.OutputSymbols[i] == null)
                 {
                     continue;
                 }
 
-                string path = Path.GetFullPath(Path.Combine(context.OutputDirectory, context.OutputPaths[i]));
-				string dir = Path.GetDirectoryName(path);
+                var path = Path.GetFullPath(Path.Combine(context.OutputDirectory, context.OutputPaths[i]));
+				var dir = Path.GetDirectoryName(path);
 				if (!Directory.Exists(dir))
                 {
                     Directory.CreateDirectory(dir);
@@ -485,9 +485,9 @@ namespace Confuser.Core {
 
 		static void SaveModules(ConfuserContext context) {
 			context.Resolver.Clear();
-			for (int i = 0; i < context.OutputModules.Count; i++) {
-				string path = Path.GetFullPath(Path.Combine(context.OutputDirectory, context.OutputPaths[i]));
-				string dir = Path.GetDirectoryName(path);
+			for (var i = 0; i < context.OutputModules.Count; i++) {
+				var path = Path.GetFullPath(Path.Combine(context.OutputDirectory, context.OutputPaths[i]));
+				var dir = Path.GetDirectoryName(path);
 				if (!Directory.Exists(dir))
                 {
                     Directory.CreateDirectory(dir);
@@ -509,7 +509,7 @@ namespace Confuser.Core {
 			else {
 				context.Logger.InfoFormat("{0} {1}", Version, Copyright);
 
-				Type mono = Type.GetType("Mono.Runtime");
+				var mono = Type.GetType("Mono.Runtime");
 				context.Logger.InfoFormat("Running on {0}, {1}, {2} bits",
 				                          Environment.OSVersion,
 				                          mono == null ?
@@ -522,19 +522,19 @@ namespace Confuser.Core {
 		static IEnumerable<string> GetFrameworkVersions() {
 			// http://msdn.microsoft.com/en-us/library/hh925568.aspx
 
-			using (RegistryKey ndpKey =
+			using (var ndpKey =
 				RegistryKey.OpenRemoteBaseKey(RegistryHive.LocalMachine, "").
 				            OpenSubKey(@"SOFTWARE\Microsoft\NET Framework Setup\NDP\")) {
-				foreach (string versionKeyName in ndpKey.GetSubKeyNames()) {
+				foreach (var versionKeyName in ndpKey.GetSubKeyNames()) {
 					if (!versionKeyName.StartsWith("v"))
                     {
                         continue;
                     }
 
-                    RegistryKey versionKey = ndpKey.OpenSubKey(versionKeyName);
+                    var versionKey = ndpKey.OpenSubKey(versionKeyName);
 					var name = (string)versionKey.GetValue("Version", "");
-					string sp = versionKey.GetValue("SP", "").ToString();
-					string install = versionKey.GetValue("Install", "").ToString();
+					var sp = versionKey.GetValue("SP", "").ToString();
+					var install = versionKey.GetValue("Install", "").ToString();
 					if (install == "" || sp != "" && install == "1")
                     {
                         yield return versionKeyName + "  " + name;
@@ -545,8 +545,8 @@ namespace Confuser.Core {
                         continue;
                     }
 
-                    foreach (string subKeyName in versionKey.GetSubKeyNames()) {
-						RegistryKey subKey = versionKey.OpenSubKey(subKeyName);
+                    foreach (var subKeyName in versionKey.GetSubKeyNames()) {
+						var subKey = versionKey.OpenSubKey(subKeyName);
 						name = (string)subKey.GetValue("Version", "");
 						if (name != "")
                         {
@@ -567,7 +567,7 @@ namespace Confuser.Core {
 				}
 			}
 
-			using (RegistryKey ndpKey =
+			using (var ndpKey =
 				RegistryKey.OpenRemoteBaseKey(RegistryHive.LocalMachine, "").
 				            OpenSubKey(@"SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full\")) {
 				if (ndpKey.GetValue("Release") == null)
@@ -593,14 +593,14 @@ namespace Confuser.Core {
             context.Logger.Error("---BEGIN DEBUG INFO---");
 
 			context.Logger.Error("Installed Framework Versions:");
-			foreach (string ver in GetFrameworkVersions()) {
+			foreach (var ver in GetFrameworkVersions()) {
 				context.Logger.ErrorFormat("    {0}", ver.Trim());
 			}
 			context.Logger.Error("");
 
 			if (context.Resolver != null) {
 				context.Logger.Error("Cached assemblies:");
-				foreach (AssemblyDef asm in context.Resolver.GetCachedAssemblies()) {
+				foreach (var asm in context.Resolver.GetCachedAssemblies()) {
 					if (string.IsNullOrEmpty(asm.ManifestModule.Location))
                     {
                         context.Logger.ErrorFormat("    {0}", asm.FullName);

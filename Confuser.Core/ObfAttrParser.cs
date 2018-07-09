@@ -98,7 +98,7 @@ namespace Confuser.Core {
 			var state = ParseState.Init;
 			var buffer = new StringBuilder();
 
-			bool protAct = true;
+			var protAct = true;
 			string protId = null;
 			var protParams = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 

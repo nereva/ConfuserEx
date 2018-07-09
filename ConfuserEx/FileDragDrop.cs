@@ -18,7 +18,7 @@ namespace ConfuserEx {
 			data => {
 				Debug.Assert(data.Item2.GetDataPresent(DataFormats.FileDrop));
 				if (data.Item1 is TextBox) {
-					string file = ((string[])data.Item2.GetData(DataFormats.FileDrop))[0];
+					var file = ((string[])data.Item2.GetData(DataFormats.FileDrop))[0];
 					Debug.Assert(File.Exists(file));
 					((TextBox)data.Item1).Text = file;
 				}
@@ -26,7 +26,7 @@ namespace ConfuserEx {
 					var files = (string[])data.Item2.GetData(DataFormats.FileDrop);
 					Debug.Assert(files.All(file => File.Exists(file)));
 					var list = (IList<StringItem>)((ListBox)data.Item1).ItemsSource;
-					foreach (string file in files)
+					foreach (var file in files)
                     {
                         list.Add(new StringItem(file));
                     }
@@ -49,7 +49,7 @@ namespace ConfuserEx {
 			data => {
 				Debug.Assert(data.Item2.GetDataPresent(DataFormats.FileDrop));
 				if (data.Item1 is TextBox) {
-					string dir = ((string[])data.Item2.GetData(DataFormats.FileDrop))[0];
+					var dir = ((string[])data.Item2.GetData(DataFormats.FileDrop))[0];
 					Debug.Assert(Directory.Exists(dir));
 					((TextBox)data.Item1).Text = dir;
 				}
@@ -57,7 +57,7 @@ namespace ConfuserEx {
 					var dirs = (string[])data.Item2.GetData(DataFormats.FileDrop);
 					Debug.Assert(dirs.All(dir => Directory.Exists(dir)));
 					var list = (IList<StringItem>)((ListBox)data.Item1).ItemsSource;
-					foreach (string dir in dirs)
+					foreach (var dir in dirs)
                     {
                         list.Add(new StringItem(dir));
                     }
@@ -98,7 +98,7 @@ namespace ConfuserEx {
 		}
 
 		static void OnDragOver(object sender, DragEventArgs e) {
-			ICommand cmd = GetCommand((DependencyObject)sender);
+			var cmd = GetCommand((DependencyObject)sender);
 			e.Effects = DragDropEffects.None;
 			if (cmd is DragDropCommand) {
 				if (cmd.CanExecute(Tuple.Create((UIElement)sender, e.Data)))
@@ -116,7 +116,7 @@ namespace ConfuserEx {
 		}
 
 		static void OnDrop(object sender, DragEventArgs e) {
-			ICommand cmd = GetCommand((DependencyObject)sender);
+			var cmd = GetCommand((DependencyObject)sender);
 			if (cmd is DragDropCommand) {
 				if (cmd.CanExecute(Tuple.Create((UIElement)sender, e.Data)))
                 {

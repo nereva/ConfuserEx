@@ -32,12 +32,12 @@ namespace Confuser.Renamer {
 		protected override void Execute(ConfuserContext context, ProtectionParameters parameters) {
 			var service = (NameService)context.Registry.GetService<INameService>();
 			context.Logger.Debug("Building VTables & identifier list...");
-			foreach (IDnlibDef def in parameters.Targets.WithProgress(context.Logger)) {
+			foreach (var def in parameters.Targets.WithProgress(context.Logger)) {
 				ParseParameters(def, context, service, parameters);
 
 				if (def is ModuleDef) {
 					var module = (ModuleDef)def;
-					foreach (Resource res in module.Resources)
+					foreach (var res in module.Resources)
                     {
                         service.SetOriginalName(res, res.Name);
                     }
@@ -56,8 +56,8 @@ namespace Confuser.Renamer {
 
 			context.Logger.Debug("Analyzing...");
 			RegisterRenamers(context, service);
-			IList<IRenamer> renamers = service.Renamers;
-			foreach (IDnlibDef def in parameters.Targets.WithProgress(context.Logger)) {
+			var renamers = service.Renamers;
+			foreach (var def in parameters.Targets.WithProgress(context.Logger)) {
 				Analyze(service, context, parameters, def, true);
 				context.CheckCancellation();
 			}
@@ -153,7 +153,7 @@ namespace Confuser.Renamer {
                 return;
             }
 
-            foreach (IRenamer renamer in service.Renamers)
+            foreach (var renamer in service.Renamers)
             {
                 renamer.Analyze(context, service, parameters, def);
             }

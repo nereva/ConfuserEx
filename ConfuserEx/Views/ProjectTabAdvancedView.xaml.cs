@@ -23,7 +23,7 @@ namespace ConfuserEx.Views {
 				ofd.Filter = ".NET assemblies (*.exe, *.dll)|*.exe;*.dll|All Files (*.*)|*.*";
 				ofd.Multiselect = true;
 				if (ofd.ShowDialog() ?? false) {
-					foreach (string plugin in ofd.FileNames) {
+					foreach (var plugin in ofd.FileNames) {
 						try {
 							ComponentDiscovery.LoadComponents(project.Protections, project.Packers, plugin);
 							project.Plugins.Add(new StringItem(plugin));
@@ -36,10 +36,10 @@ namespace ConfuserEx.Views {
 			});
 
 			RemovePlugin.Command = new RelayCommand(() => {
-				int selIndex = PluginPaths.SelectedIndex;
+				var selIndex = PluginPaths.SelectedIndex;
 				Debug.Assert(selIndex != -1);
 
-				string plugin = project.Plugins[selIndex].Item;
+				var plugin = project.Plugins[selIndex].Item;
 				ComponentDiscovery.RemoveComponents(project.Protections, project.Packers, plugin);
 				project.Plugins.RemoveAt(selIndex);
 
@@ -56,7 +56,7 @@ namespace ConfuserEx.Views {
             });
 
 			RemoveProbe.Command = new RelayCommand(() => {
-				int selIndex = ProbePaths.SelectedIndex;
+				var selIndex = ProbePaths.SelectedIndex;
 				Debug.Assert(selIndex != -1);
 				project.ProbePaths.RemoveAt(selIndex);
 				ProbePaths.SelectedIndex = selIndex >= project.ProbePaths.Count ? project.ProbePaths.Count - 1 : selIndex;

@@ -125,8 +125,8 @@ namespace Confuser.Runtime {
 		}
 
 		private static IntPtr GetMax(Dictionary<IntPtr, int> addresses, int minCount) {
-			IntPtr foundAddr = IntPtr.Zero;
-			int maxCount = 0;
+			var foundAddr = IntPtr.Zero;
+			var maxCount = 0;
 
 			foreach (var kv in addresses) {
 				if (foundAddr == IntPtr.Zero || maxCount < kv.Value) {
@@ -173,7 +173,7 @@ namespace Confuser.Runtime {
 			}
 
 			public override bool Init() {
-				bool result = FindProfilerStatus();
+				var result = FindProfilerStatus();
 				wasAttached = IsProfilerAttached();
 				return result;
 			}
@@ -187,7 +187,7 @@ namespace Confuser.Runtime {
 				// Record each hit here and pick the one with the most hits
 				var addrCounts = new Dictionary<IntPtr, int>();
 				try {
-					PEInfo peInfo = PEInfo.GetCLR();
+					var peInfo = PEInfo.GetCLR();
 					if (peInfo == null)
                     {
                         return false;
@@ -202,7 +202,7 @@ namespace Confuser.Runtime {
 
                     const int MAX_COUNTS = 50;
 					var p = (byte*)sectionAddr;
-					byte* end = (byte*)sectionAddr + sectionSize;
+					var end = (byte*)sectionAddr + sectionSize;
 					for (; p < end; p++) {
 						IntPtr addr;
 
@@ -239,7 +239,7 @@ namespace Confuser.Runtime {
 							continue;
 						}
 
-						int count = 0;
+						var count = 0;
 						addrCounts.TryGetValue(addr, out count);
 						count++;
 						addrCounts[addr] = count;
@@ -250,7 +250,7 @@ namespace Confuser.Runtime {
                     }
 				}
 				catch { }
-				IntPtr foundAddr = GetMax(addrCounts, 5);
+				var foundAddr = GetMax(addrCounts, 5);
 				if (foundAddr == IntPtr.Zero)
                 {
                     return false;
@@ -340,7 +340,7 @@ namespace Confuser.Runtime {
 			}
 
 			public override bool Init() {
-				bool result = FindProfilerControlBlock();
+				var result = FindProfilerControlBlock();
 				result &= TakeOwnershipOfNamedPipe() || CreateNamedPipe();
 				result &= PatchAttacherThreadProc();
 				wasAttached = IsProfilerAttached();
@@ -375,8 +375,8 @@ namespace Confuser.Runtime {
                     //	  timeout error.
                     //	- Wait a little while until the thread has exited
 
-                    IntPtr threadingModeAddr = FindThreadingModeAddress();
-					IntPtr timeOutOptionAddr = FindTimeOutOptionAddress();
+                    var threadingModeAddr = FindThreadingModeAddress();
+					var timeOutOptionAddr = FindTimeOutOptionAddress();
 
 					if (timeOutOptionAddr == IntPtr.Zero)
                     {
@@ -396,7 +396,7 @@ namespace Confuser.Runtime {
 					// close the pipe so it will fail to read any data. It will then start over
 					// again but this time, its timeout value will be 0, and it will fail. Since
 					// the thread can now exit, it will exit and close its named pipe.
-					using (SafeFileHandle hPipe = CreatePipeFileHandleWait()) {
+					using (var hPipe = CreatePipeFileHandleWait()) {
 						if (hPipe == null)
                         {
                             return false;
@@ -415,7 +415,7 @@ namespace Confuser.Runtime {
 			}
 
 			private bool CreateNamedPipeWait() {
-				int timeLeft = 100;
+				var timeLeft = 100;
 				const int waitTime = 5;
 				while (timeLeft > 0) {
 					if (CreateNamedPipe())
@@ -447,12 +447,12 @@ namespace Confuser.Runtime {
 				}
 
 				// Rename the option to make sure the user can't override the value
-				char* name = *(char**)((byte*)timeOutOptionAddr + ConfigDWORDInfo_name);
+				var name = *(char**)((byte*)timeOutOptionAddr + ConfigDWORDInfo_name);
 				var nameAddr = new IntPtr(name);
 				VirtualProtect(nameAddr, ProfAPIMaxWaitForTriggerMs_name.Length * 2, PAGE_EXECUTE_READWRITE, out oldProtect);
 				try {
 					var rand = new Random();
-					for (int i = 0; i < ProfAPIMaxWaitForTriggerMs_name.Length; i++)
+					for (var i = 0; i < ProfAPIMaxWaitForTriggerMs_name.Length; i++)
                     {
                         name[i] = (char)rand.Next(1, ushort.MaxValue);
                     }
@@ -463,7 +463,7 @@ namespace Confuser.Runtime {
 			}
 
 			private SafeFileHandle CreatePipeFileHandleWait() {
-				int timeLeft = 100;
+				var timeLeft = 100;
 				const int waitTime = 5;
 				while (timeLeft > 0) {
 					if (CreateNamedPipe())
@@ -471,7 +471,7 @@ namespace Confuser.Runtime {
                         return null;
                     }
 
-                    SafeFileHandle hFile = CreatePipeFileHandle();
+                    var hFile = CreatePipeFileHandle();
 					if (!hFile.IsInvalid)
                     {
                         return hFile;
@@ -527,7 +527,7 @@ namespace Confuser.Runtime {
 					//	74 / 0F 84 XX			je there
 					//	48+r / FF C8+r			dec reg
 
-					PEInfo peInfo = PEInfo.GetCLR();
+					var peInfo = PEInfo.GetCLR();
 					if (peInfo == null)
                     {
                         return IntPtr.Zero;
@@ -541,13 +541,13 @@ namespace Confuser.Runtime {
                     }
 
                     var ptr = (byte*)sectionAddr;
-					byte* end = (byte*)sectionAddr + sectionSize;
+					var end = (byte*)sectionAddr + sectionSize;
 					for (; ptr < end; ptr++) {
 						IntPtr addr;
 
 						try {
 							//	83 3D XX XX XX XX 02	cmp dword ptr [mem],2
-							byte* p = ptr;
+							var p = ptr;
 							if (*p != 0x83 || p[1] != 0x3D || p[6] != 2)
                             {
                                 continue;
@@ -599,8 +599,8 @@ namespace Confuser.Runtime {
                                 p += 3;
 							}
 							else if (*p == 0x85) {
-								int reg = (p[1] >> 3) & 7;
-								int rm = p[1] & 7;
+								var reg = (p[1] >> 3) & 7;
+								var rm = p[1] & 7;
 								if (reg != rm)
                                 {
                                     continue;
@@ -653,7 +653,7 @@ namespace Confuser.Runtime {
 			[HandleProcessCorruptedStateExceptions, SecurityCritical] // Req'd on .NET 4.0
 			private static unsafe IntPtr FindTimeOutOptionAddress() {
 				try {
-					PEInfo peInfo = PEInfo.GetCLR();
+					var peInfo = PEInfo.GetCLR();
 					if (peInfo == null)
                     {
                         return IntPtr.Zero;
@@ -668,10 +668,10 @@ namespace Confuser.Runtime {
                     }
 
                     var p = (byte*)sectionAddr;
-					byte* end = (byte*)sectionAddr + sectionSize;
+					var end = (byte*)sectionAddr + sectionSize;
 					for (; p < end; p++) {
 						try {
-							char* name = *(char**)(p + ConfigDWORDInfo_name);
+							var name = *(char**)(p + ConfigDWORDInfo_name);
 							if (!PEInfo.IsAligned(new IntPtr(name), 2))
                             {
                                 continue;
@@ -697,7 +697,7 @@ namespace Confuser.Runtime {
 			}
 
 			private static unsafe bool Equals(char* s1, string s2) {
-				for (int i = 0; i < s2.Length; i++) {
+				for (var i = 0; i < s2.Length; i++) {
 					if (char.ToUpperInvariant(s1[i]) != char.ToUpperInvariant(s2[i]))
                     {
                         return false;
@@ -756,7 +756,7 @@ namespace Confuser.Runtime {
 			/// <returns><c>true</c> if it was patched, <c>false</c> otherwise</returns>
 			[HandleProcessCorruptedStateExceptions, SecurityCritical] // Req'd on .NET 4.0
 			private unsafe bool PatchAttacherThreadProc() {
-				IntPtr threadProc = FindAttacherThreadProc();
+				var threadProc = FindAttacherThreadProc();
 				if (threadProc == IntPtr.Zero)
                 {
                     return false;
@@ -792,7 +792,7 @@ namespace Confuser.Runtime {
 			[HandleProcessCorruptedStateExceptions, SecurityCritical] // Req'd on .NET 4.0
 			private unsafe IntPtr FindAttacherThreadProc() {
 				try {
-					PEInfo peInfo = PEInfo.GetCLR();
+					var peInfo = PEInfo.GetCLR();
 					if (peInfo == null)
                     {
                         return IntPtr.Zero;
@@ -806,8 +806,8 @@ namespace Confuser.Runtime {
                     }
 
                     var p = (byte*)sectionAddr;
-					byte* start = p;
-					byte* end = (byte*)sectionAddr + sectionSize;
+					var start = p;
+					var end = (byte*)sectionAddr + sectionSize;
 
 					if (IntPtr.Size == 4) {
 						for (; p < end; p++) {
@@ -820,7 +820,7 @@ namespace Confuser.Runtime {
 							//	50+r				push reg
 							//	FF 15 XX XX XX XX	call dword ptr [mem] // CreateThread()
 
-							byte push = *p;
+							var push = *p;
 							if (push < 0x50 || push > 0x57)
                             {
                                 continue;
@@ -918,7 +918,7 @@ namespace Confuser.Runtime {
                     }
 
                     // It has a constant that is present in the first N bytes
-                    for (int i = 0; i < 0x20; i++) {
+                    for (var i = 0; i < 0x20; i++) {
 						if (*(uint*)(p + i) == 0x4000)
                         {
                             return true;
@@ -939,7 +939,7 @@ namespace Confuser.Runtime {
 				// Record each hit here and pick the one with the most hits
 				var addrCounts = new Dictionary<IntPtr, int>();
 				try {
-					PEInfo peInfo = PEInfo.GetCLR();
+					var peInfo = PEInfo.GetCLR();
 					if (peInfo == null)
                     {
                         return false;
@@ -954,7 +954,7 @@ namespace Confuser.Runtime {
 
                     const int MAX_COUNTS = 50;
 					var p = (byte*)sectionAddr;
-					byte* end = (byte*)sectionAddr + sectionSize;
+					var end = (byte*)sectionAddr + sectionSize;
 					for (; p < end; p++) {
 						IntPtr addr;
 
@@ -1021,7 +1021,7 @@ namespace Confuser.Runtime {
 							continue;
 						}
 
-						int count = 0;
+						var count = 0;
 						addrCounts.TryGetValue(addr, out count);
 						count++;
 						addrCounts[addr] = count;
@@ -1032,7 +1032,7 @@ namespace Confuser.Runtime {
                     }
 				}
 				catch { }
-				IntPtr foundAddr = GetMax(addrCounts, 5);
+				var foundAddr = GetMax(addrCounts, 5);
 				if (foundAddr == IntPtr.Zero)
                 {
                     return false;

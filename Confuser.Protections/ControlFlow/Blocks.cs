@@ -56,7 +56,7 @@ namespace Confuser.Protections.ControlFlow {
             }
 
             ret.AppendLine("{");
-			foreach (BlockBase child in Children)
+			foreach (var child in Children)
             {
                 ret.Append(child);
             }
@@ -66,7 +66,7 @@ namespace Confuser.Protections.ControlFlow {
 		}
 
 		public Instruction GetFirstInstr() {
-			BlockBase firstBlock = Children.First();
+			var firstBlock = Children.First();
 			if (firstBlock is ScopeBlock)
             {
                 return ((ScopeBlock)firstBlock).GetFirstInstr();
@@ -76,7 +76,7 @@ namespace Confuser.Protections.ControlFlow {
 		}
 
 		public Instruction GetLastInstr() {
-			BlockBase firstBlock = Children.Last();
+			var firstBlock = Children.Last();
 			if (firstBlock is ScopeBlock)
             {
                 return ((ScopeBlock)firstBlock).GetLastInstr();
@@ -100,7 +100,7 @@ namespace Confuser.Protections.ControlFlow {
 				}
 			}
 
-			foreach (BlockBase block in Children)
+			foreach (var block in Children)
             {
                 block.ToBody(body);
             }
@@ -117,7 +117,7 @@ namespace Confuser.Protections.ControlFlow {
 
 		public override string ToString() {
 			var ret = new StringBuilder();
-			foreach (Instruction instr in Instructions)
+			foreach (var instr in Instructions)
             {
                 ret.AppendLine(instr.ToString());
             }
@@ -126,7 +126,7 @@ namespace Confuser.Protections.ControlFlow {
 		}
 
 		public override void ToBody(CilBody body) {
-			foreach (Instruction instr in Instructions)
+			foreach (var instr in Instructions)
             {
                 body.Instructions.Add(instr);
             }

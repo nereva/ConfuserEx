@@ -35,8 +35,8 @@ namespace Confuser.Runtime {
 		/// </summary>
 		/// <returns><c>true</c> if successful, <c>false</c> otherwise</returns>
 		private static unsafe bool InitializeAntiDebugger() {
-			Info info = GetInfo();
-			IntPtr pDebuggerRCThread = FindDebuggerRCThreadAddress(info);
+			var info = GetInfo();
+			var pDebuggerRCThread = FindDebuggerRCThreadAddress(info);
 			if (pDebuggerRCThread == IntPtr.Zero)
             {
                 return false;
@@ -58,7 +58,7 @@ namespace Confuser.Runtime {
 
 			// Signal debugger thread to exit
 			*((byte*)pDebuggerRCThread + info.DebuggerRCThread_shouldKeepLooping) = 0;
-			IntPtr hEvent = *(IntPtr*)((byte*)pDebuggerRCThread + info.DebuggerRCThread_hEvent1);
+			var hEvent = *(IntPtr*)((byte*)pDebuggerRCThread + info.DebuggerRCThread_hEvent1);
 			SetEvent(hEvent);
 
 			return true;
@@ -89,10 +89,10 @@ namespace Confuser.Runtime {
 		/// <param name="info">The debugger info we need</param>
 		[HandleProcessCorruptedStateExceptions, SecurityCritical] // Req'd on .NET 4.0
 		private static unsafe IntPtr FindDebuggerRCThreadAddress(Info info) {
-			uint pid = GetCurrentProcessId();
+			var pid = GetCurrentProcessId();
 
 			try {
-				PEInfo peInfo = PEInfo.GetCLR();
+				var peInfo = PEInfo.GetCLR();
 				if (peInfo == null)
                 {
                     return IntPtr.Zero;
@@ -107,9 +107,9 @@ namespace Confuser.Runtime {
 
                 // Try to find the Debugger instance location in the data section
                 var p = (byte*)sectionAddr;
-				byte* end = (byte*)sectionAddr + sectionSize;
+				var end = (byte*)sectionAddr + sectionSize;
 				for (; p + IntPtr.Size <= end; p += IntPtr.Size) {
-					IntPtr pDebugger = *(IntPtr*)p;
+					var pDebugger = *(IntPtr*)p;
 					if (pDebugger == IntPtr.Zero)
                     {
                         continue;
@@ -123,13 +123,13 @@ namespace Confuser.Runtime {
                         }
 
                         // Make sure pid is correct
-                        uint pid2 = *(uint*)((byte*)pDebugger + info.Debugger_pid);
+                        var pid2 = *(uint*)((byte*)pDebugger + info.Debugger_pid);
 						if (pid != pid2)
                         {
                             continue;
                         }
 
-                        IntPtr pDebuggerRCThread = *(IntPtr*)((byte*)pDebugger + info.Debugger_pDebuggerRCThread);
+                        var pDebuggerRCThread = *(IntPtr*)((byte*)pDebugger + info.Debugger_pDebuggerRCThread);
 
 						// All allocations are pointer-size aligned
 						if (!PEInfo.IsAlignedPointer(pDebuggerRCThread))
@@ -138,7 +138,7 @@ namespace Confuser.Runtime {
                         }
 
                         // Make sure it points back to Debugger
-                        IntPtr pDebugger2 = *(IntPtr*)((byte*)pDebuggerRCThread + info.DebuggerRCThread_pDebugger);
+                        var pDebugger2 = *(IntPtr*)((byte*)pDebuggerRCThread + info.DebuggerRCThread_pDebugger);
 						if (pDebugger != pDebugger2)
                         {
                             continue;
